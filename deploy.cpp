@@ -50,7 +50,6 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         results<<"\n"<<Consumers[k].node_NO<<" "<<k<<" "<<Consumers[k].need_bandwidth;
     }
     char* topo_file=(char *)results.str().c_str();
-    cout<<topo_file;
 
     //alarm定时器，捕捉SIGALRM信号
     //捕捉函数用 signal(SIGALRM, funcPtr);
