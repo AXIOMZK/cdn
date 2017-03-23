@@ -24,10 +24,10 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     read >> network_nodes >> links >> consumer_nodes;
     vector<vector<NetsInfo>> Nets(network_nodes, vector<NetsInfo>(network_nodes));
     vector<ResumeInfo> Consumers(consumer_nodes);
-    int cost = atoi(topo[2]);
+//    int cost = atoi(topo[2]);
     for (unsigned long i = 4; i < 4 + links; ++i)
     {
-        int start_node, end_node, total_bandwidth, network_hire;
+        double start_node, end_node;int total_bandwidth, network_hire;
         stringstream read2(topo[i]);
         read2 >> start_node >> end_node >> total_bandwidth >> network_hire;
         Nets[start_node][end_node].total_bandwidth = total_bandwidth;
@@ -50,9 +50,10 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         results<<"\n"<<Consumers[k].node_NO<<" "<<k<<" "<<Consumers[k].need_bandwidth;
     }
     char* topo_file=(char *)results.str().c_str();
+    cout<<topo_file;
 
-
-
+    //alarm定时器，捕捉SIGALRM信号
+    //捕捉函数用 signal(SIGALRM, funcPtr);
     // 需要输出的内容
 //    char *topo_file = (char *) "17\n\n0 8 0 20\n21 8 0 20\n9 11 1 13\n21 22 2 20\n23 22 2 8\n1 3 3 11\n24 3 3 17\n27 3 3 26\n24 3 3 10\n18 17 4 11\n1 19 5 26\n1 16 6 15\n15 13 7 13\n4 5 8 18\n2 25 9 15\n0 7 10 10\n23 24 11 23";
 
