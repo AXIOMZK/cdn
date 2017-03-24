@@ -25,6 +25,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     vector<vector<NetsInfo>> Nets(network_nodes, vector<NetsInfo>(network_nodes));
     vector<ResumeInfo> Consumers(consumer_nodes);
 //    int cost = atoi(topo[2]);
+
     for (unsigned long i = 4; i < 4 + links; ++i)
     {
         double start_node, end_node;int total_bandwidth, network_hire;
@@ -49,8 +50,11 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     {
         results<<"\n"<<Consumers[k].node_NO<<" "<<k<<" "<<Consumers[k].need_bandwidth;
     }
-    char* topo_file=(char *)results.str().c_str();
-
+    const string& str2 = results.str();
+    const char* topo_file = str2.c_str();
+//    char* topo_file=(char *)results.str().c_str();//这是错误的
+//streamstring在调用str()时，会返回临时的string对象。而因为是临时的对象，所以它在整个表达式结束后将会被析构。
+ //   如果需要进一步操作string对象，先把其值赋给一个string变量后再操作。
     //alarm定时器，捕捉SIGALRM信号
     //捕捉函数用 signal(SIGALRM, funcPtr);
     // 需要输出的内容
