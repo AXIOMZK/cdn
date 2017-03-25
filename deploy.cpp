@@ -1,66 +1,70 @@
 #include "deploy.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <queue>
 #include <iostream>
-#include <sstream>
-#include <vector>
 
 using namespace std;
-//你要完成的功能总入口
-struct NetsInfo
-{
-    int total_bandwidth = 0;
-    int remaining_bandwidth = 0;
-    int network_hire = 0;
-};
-struct ResumeInfo
-{
-    int node_NO;
-    int need_bandwidth;
-};
 
-void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
+void deploy_server(char * topo[MAX_EDGE_NUM], int line_num,char * filename)
 {
-    unsigned long links, consumer_nodes, network_nodes;
-    stringstream read(topo[0]);
-    read >> network_nodes >> links >> consumer_nodes;
-    vector<vector<NetsInfo>> Nets(network_nodes, vector<NetsInfo>(network_nodes));
-    vector<ResumeInfo> Consumers(consumer_nodes);
-//    int cost = atoi(topo[2]);
+    int consumerNum = 0;
+    char *c;
+    int spaceCount = 0;
 
-    for (unsigned long i = 4; i < 4 + links; ++i)
+    c = topo[0];
+
+    while (*c != '\0' && *c != '\n' && *c != '\r')
     {
-        double start_node, end_node;int total_bandwidth, network_hire;
-        stringstream read2(topo[i]);
-        read2 >> start_node >> end_node >> total_bandwidth >> network_hire;
-        Nets[start_node][end_node].total_bandwidth = total_bandwidth;
-        Nets[start_node][end_node].remaining_bandwidth = total_bandwidth;
-        Nets[start_node][end_node].network_hire = network_hire;
-    }
-    for (unsigned long j = 5 + links; j < 5 + links + consumer_nodes; ++j)
-    {
-        int num, node_NO, need_bandwidth;
-        stringstream read2(topo[j]);
-        read2 >> num >> node_NO >> need_bandwidth;
-        Consumers[num].need_bandwidth = need_bandwidth;
-        Consumers[num].node_NO = node_NO;
+        if (*c == ' ')
+        {
+            c++;
+            spaceCount++;
+            continue;
+        }
+        if (spaceCount == 2)
+        {
+            consumerNum = *c - '0' + consumerNum * 10;
+        }
+        c++;
     }
 
-    stringstream results;
-    results << consumer_nodes<<"\n";
-    for (unsigned long k = 0; k < consumer_nodes; ++k)
-    {
-        results<<"\n"<<Consumers[k].node_NO<<" "<<k<<" "<<Consumers[k].need_bandwidth;
-    }
-    const string& str2 = results.str();
-    const char* topo_file = str2.c_str();
-//    char* topo_file=(char *)results.str().c_str();//这是错误的
-//streamstring在调用str()时，会返回临时的string对象。而因为是临时的对象，所以它在整个表达式结束后将会被析构。
- //   如果需要进一步操作string对象，先把其值赋给一个string变量后再操作。
-    //alarm定时器，捕捉SIGALRM信号
-    //捕捉函数用 signal(SIGALRM, funcPtr);
-    // 需要输出的内容
-//    char *topo_file = (char *) "17\n\n0 8 0 20\n21 8 0 20\n9 11 1 13\n21 22 2 20\n23 22 2 8\n1 3 3 11\n24 3 3 17\n27 3 3 26\n24 3 3 10\n18 17 4 11\n1 19 5 26\n1 16 6 15\n15 13 7 13\n4 5 8 18\n2 25 9 15\n0 7 10 10\n23 24 11 23";
+    string res;
+    char a[20];
+    sprintf(a, "%d\n\n",consumerNum);
+    res = a;
+    int netnode, need;
 
-    // 直接调用输出文件的方法输出到指定文件中(ps请注意格式的正确性，如果有解，第一行只有一个数据；第二行为空；第三行开始才是具体的数据，数据之间用一个空格分隔开)
+    for (int i = 1; i < consumerNum+1; i++)
+    {
+        c = topo[line_num-i];
+        netnode = need = spaceCount = 0;
+        while (*c != '\0' && *c != '\n' && *c != '\r')
+        {
+            if (*c == ' ')
+            {
+                c++;
+                spaceCount++;
+                continue;
+            }
+            if (spaceCount == 1)
+            {
+                netnode = *c - '0' + netnode * 10;
+            }
+            else if (spaceCount == 2)
+            {
+                need = *c - '0' + need * 10;
+            }
+            c++;
+        }
+        sprintf(a, "%d %d %d",netnode,consumerNum-i,need);
+        res += a;
+        if (i != consumerNum)
+        {
+            res += "\n";
+        }
+    }
+
+    char * topo_file = (char *)res.c_str();
     write_result(topo_file, filename);
-
 }

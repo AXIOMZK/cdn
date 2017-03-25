@@ -1,6 +1,11 @@
 # CMake 最低版本号要求
 cmake_minimum_required(VERSION 2.8)
 
+#编译目标环境、编译器及其路径设置
+#SET(CMAKE_SYSTEM_NAME Linux)
+SET(CMAKE_C_COMPILER   /usr/local/Cellar/gcc@4.8/4.8.5/bin/gcc-4.8)
+SET(CMAKE_CXX_COMPILER /usr/local/Cellar/gcc@4.8/4.8.5/bin/g++-4.8)
+set(CMAKE_FIND_ROOT_PATH /usr/local/Cellar/gcc@4.8/4.8.5)
 # 项目信息
 project(cdn)
 
@@ -11,7 +16,7 @@ include_directories(${PROJECT_SOURCE_DIR}/lib)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/../bin)
 
 # 生成debug版本
-SET(CMAKE_BUILD_TYPE "release")
+SET(CMAKE_BUILD_TYPE "debug")
 if (CMAKE_BUILD_TYPE STREQUAL debug)
     add_definitions(-D_DEBUG)
 endif ()
