@@ -4,7 +4,7 @@
 #include <vector>
 
 using namespace std;
-//你要完成的功能总入口
+//C++整数规划+模拟退火方案
 struct NetsInfo
 {
     int total_bandwidth = 0;
