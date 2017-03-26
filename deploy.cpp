@@ -5,7 +5,7 @@
 #include <iostream>
 
 using namespace std;
-
+//C直连方案
 void deploy_server(char * topo[MAX_EDGE_NUM], int line_num,char * filename)
 {
     int consumerNum = 0;
