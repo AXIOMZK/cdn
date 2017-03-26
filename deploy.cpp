@@ -4,7 +4,7 @@
 #include <vector>
 
 using namespace std;
-//你要完成的功能总入口
+//C++直连方案
 struct NetsInfo
 {
     int total_bandwidth = 0;
