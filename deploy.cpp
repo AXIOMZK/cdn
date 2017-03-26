@@ -24,7 +24,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     read >> network_nodes >> links >> consumer_nodes;
     vector<vector<NetsInfo>> Nets(network_nodes, vector<NetsInfo>(network_nodes));
     vector<ResumeInfo> Consumers(consumer_nodes);
-//    int cost = atoi(topo[2]);
+    int cost = atoi(topo[2]);
 
     for (unsigned long i = 4; i < 4 + links; ++i)
     {
