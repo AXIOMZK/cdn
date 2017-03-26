@@ -29,8 +29,9 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     for (unsigned long i = 4; i < 4 + links; ++i)
     {
         double start_node, end_node;int total_bandwidth, network_hire;
-        stringstream read2(topo[i]);
-        read2 >> start_node >> end_node >> total_bandwidth >> network_hire;
+        read.str("");
+        read<<topo[i];
+        read >> start_node >> end_node >> total_bandwidth >> network_hire;
         Nets[start_node][end_node].total_bandwidth = total_bandwidth;
         Nets[start_node][end_node].remaining_bandwidth = total_bandwidth;
         Nets[start_node][end_node].network_hire = network_hire;
@@ -38,20 +39,23 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     for (unsigned long j = 5 + links; j < 5 + links + consumer_nodes; ++j)
     {
         int num, node_NO, need_bandwidth;
-        stringstream read2(topo[j]);
-        read2 >> num >> node_NO >> need_bandwidth;
+        read.str("");
+        read<<topo[j];
+        read >> num >> node_NO >> need_bandwidth;
         Consumers[num].need_bandwidth = need_bandwidth;
         Consumers[num].node_NO = node_NO;
     }
 
-    stringstream results;
+    read.str("");
+    stringstream &results=read;
     results << consumer_nodes<<"\n";
     for (unsigned long k = 0; k < consumer_nodes; ++k)
     {
         results<<"\n"<<Consumers[k].node_NO<<" "<<k<<" "<<Consumers[k].need_bandwidth;
     }
-    const string& str2 = results.str();
-    const char* topo_file = str2.c_str();
+    const string& strtemp = results.str();
+    char* topo_file = (char *) strtemp.c_str();
+
 //    char* topo_file=(char *)results.str().c_str();//这是错误的
 //streamstring在调用str()时，会返回临时的string对象。而因为是临时的对象，所以它在整个表达式结束后将会被析构。
  //   如果需要进一步操作string对象，先把其值赋给一个string变量后再操作。
