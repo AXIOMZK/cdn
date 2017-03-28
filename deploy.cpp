@@ -18,7 +18,7 @@ int getServerCost(vector<SeverNoAndAroundBandwidth> &v)
 }
 
 //得到新服务器编号(变异)
-set<SeverNoAndAroundBandwidth> getNewServe(const set<SeverNoAndAroundBandwidth> &oldServe)
+set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &oldServe)
 {
     int size = (int) oldServe.size();
     auto newServe = oldServe;
@@ -85,13 +85,7 @@ set<SeverNoAndAroundBandwidth> getNewServe(const set<SeverNoAndAroundBandwidth> 
     return newServe;
 }
 
-struct Bandwidth_From_Small_To_Big
-{
-    bool operator()(const SeverNoAndAroundBandwidth &left, const SeverNoAndAroundBandwidth &right) const
-    {
-        return (left.ServeAroundBandwidth < right.ServeAroundBandwidth);
-    }
-};
+
 
 void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 {
@@ -157,26 +151,28 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     //模拟退火
     double t = T;
     srand((unsigned int) time(NULL));
-    Path curPath = path;
-    Path newPath = path;
+    auto curSever = SeverNo;
+    auto newSever = SeverNo;
+    auto bestSever;
+
     int P_L = 0;
     int P_F = 0;
     while (1)       //外循环，主要更新参数t，模拟退火过程
     {
         for (int i = 0; i < ILOOP; i++)    //内循环，寻找在一定温度下的最优值
         {
-            newPath = GetNext(curPath, n);
-            double dE = newPath.len - curPath.len;
+            newSever = getNewServe(curSever);
+            double dE = newSever.len - curSever.len;
             if (dE < 0)   //如果找到更优值，直接更新
             {
-                curPath = newPath;
+                curSever = newSever;
                 P_L = 0;
                 P_F = 0;
             } else
             {
                 double rd = rand() / (RAND_MAX + 1.0);
                 if (exp(dE / t) > rd && exp(dE / t) < 1)   //如果找到比当前更差的解，以一定概率接受该解，并且这个概率会越来越小
-                    curPath = newPath;
+                    curSever = newSever;
                 P_L++;
             }
             if (P_L > LIMIT)
@@ -185,8 +181,8 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                 break;
             }
         }
-        if (curPath.len < newPath.len)
-            path = curPath;
+        if (curSever.len < newSever.len)
+            bestSever = curSever;
         if (P_F > OLOOP || t < EPS)
             break;
         t *= DELTA;
@@ -202,6 +198,14 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     }
     const string &strtemp = results.str();
     char *topo_file = (char *) strtemp.c_str();
+
+
+
+
+
+
+
+
 
 
 

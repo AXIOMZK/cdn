@@ -1,6 +1,7 @@
 #ifndef __ROUTE_H__
 #define __ROUTE_H__
 
+#include <cmath>
 #include "lib_io.h"
 #include <iostream>
 #include <sstream>
@@ -28,6 +29,13 @@ struct ResumeInfo
     int node_NO;//消费节点连接的网络节点编号
     int need_bandwidth;//需求带宽
 };
+struct Bandwidth_From_Small_To_Big
+{
+    bool operator()(const SeverNoAndAroundBandwidth &left, const SeverNoAndAroundBandwidth &right) const
+    {
+        return (left.ServeAroundBandwidth < right.ServeAroundBandwidth);
+    }
+};
 int SeverCost;//单台服务器成本
 unsigned long maxServer;//最大服务器数，即消费节点数
 unsigned long links, consumer_nodes, network_nodes;//链路数，消费节点数，网络节点数
@@ -41,7 +49,7 @@ void deploy_server(char *graph[MAX_EDGE_NUM], int edge_num, char *filename);
 void timer(int sig);
 
 int getServerCost(vector<SeverNoAndAroundBandwidth> &v);//得到部署服务器的成本
-set<SeverNoAndAroundBandwidth> getNewServe(set<SeverNoAndAroundBandwidth> &oldServe);
+set<SeverNoAndAroundBandwidth,Bandwidth_From_Small_To_Big> getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &oldServe);
 //模拟退火产生新的服务器编号组合
 
 #endif
