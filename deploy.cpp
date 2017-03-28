@@ -17,8 +17,11 @@ int getServerCost(vector<SeverNoAndAroundBandwidth> &v)
     return SeverCost * (int) v.size();
 }
 
+//消费节点总需求
+
 //得到新服务器编号(变异)
-set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &oldServe)
+set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>
+getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &oldServe)
 {
     int size = (int) oldServe.size();
     auto newServe = oldServe;
@@ -82,9 +85,23 @@ set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> getNewServe(const se
             newServe.insert(pair);
         }
     }
+    //分支限界：
+    // 1、服务器总数不超过消费节点数
+    if (newServe.size() > maxServer)
+    {
+        newServe = getNewServe(oldServe);
+        return newServe;
+    }
+    // 2、服务器总供给不小于总需求
+    int t_provide = 0;
+    for (auto item = newServe.begin(); item != newServe.end(); ++item)
+    {
+        t_provide += (*item).ServeAroundBandwidth;
+    }
+    if (t_provide < TotalNeed)
+        newServe = getNewServe(oldServe);
     return newServe;
 }
-
 
 
 void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
@@ -94,6 +111,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     alarm(80); //定时80s
 
     stringstream read(topo[0]);
+    //unsigned long links, consumer_nodes, network_nodes;//链路数，消费节点数，网络节点数
     read >> network_nodes >> links >> consumer_nodes;
     maxServer = consumer_nodes;
     SeverCost = atoi(topo[2]);
@@ -109,6 +127,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         Nets[start_node][end_node].remaining_bandwidth = total_bandwidth;
         Nets[start_node][end_node].network_hire = network_hire;
     }
+    TotalNeed = 0;//消费节点总需求
     for (unsigned long j = 5 + links; j < 5 + links + consumer_nodes; ++j)
     {
         int num, node_NO, need_bandwidth;
@@ -117,6 +136,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         read >> num >> node_NO >> need_bandwidth;
         Consumers[num].need_bandwidth = need_bandwidth;
         Consumers[num].node_NO = node_NO;
+        TotalNeed += need_bandwidth;
     }
 
     //得到服务器节点可能的最大输出带宽
@@ -127,8 +147,12 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         {
             AroundBandwidth += Nets[i][j].total_bandwidth;
         }
+        //vector<int> ServeAroundBandwidth(network_nodes);//序号为服务器所连的节点号，值为评估带宽
         ServeAroundBandwidth.push_back(AroundBandwidth);
     }
+
+
+
 
     //服务器初始编号，即直连方案编号，外加一个参考可能提供带宽量,按带宽从小到大排序
     set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> SeverNo;
@@ -140,7 +164,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         SeverNo.insert(pair);
     }
 
-#define N     30      //城市数量
+
 #define T     3000    //初始温度
 #define EPS   1e-8    //终止温度
 #define DELTA 0.98    //温度衰减率

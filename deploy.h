@@ -36,6 +36,7 @@ struct Bandwidth_From_Small_To_Big
         return (left.ServeAroundBandwidth < right.ServeAroundBandwidth);
     }
 };
+double TotalNeed;//所有消费节点总需求
 int SeverCost;//单台服务器成本
 unsigned long maxServer;//最大服务器数，即消费节点数
 unsigned long links, consumer_nodes, network_nodes;//链路数，消费节点数，网络节点数
