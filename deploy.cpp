@@ -18,10 +18,9 @@ int getServerCost(vector<SeverNoAndAroundBandwidth> &v)
 }
 
 //得到新服务器编号(变异)
-
-set<SeverNoAndAroundBandwidth> getNewServe(set<SeverNoAndAroundBandwidth> &oldServe)
+set<SeverNoAndAroundBandwidth> getNewServe(const set<SeverNoAndAroundBandwidth> &oldServe)
 {
-    int size= (int) oldServe.size();
+    int size = (int) oldServe.size();
     auto newServe = oldServe;
     srand((unsigned int) time(NULL));
     int flag = 1 + rand() % 5;
@@ -41,18 +40,49 @@ set<SeverNoAndAroundBandwidth> getNewServe(set<SeverNoAndAroundBandwidth> &oldSe
     } else if (flag == 3)
     {
         //随机添加一个服务器
-        int pos = (int) (rand() % newServe.size());
-
-        auto it = newServe.begin();
-
+        int temp_size = (int) newServe.size();
+        while (newServe.size() == temp_size)
+        {
+            int pos = (int) (rand() % network_nodes);
+            SeverNoAndAroundBandwidth pair;
+            pair.ServerNo = pos;
+            pair.ServeAroundBandwidth = ServeAroundBandwidth[pos];
+            newServe.insert(pair);
+        }
     } else if (flag == 4)
     {
-
-
+        //随机添加一个服务器,再删除最小的服务器
+        int temp_size = (int) newServe.size();
+        while (newServe.size() == temp_size)
+        {
+            int pos = (int) (rand() % network_nodes);
+            SeverNoAndAroundBandwidth pair;
+            pair.ServerNo = pos;
+            pair.ServeAroundBandwidth = ServeAroundBandwidth[pos];
+            newServe.insert(pair);
+        }
+        newServe.erase(newServe.begin());
     } else
     {
+        //随机删除t1个服务器,再随机添加t2个服务器
+        int temp_size = (int) newServe.size();
+        int t1 = (int) (rand() % newServe.size());
+        int t2 = (int) (rand() % newServe.size());
+        for (int i = 0; i < t1; ++i)
+        {
+            newServe.erase(newServe.begin());
+        }
 
+        while (newServe.size() == temp_size - t1 + t2)
+        {
+            int pos = (int) (rand() % network_nodes);
+            SeverNoAndAroundBandwidth pair;
+            pair.ServerNo = pos;
+            pair.ServeAroundBandwidth = ServeAroundBandwidth[pos];
+            newServe.insert(pair);
+        }
     }
+    return newServe;
 }
 
 struct Bandwidth_From_Small_To_Big
@@ -107,13 +137,59 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     }
 
     //服务器初始编号，即直连方案编号，外加一个参考可能提供带宽量,按带宽从小到大排序
-    set<SeverNoAndAroundBandwidth,Bandwidth_From_Small_To_Big> SeverNo;
+    set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> SeverNo;
     for (int l = 0; l < Consumers.size(); ++l)
     {
         SeverNoAndAroundBandwidth pair;
         pair.ServerNo = l;
         pair.ServeAroundBandwidth = ServeAroundBandwidth[l];
         SeverNo.insert(pair);
+    }
+
+#define N     30      //城市数量
+#define T     3000    //初始温度
+#define EPS   1e-8    //终止温度
+#define DELTA 0.98    //温度衰减率
+#define LIMIT 10000   //概率选择上限
+#define OLOOP 1000    //外循环次数
+#define ILOOP 15000   //内循环次数
+
+    //模拟退火
+    double t = T;
+    srand((unsigned int) time(NULL));
+    Path curPath = path;
+    Path newPath = path;
+    int P_L = 0;
+    int P_F = 0;
+    while (1)       //外循环，主要更新参数t，模拟退火过程
+    {
+        for (int i = 0; i < ILOOP; i++)    //内循环，寻找在一定温度下的最优值
+        {
+            newPath = GetNext(curPath, n);
+            double dE = newPath.len - curPath.len;
+            if (dE < 0)   //如果找到更优值，直接更新
+            {
+                curPath = newPath;
+                P_L = 0;
+                P_F = 0;
+            } else
+            {
+                double rd = rand() / (RAND_MAX + 1.0);
+                if (exp(dE / t) > rd && exp(dE / t) < 1)   //如果找到比当前更差的解，以一定概率接受该解，并且这个概率会越来越小
+                    curPath = newPath;
+                P_L++;
+            }
+            if (P_L > LIMIT)
+            {
+                P_F++;
+                break;
+            }
+        }
+        if (curPath.len < newPath.len)
+            path = curPath;
+        if (P_F > OLOOP || t < EPS)
+            break;
+        t *= DELTA;
     }
 
 
