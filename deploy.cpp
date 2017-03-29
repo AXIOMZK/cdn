@@ -7,6 +7,7 @@
 #define OLOOP 1000    //外循环次数
 #define ILOOP 15000   //内循环次数
 
+#include "MCMF.h"
 using namespace std;
 //C++整数规划+模拟退火方案
 
@@ -121,7 +122,7 @@ getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &o
 }
 
 
-int getTotalLinksCosts()
+/*int getTotalLinksCosts()
 {
 
     int distance[maxpoint];
@@ -178,7 +179,7 @@ int getTotalLinksCosts()
     }
     //遍历结束后输出总费用
     return printvalues();
-}
+}*/
 
 
 void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
@@ -242,6 +243,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     maxpoint = (int) (network_nodes + 2);
 
 
+
 //定义cost邻接矩阵
 //    vector<vector<int >> mapscost(network_nodes + 2,vector<int >(network_nodes + 2));
 //    vector<vector<int >> mapswidth(network_nodes + 2,vector<int >(network_nodes + 2));
@@ -254,7 +256,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 
 
     //模拟退火
-    double t = T;
+   /* double t = T;
     srand((unsigned int) time(NULL));
     auto curSever = SeverNo;
     auto newSever = SeverNo;
@@ -291,7 +293,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         if (P_F > OLOOP || t < EPS)
             break;
         t *= DELTA;
-    }
+    }*/
 
 
     read.str("");
@@ -319,7 +321,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 
 }
 
-int InitMap(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &SeverNo)
+/*int InitMap(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &SeverNo)
 {
     //消费节点连接的网络节点编号
     vector<int> ConsumerNum;
@@ -477,10 +479,10 @@ int InitMap(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &S
     }
     int totalCost = getServerCost(SeverNo) + getTotalLinksCosts();
     return totalCost;
-}
+}*/
 
 
-void Dijkstra(const int numOfVertex, const int startVertex, vector<vector<int >> map, int *distance, int *prevVertex)
+/*void Dijkstra(const int numOfVertex, const int startVertex, vector<vector<int >> map, int *distance, int *prevVertex)
 {
     vector<bool> isInS;                 //是否已经在S集合中
     isInS.reserve(0);
@@ -490,7 +492,7 @@ void Dijkstra(const int numOfVertex, const int startVertex, vector<vector<int >>
     //每次开始执行后设置为不能执行
     //stop=true;
 
-    /*初始化distance和prevVertex数组*/
+    *//*初始化distance和prevVertex数组*//*
     for (int i = 0; i < numOfVertex; ++i)
     {
         distance[i] = map[startVertex][i];
@@ -501,7 +503,7 @@ void Dijkstra(const int numOfVertex, const int startVertex, vector<vector<int >>
     }
     prevVertex[startVertex] = -1;
 
-    /*开始使用贪心思想循环处理不在S集合中的每一个节点*/
+    *//*开始使用贪心思想循环处理不在S集合中的每一个节点*//*
     isInS[startVertex] = true;          //开始节点放入S集合中
 
 
@@ -510,7 +512,7 @@ void Dijkstra(const int numOfVertex, const int startVertex, vector<vector<int >>
     for (int i = 1; i < numOfVertex; i++)      //这里循环从1开始是因为开始节点已经存放在S中了，还有numOfVertex-1个节点要处理
     {
 
-        /*选择distance最小的一个节点*/
+        *//*选择distance最小的一个节点*//*
         int nextVertex = u;
         int tempDistance = INT_MAX;
         for (int j = 0; j < numOfVertex; ++j)
@@ -534,7 +536,7 @@ void Dijkstra(const int numOfVertex, const int startVertex, vector<vector<int >>
         if (nextVertex == maxpoint - 1) { break; }
 
 
-        /*更新distance*/
+        *//*更新distance*//*
 
         //如果
 
@@ -676,6 +678,6 @@ void decreaseandprintf(int array[], vector<int> trace, int distance[])
             //输出各节点损耗
             printvalues();
     }
-}
+}*/
 
 

@@ -46,9 +46,9 @@ unsigned long links, consumer_nodes, network_nodes;//链路数，消费节点数
 vector<int> ServeAroundBandwidth(network_nodes);//序号为服务器所连的节点号，值为评估带宽
 vector<vector<LinkInfo>> Nets(network_nodes, vector<LinkInfo>(network_nodes));
 vector<ResumeInfo> Consumers(consumer_nodes);//vector序号为消费节点编号
-vector<vector<int >> mapscost(network_nodes + 2,vector<int >(network_nodes + 2));
-vector<vector<int >> mapswidth(network_nodes + 2,vector<int >(network_nodes + 2));
-vector<int> values(consumer_nodes);
+//vector<vector<int >> mapscost(network_nodes + 2,vector<int >(network_nodes + 2));
+//vector<vector<int >> mapswidth(network_nodes + 2,vector<int >(network_nodes + 2));
+//vector<int> values(consumer_nodes);
 
 //判断某点是否在vector中
 bool isInVector(const vector<int> vec, const int a);
