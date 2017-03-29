@@ -1,7 +1,5 @@
 #include "deploy.h"
-#include "lib_io.h"
 #include "lib_time.h"
-#include "stdio.h"
 
 int main(int argc, char *argv[])
 {
@@ -9,7 +7,8 @@ int main(int argc, char *argv[])
     char *topo[MAX_EDGE_NUM];
     int line_num;
 
-    char *topo_file = argv[1];
+//    char *topo_file = argv[1];
+    char *topo_file = (char *) "/Users/kingzhang.cn/Desktop/HUAWEI/case_example/0/case0.txt";
 
     line_num = read_file(topo, MAX_EDGE_NUM, topo_file);
 
@@ -20,7 +19,8 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    char *result_file = argv[2];
+//    char *result_file = argv[2];
+    char *result_file = (char *) "/Users/kingzhang.cn/Desktop/Mac_Result.txt";
 
     deploy_server(topo, line_num, result_file);
 
