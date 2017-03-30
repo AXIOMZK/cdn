@@ -20,8 +20,8 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
         SeverNum.insert((*it).ServerNo);
     }
 
-    mapscost.resize(network_nodes + 2,vector<int >(network_nodes + 2));
-    mapswidth.resize(network_nodes + 2,vector<int >(network_nodes + 2));
+    mapscost.resize(network_nodes + 2, vector<int>(network_nodes + 2));
+    mapswidth.resize(network_nodes + 2, vector<int>(network_nodes + 2));
 
     for (int i = 0; i < network_nodes + 2; i++)
     {
@@ -164,13 +164,13 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
             }
         }
     }
-    for (int l = 0; l <network_nodes + 2 ; ++l)
+    for (int l = 0; l < network_nodes + 2; ++l)
     {
         for (int i = 0; i < network_nodes + 2; ++i)
         {
-            cout<<mapswidth[l][i]<<" ";
+            cout << mapswidth[l][i] << " ";
         }
-        cout<<endl;
+        cout << endl;
     }
 }
 
@@ -181,10 +181,10 @@ void MCMF::setConsumersAndNets(const vector<ResumeInfo> &Consumers, const vector
     this->Nets = Nets;
     consumer_nodes = Consumers.size();
     network_nodes = Nets.size();
+    maxServer = consumer_nodes;
 }
 
-MCMF::MCMF():mapscost(network_nodes + 2,vector<int >(network_nodes + 2)),mapswidth(network_nodes + 2,vector<int >(network_nodes + 2)) {
-
+MCMF::MCMF()  {
 }
 
 //得到新服务器编号(变异)
@@ -211,7 +211,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
     } else if (flag == 3)
     {
         //随机添加一个服务器
-        unsigned long temp_size =  newServe.size();
+        unsigned long temp_size = newServe.size();
         while (newServe.size() == temp_size)
         {
             int pos = (int) (rand() % network_nodes);
@@ -305,3 +305,10 @@ set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> MCMF::getSeverNo()
     }
     return SeverNo;
 }
+
+void MCMF::setSeverCostAndTotalNeed(int SeverCost, double TotalNeed)
+{
+    MCMF::SeverCost = SeverCost;
+    MCMF::TotalNeed = TotalNeed;
+}
+

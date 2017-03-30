@@ -55,6 +55,13 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     }
 
     //TODO:接入MCMF类
+    MCMF curSever;
+    curSever.setConsumersAndNets(Consumers,Nets);
+    curSever.setSeverCostAndTotalNeed(SeverCost,TotalNeed);
+    curSever.setServeAroundBandwidth();
+
+    curSever.getNewServe(curSever.getSeverNo());
+
 
 
 

@@ -29,6 +29,7 @@ struct ResumeInfo
     int node_NO;//消费节点连接的网络节点编号
     int need_bandwidth;//需求带宽
 };
+
 struct Bandwidth_From_Small_To_Big
 {
     bool operator()(const SeverNoAndAroundBandwidth &left, const SeverNoAndAroundBandwidth &right) const
@@ -36,30 +37,32 @@ struct Bandwidth_From_Small_To_Big
         return (left.ServeAroundBandwidth < right.ServeAroundBandwidth);
     }
 };
+
 class MCMF
 {
 private:
     vector<int> ServeAroundBandwidth;//序号为服务器所连的节点号，值为评估带宽
     int maxpoint;
     bool stop = false;
-
     vector<vector<int >> mapscost;
     vector<vector<int >> mapswidth;
     set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> SeverNo;
 
-public:
     double TotalNeed;//所有消费节点总需求
     int SeverCost;//单台服务器成本
     unsigned long maxServer;//最大服务器数，即消费节点数
     vector<vector<LinkInfo>> Nets;
     vector<ResumeInfo> Consumers;//vector序号为消费节点编号
-    unsigned long  links,consumer_nodes, network_nodes;//链路数，消费节点数，网络节点数
+    unsigned long links, consumer_nodes, network_nodes;//链路数，消费节点数，网络节点数
 
+public:
     MCMF();
 
     void setConsumersAndNets(const vector<ResumeInfo> &Consumers, const vector<vector<LinkInfo>> &Nets);
 
     void setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &SeverNo);
+
+    void setSeverCostAndTotalNeed(int SeverCost, double TotalNeed);
 
     //模拟退火产生新的服务器编号组合
     set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>
