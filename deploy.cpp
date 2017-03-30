@@ -39,6 +39,9 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         Nets[start_node][end_node].total_bandwidth = total_bandwidth;
         Nets[start_node][end_node].remaining_bandwidth = total_bandwidth;
         Nets[start_node][end_node].network_hire = network_hire;
+        Nets[end_node][start_node].total_bandwidth = total_bandwidth;
+        Nets[end_node][start_node].remaining_bandwidth = total_bandwidth;
+        Nets[end_node][start_node].network_hire = network_hire;
     }
 
     vector<ResumeInfo> Consumers(consumer_nodes);//vector序号为消费节点编号
@@ -54,14 +57,19 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         TotalNeed += need_bandwidth;
     }
 
+
     //TODO:接入MCMF类
-    MCMF curSever;
-    curSever.setConsumersAndNets(Consumers,Nets);
-    curSever.setSeverCostAndTotalNeed(SeverCost,TotalNeed);
-    curSever.setServeAroundBandwidth();
+    MCMF mcmf;
+    mcmf.setConsumersAndNets(Consumers,Nets);
+    mcmf.setSeverCostAndTotalNeed(SeverCost,TotalNeed);
+    mcmf.setServeAroundBandwidth();
 
-    curSever.getNewServe(curSever.getSeverNo());
 
+    auto curSeverNo=mcmf.getSeverNo();
+
+    auto newServerNo=mcmf.getNewServe(curSeverNo);
+
+    mcmf.setServers(curSeverNo);
 
 
 
@@ -100,7 +108,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 #define ILOOP 15000   //内循环次数
     double t = T;
     srand((unsigned int) time(NULL));
-    auto curSever = SeverNo;
+    auto mcmf = SeverNo;
     auto newSever = SeverNo;
     auto bestSever = SeverNo;
 
@@ -110,18 +118,18 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     {
         for (int i = 0; i < ILOOP; i++)    //内循环，寻找在一定温度下的最优值
         {
-            newSever = getNewServe(curSever);
-            double dE = InitMap(newSever) - InitMap(curSever);
+            newSever = getNewServe(mcmf);
+            double dE = InitMap(newSever) - InitMap(mcmf);
             if (dE < 0)   //如果找到更优值，直接更新
             {
-                curSever = newSever;
+                mcmf = newSever;
                 P_L = 0;
                 P_F = 0;
             } else
             {
                 double rd = rand() / (RAND_MAX + 1.0);
                 if (exp(dE / t) > rd && exp(dE / t) < 1)   //如果找到比当前更差的解，以一定概率接受该解，并且这个概率会越来越小
-                    curSever = newSever;
+                    mcmf = newSever;
                 P_L++;
             }
             if (P_L > LIMIT)
@@ -130,8 +138,8 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                 break;
             }
         }
-        if (InitMap(curSever) < InitMap(newSever))
-            bestSever = curSever;
+        if (InitMap(mcmf) < InitMap(newSever))
+            bestSever = mcmf;
         if (P_F > OLOOP || t < EPS)
             break;
         t *= DELTA;
@@ -158,7 +166,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 //    char *topo_file = (char *) "17\n\n0 8 0 20\n21 8 0 20\n9 11 1 13\n21 22 2 20\n23 22 2 8\n1 3 3 11\n24 3 3 17\n27 3 3 26\n24 3 3 10\n18 17 4 11\n1 19 5 26\n1 16 6 15\n15 13 7 13\n4 5 8 18\n2 25 9 15\n0 7 10 10\n23 24 11 23";
 
     // 直接调用输出文件的方法输出到指定文件中(ps请注意格式的正确性，如果有解，第一行只有一个数据；第二行为空；第三行开始才是具体的数据，数据之间用一个空格分隔开)
-    cout << topo_file;
+//    cout << topo_file;
     write_result(topo_file, filename);
 }
 

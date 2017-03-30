@@ -4,7 +4,7 @@
 
 #ifndef CDN_MCMF_H
 #define CDN_MCMF_H
-
+#include <map>
 #include <vector>
 #include <set>
 #include <climits>
@@ -55,6 +55,13 @@ private:
     vector<ResumeInfo> Consumers;//vector序号为消费节点编号
     unsigned long links, consumer_nodes, network_nodes;//链路数，消费节点数，网络节点数
 
+
+    vector<int> distance;/*各个节点到达源节点的距离*/
+    vector<int> preVertex;/*各个节点的前一个节点*/
+    vector<vector<int>>arrays;  /*有向图邻接矩阵*/
+    vector<int >array;
+    vector<int>values;
+
 public:
     MCMF();
 
@@ -75,6 +82,22 @@ public:
     void setServeAroundBandwidth();
 
     set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> getSeverNo();
+
+    void getPath();
+
+    bool isenough();
+
+    void Dijkstra(
+            const int numOfVertex,    /*节点数目*/
+            const int startVertex,    /*源节点*/
+            int map[][maxpoint],          /*有向图邻接矩阵*/
+            int *distance,            /*各个节点到达源节点的距离*/
+            int *prevVertex           /*各个节点的前一个节点*/
+    );
+
+
+    void decreaseandprintf(int array[], vector<int> trace, int distance[])
+    void printvalues();
 };
 
 
