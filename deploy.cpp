@@ -78,14 +78,21 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 
     mcmf.mainFunction();//主方法
 
-    //mcmf.getBestPath();//输出标准格式最优路径
+    mcmf.getBestPath();//输出标准格式最优路径
 
     cout<<endl<<mcmf.getTotalCost()<<endl;
     auto newSever=curSeverNo;
-    for (int l = 0; l <1000 ; ++l)
+    for (int l = 0; l <1000000 ; ++l)
     {
-        newSever = mcmf.getNewServe(curSeverNo);
-        curSeverNo=newSever;
+        mcmf.setServers(curSeverNo);
+
+        mcmf.mainFunction();//主方法
+
+        mcmf.getBestPath();//输出标准格式最优路径
+
+        cout<<endl<<mcmf.getTotalCost()<<endl;
+//        newSever = mcmf.getNewServe(curSeverNo);
+//        curSeverNo=newSever;
 //        double dE = mcmf.evaluateCost(newSever) - mcmf.evaluateCost(curSeverNo);
     }
 
