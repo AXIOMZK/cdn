@@ -26,8 +26,3 @@ void timer(int sig);
 
 #endif
 
-#ifdef _DEBUG
-#define PRINT   printf
-#else
-#define PRINT(...)
-#endif

@@ -4,7 +4,11 @@
 
 
 using namespace std;
-
+//#ifdef _DEBUG
+//#define PRINT   printf
+//#else
+//#define PRINT(...)
+//#endif
 //C++整数规划+模拟退火方案
 
 
@@ -76,8 +80,8 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     mcmf.mainFunction();//主方法
 
     //mcmf.getBestPath();//输出标准格式最优路径
-    PRINT("%d\n", mcmf.getTotalCost());
-//    cout << endl << mcmf.getTotalCost() << endl;
+//    PRINT("%d\n", mcmf.getTotalCost());
+    cout << endl << mcmf.getTotalCost() << endl;
 //    auto newSever=curSeverNo;
 //    for (int l = 0; l <1000; ++l)
 //    {
@@ -144,16 +148,16 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     auto bestSever =
             mcmf.evaluateCost(bestSever1) < mcmf.evaluateCost(bestSever2) ? bestSever1 : bestSever2;
 
-    PRINT("\n======================================\n最优解\n");
+//    PRINT("\n======================================\n最优解\n");
 
     mcmf.setServers(bestSever);
 
     mcmf.mainFunction();//主方法
 
-    PRINT("\n%s\n",mcmf.getBestPath());//输出标准格式最优路径
-//    cout << mcmf.getBestPath();
-    PRINT("\n总成本:%d\n",mcmf.getTotalCost());
-//    cout << endl << mcmf.getTotalCost() << endl;
+//    PRINT("\n%s\n",mcmf.getBestPath());//输出标准格式最优路径
+    cout << mcmf.getBestPath();
+//    PRINT("\n总成本:%d\n",mcmf.getTotalCost());
+    cout << endl << mcmf.getTotalCost() << endl;
 
 //直连方案(大数据直接输出直连)
 //    read.str("");
