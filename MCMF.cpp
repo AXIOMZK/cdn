@@ -21,8 +21,8 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
     for (auto it = SeverNo.begin(); it != SeverNo.end(); ++it)
     {
         SeverNum.insert((*it).ServerNo);
-//        PRINT("%d--", (*it).ServerNo);
-        cout << (*it).ServerNo << endl;
+        PRINT("%d--", (*it).ServerNo);
+//        cout << (*it).ServerNo << endl;
     }
 
     //TODO:反复调用是否要做处理
@@ -594,8 +594,8 @@ void MCMF::decreaseAndPrintf(vector<int> trace)
         //没有路径达到终点时 判断流量是否已经满足
         if (!isenough())
         {
-//            PRINT("需求未满足\n");
-            cout << "需求未满足" << endl;
+            PRINT("需求未满足\n");
+//            cout << "需求未满足" << endl;
 
 //            int count=0;
 //            //显示多少节点多少流量未满足,即判断与汇点的带宽
@@ -608,8 +608,8 @@ void MCMF::decreaseAndPrintf(vector<int> trace)
             //选择优化方案
         } else
         {
-//            PRINT("需求已满足\n");
-            cout << "需求已满足" << endl;
+            PRINT("需求已满足\n");
+//            cout << "需求已满足" << endl;
             //输出
             printvalues();
         }
@@ -632,8 +632,8 @@ void MCMF::decreaseAndPrintf(vector<int> trace)
         }
 
         //修改网络带宽
-//        PRINT("路径流量:%d,链路:", minwidth);
-        cout << "最小" << minwidth;
+        PRINT("路径流量:%d,链路:", minwidth);
+//        cout << "最小" << minwidth;
         //缩减带宽，带宽为0，成本设为最大。
         for (int j = (int) trace.size() - 2; j > 0; j--)
         {
@@ -655,8 +655,8 @@ void MCMF::decreaseAndPrintf(vector<int> trace)
         vector<int> temPath;
         while (!trace.empty())
         {
-//            PRINT("%d--", *trace.rbegin());
-            cout << *trace.rbegin() << " -- ";
+            PRINT("%d--", *trace.rbegin());
+//            cout << *trace.rbegin() << " -- ";
             temPath.push_back(*trace.rbegin());
 //                trace.resize(trace.size()-1);
             trace.erase(--trace.end());
@@ -666,16 +666,16 @@ void MCMF::decreaseAndPrintf(vector<int> trace)
 
 //        cout << " 距离是：" << distance[maxpoint - 1] << endl;
 
-//        PRINT("\n费用:%d", distance[maxpoint - 1] * minwidth);
+        PRINT("\n费用:%d", distance[maxpoint - 1] * minwidth);
 
-        cout << "单条路径费用是：" << distance[maxpoint - 1] * minwidth << endl;
+//        cout << "单条路径费用是：" << distance[maxpoint - 1] * minwidth << endl;
 
         values[dir] = values[dir] + distance[maxpoint - 1] * minwidth;
 
         if (isenough())
         {
-//            PRINT("需求已满足!\n");
-                  cout << "需求已满足";
+            PRINT("需求已满足!\n");
+//                  cout << "需求已满足";
         }
     }
 
@@ -689,8 +689,8 @@ void MCMF::printvalues()
     for (int i = 0; i < network_nodes; i++)
     {
         if (values[i] != 0)
-//            PRINT("消费节点:%d,累计路径费用是:%d",i, values[i]);
-            cout << "消费节点" << i << ":" << "累计路径费用是：" << values[i] << endl;
+            PRINT("消费节点:%d,累计路径费用是:%d",i, values[i]);
+//            cout << "消费节点" << i << ":" << "累计路径费用是：" << values[i] << endl;
     }
 }
 

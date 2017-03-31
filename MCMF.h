@@ -13,7 +13,11 @@
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
-
+#ifdef _DEBUG
+#define PRINT   printf
+#else
+#define PRINT(...)
+#endif
 using namespace std;
 
 struct SeverNoAndAroundBandwidth
