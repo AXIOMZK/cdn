@@ -1,5 +1,6 @@
 #include "deploy.h"
 #include "MCMF.h"
+
 #ifdef _DEBUG
 #define PRINT   printf
 #else
@@ -12,16 +13,14 @@ using namespace std;
 int isExit = 1;//定时器标志
 //通过调用alarm来设置计时器，然后继续做别的事情。当计时器计时到0时，信号发送，处理函数被调用。
 
-void timer(int sig)
-{
+void timer(int sig) {
     isExit = 0;
 }
 
-void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
-{
+void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename) {
     //执行定时器函数
     signal(SIGALRM, timer);
-    alarm(83); //定时80s
+    alarm(300); //定时80s
 
     double TotalNeed;//所有消费节点总需求
     int SeverCost;
@@ -32,8 +31,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     SeverCost = atoi(topo[2]);
 
     vector<vector<LinkInfo>> Nets(network_nodes, vector<LinkInfo>(network_nodes));
-    for (unsigned long i = 4; i < 4 + links; ++i)
-    {
+    for (unsigned long i = 4; i < 4 + links; ++i) {
         double start_node, end_node;
         int total_bandwidth, network_hire;
         read.str("");
@@ -49,8 +47,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 
     vector<ResumeInfo> Consumers(consumer_nodes);//vector序号为消费节点编号
     TotalNeed = 0;//消费节点总需求
-    for (unsigned long j = 5 + links; j < 5 + links + consumer_nodes; ++j)
-    {
+    for (unsigned long j = 5 + links; j < 5 + links + consumer_nodes; ++j) {
         int num, node_NO, need_bandwidth;
         read.str("");
         read << topo[j];
@@ -78,7 +75,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     mcmf.mainFunction();//主方法
 
     //mcmf.getBestPath();//输出标准格式最优路径
-    PRINT("%d\n",mcmf.getTotalCost());
+    PRINT("%d\n", mcmf.getTotalCost());
 //    cout << endl << mcmf.getTotalCost() << endl;
 //    auto newSever=curSeverNo;
 //    for (int l = 0; l <1000; ++l)
@@ -94,8 +91,8 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 #define EPS   1e-8    //终止温度
 #define DELTA 0.98    //温度衰减率
 #define LIMIT 100   //概率选择上限
-#define OLOOP 30    //外循环次数
-#define ILOOP 100  //内循环次数
+#define OLOOP 500    //外循环次数
+#define ILOOP 1000  //内循环次数
     double t = T;
     srand((unsigned int) time(NULL));
 //    auto curSeverNo = mcmf.getSeverNo();
@@ -120,19 +117,17 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
             if (dE < 0)   //如果找到更优值，直接更新
             {
                 curSeverNo = newSever;
-                if(newCost<bestCost)
-                    bestSever1=newSever;
+                if (newCost < bestCost)
+                    bestSever1 = newSever;
                 P_L = 0;
                 P_F = 0;
-            } else
-            {
+            } else {
                 double rd = rand() / (RAND_MAX + 1.0);
                 if (exp(dE / t) > rd && exp(dE / t) < 1)   //如果找到比当前更差的解，以一定概率接受该解，并且这个概率会越来越小
                     curSeverNo = newSever;
                 P_L++;
             }
-            if (P_L > LIMIT)
-            {
+            if (P_L > LIMIT) {
                 P_F++;
                 break;
             }
@@ -143,8 +138,8 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
             break;
         t *= DELTA;
     }
-    auto bestSever=
-    mcmf.evaluateCost(bestSever1)<mcmf.evaluateCost(bestSever2)?bestSever1:bestSever2;
+    auto bestSever =
+            mcmf.evaluateCost(bestSever1) < mcmf.evaluateCost(bestSever2) ? bestSever1 : bestSever2;
 
     PRINT("\n======================================\n");
     cout << endl << "======================================"
@@ -153,7 +148,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 
     mcmf.mainFunction();//主方法
 
-    cout<<mcmf.getBestPath();//输出标准格式最优路径
+    cout << mcmf.getBestPath();//输出标准格式最优路径
 
     cout << endl << mcmf.getTotalCost() << endl;
 
