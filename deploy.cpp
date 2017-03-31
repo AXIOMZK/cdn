@@ -1,11 +1,5 @@
 #include "deploy.h"
 #include "MCMF.h"
-#define T     1      //初始温度
-#define EPS   1e-8    //终止温度
-#define DELTA 0.98    //温度衰减率
-#define LIMIT 1   //概率选择上限
-#define OLOOP 5    //外循环次数
-#define ILOOP 5   //内循环次数
 using namespace std;
 //C++整数规划+模拟退火方案
 
@@ -31,6 +25,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     read >> network_nodes >> links >> consumer_nodes;
     //单台服务器成本
     SeverCost = atoi(topo[2]);
+
 
     vector<vector<LinkInfo>> Nets(network_nodes, vector<LinkInfo>(network_nodes));
     for (unsigned long i = 4; i < 4 + links; ++i)
@@ -81,64 +76,71 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     //mcmf.getBestPath();//输出标准格式最优路径
 
     cout<<endl<<mcmf.getTotalCost()<<endl;
-    auto newSever=curSeverNo;
-    for (int l = 0; l <1000 ; ++l)
-    {
-        newSever = mcmf.getNewServe(curSeverNo);
-        curSeverNo=newSever;
+//    auto newSever=curSeverNo;
+//    for (int l = 0; l <1000; ++l)
+//    {
+//        newSever = mcmf.getNewServe(curSeverNo);
 //        double dE = mcmf.evaluateCost(newSever) - mcmf.evaluateCost(curSeverNo);
-    }
+//        curSeverNo=newSever;
+//    }
 
 
     //模拟退火
+#define T     1100     //初始温度
+#define EPS   1e-8    //终止温度
+#define DELTA 0.98    //温度衰减率
+#define LIMIT 2000   //概率选择上限
+#define OLOOP 200    //外循环次数
+#define ILOOP 2000  //内循环次数
+    double t = T;
+    srand((unsigned int) time(NULL));
+//    auto curSeverNo = mcmf.getSeverNo();
+    auto newSever = curSeverNo;
+    auto bestSever = curSeverNo;
 
-//    double t = T;
-//    srand((unsigned int) time(NULL));
-////    auto curSeverNo = mcmf.getSeverNo();
-//    auto newSever = curSeverNo;
-//    auto bestSever = curSeverNo;
-//
-//    int P_L = 0;
-//    int P_F = 0;
-//    while (1)       //外循环，主要更新参数t，模拟退火过程
-//    {
-//        for (int i = 0; i < ILOOP; i++) //内循环，寻找在一定温度下的最优值
-//        {
-//            newSever = mcmf.getNewServe(curSeverNo);
-//            double dE = mcmf.evaluateCost(newSever) - mcmf.evaluateCost(curSeverNo);
-//            if (dE < 0)   //如果找到更优值，直接更新
-//            {
-//                curSeverNo = newSever;
-//                P_L = 0;
-//                P_F = 0;
-//            } else
-//            {
-//                double rd = rand() / (RAND_MAX + 1.0);
-//                if (exp(dE / t) > rd && exp(dE / t) < 1)   //如果找到比当前更差的解，以一定概率接受该解，并且这个概率会越来越小
-//                    curSeverNo = newSever;
-//                P_L++;
-//            }
-//            if (P_L > LIMIT)
-//            {
-//                P_F++;
-//                break;
-//            }
-//        }
-//        if (mcmf.evaluateCost(curSeverNo) < mcmf.evaluateCost(newSever))
-//            bestSever = curSeverNo;
-//        if (P_F > OLOOP || t < EPS)
-//            break;
-//        t *= DELTA;
-//    }
-//
-//
-//    mcmf.setServers(bestSever);
-//
-//    mcmf.mainFunction();//主方法
-//
-//    mcmf.getBestPath();//输出标准格式最优路径
-//
-//    cout<<endl<<mcmf.getTotalCost()<<endl;
+    int P_L = 0;
+    int P_F = 0;
+    while (1)       //外循环，主要更新参数t，模拟退火过程
+    {
+        for (int i = 0; i < ILOOP; i++) //内循环，寻找在一定温度下的最优值
+        {
+            newSever = mcmf.getNewServe(curSeverNo);
+            double dE = mcmf.evaluateCost(newSever) - mcmf.evaluateCost(curSeverNo);
+            if (dE < 0)   //如果找到更优值，直接更新
+            {
+                curSeverNo = newSever;
+                P_L = 0;
+                P_F = 0;
+            } else
+            {
+                double rd = rand() / (RAND_MAX + 1.0);
+                if (exp(dE / t) > rd && exp(dE / t) < 1)   //如果找到比当前更差的解，以一定概率接受该解，并且这个概率会越来越小
+                    curSeverNo = newSever;
+                P_L++;
+            }
+            if (P_L > LIMIT)
+            {
+                P_F++;
+                break;
+            }
+        }
+        if (mcmf.evaluateCost(curSeverNo) < mcmf.evaluateCost(newSever))
+            bestSever = curSeverNo;
+        if (P_F > OLOOP || t < EPS)
+            break;
+        t *= DELTA;
+    }
+
+
+    cout<<endl<<"======================================"
+        <<endl<<"最优解"<<endl;
+    mcmf.setServers(bestSever);
+
+    mcmf.mainFunction();//主方法
+
+    mcmf.getBestPath();//输出标准格式最优路径
+
+    cout<<endl<<mcmf.getTotalCost()<<endl;
 
 
     read.str("");

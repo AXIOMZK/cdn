@@ -23,7 +23,7 @@ struct LinkInfo
 {
     int total_bandwidth = 0;
     int remaining_bandwidth = 0;
-    int network_hire = 0;
+    int network_hire = INT_MAX;
 };
 //消费节点信息结构体
 struct ResumeInfo

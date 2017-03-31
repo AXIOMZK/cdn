@@ -14,7 +14,9 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
     for (auto it = SeverNo.begin(); it != SeverNo.end(); ++it)
     {
         SeverNum.insert((*it).ServerNo);
+        cout<<(*it).ServerNo<<endl;
     }
+
     //TODO:反复调用是否要做处理
     mapswidth.clear();
     mapscost.clear();
@@ -177,7 +179,8 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
 //        }
 //        cout << endl;
 //    }
-//    cout << mapswidth[3][13] << " " << mapscost[3][13] << endl;
+//    cout <<"---------"<< mapswidth[7][38] << " " << mapscost[7][38] << endl;
+//    cout <<"---------"<< Nets[7][38].total_bandwidth << " " << Nets[7][38].network_hire << endl;
 //    cout << mapswidth[4][11] << " " << mapscost[4][11] << endl;
 //    cout << mapswidth[43][44] << " " << mapscost[43][44] << endl;
 //    cout << mapswidth[7][5] << " " << mapscost[7][5] << endl;
@@ -223,15 +226,19 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
     if (flag == 1)
     {
         //随机删除一个服务器
-        int pos = (int) (rand() % newServe.size());
-        auto it = newServe.begin();
-        while (pos--) it++;
-        newServe.erase(it);
+        if (newServe.size() > 1)
+        {
+            int pos = (int) (rand() % newServe.size());
+            auto it = newServe.begin();
+            while (pos--) it++;
+            newServe.erase(it);
+        }
 
     } else if (flag == 2)
     {
-        //优先删除所能提供带宽最小的服务器
-        newServe.erase(newServe.begin());
+        if (newServe.size() > 1)
+            //优先删除所能提供带宽最小的服务器
+            newServe.erase(newServe.begin());
 
     } else if (flag == 3)
     {
@@ -260,10 +267,12 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
         newServe.erase(newServe.begin());
     } else
     {
+//        if(newServe.size()==1)
+//            return newServe;
         //随机删除t1个服务器,再随机添加t2个服务器
         unsigned long temp_size = (int) newServe.size();
-        int t1 = (int) (rand() % newServe.size());
-        int t2 = (int) (rand() % newServe.size());
+        int t1 = 1 + (int) (rand() % newServe.size());
+        int t2 = 1 + (int) (rand() % newServe.size());
         for (int i = 0; i < t1; ++i)
         {
             newServe.erase(newServe.begin());
@@ -282,6 +291,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
     // 1、服务器总数不超过消费节点数
     if (newServe.size() > maxServer)
     {
+//        return oldServe;
         newServe = getNewServe(oldServe);
         return newServe;
     }
@@ -293,6 +303,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
     }
     if (t_provide < TotalNeed)
     {
+//        return oldServe;
         newServe = getNewServe(oldServe);
         return newServe;
     }
@@ -619,7 +630,9 @@ int MCMF::evaluateCost(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small
 {
     setServers(v);
     mainFunction();//主方法
-    return getTotalCost();;
+    int Tcost=getTotalCost();
+    cout<<"总成本:"<<Tcost<<endl;
+    return Tcost;
 }
 
 string MCMF::getBestPath()
