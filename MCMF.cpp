@@ -2,7 +2,7 @@
 // Created by 张琨 on 2017/3/29.
 //
 
-
+//重构函数
 #include "MCMF.h"
 
 void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &SeverNo)
