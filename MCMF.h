@@ -29,7 +29,6 @@ struct SeverNoAndAroundBandwidth
 struct LinkInfo
 {
     int total_bandwidth = 0;
-    int remaining_bandwidth = 0;
     int network_hire = INT_MAX;
 };
 //消费节点信息结构体
@@ -79,7 +78,7 @@ private:
     map<int, int> NodesLinkConsumerNO;
 
 public:
-    MCMF();
+    MCMF(const vector<ResumeInfo> &Consumers, const vector<vector<LinkInfo>> &Nets,int SeverCost, double TotalNeed);
 
     void setConsumersAndNets(const vector<ResumeInfo> &Consumers, const vector<vector<LinkInfo> > &Nets);
 
@@ -100,13 +99,7 @@ public:
 
     bool isenough();
 
-    void Dijkstra(
-//            const int numOfVertex,    /*节点数目*/
-//            const int startVertex,    /*源节点*/
-//            int map[][maxpoint],          /*有向图邻接矩阵*/
-//            int *distance,            /*各个节点到达源节点的距离*/
-//            int *prevVertex           /*各个节点的前一个节点*/
-    );
+    void Dijkstra();
 
     void decreaseAndPrintf(vector<int> trace);
 

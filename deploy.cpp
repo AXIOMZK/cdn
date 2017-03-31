@@ -19,9 +19,9 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 {
     //执行定时器函数
     signal(SIGALRM, timer);
-    alarm(83); //定时80s
+    alarm(30); //定时80s
 
-    double TotalNeed;//所有消费节点总需求
+    int TotalNeed;//所有消费节点总需求
     int SeverCost;
     stringstream read(topo[0]);
     unsigned long links, consumer_nodes, network_nodes;//链路数，消费节点数，网络节点数
@@ -32,16 +32,14 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     vector<vector<LinkInfo>> Nets(network_nodes, vector<LinkInfo>(network_nodes));
     for (unsigned long i = 4; i < 4 + links; ++i)
     {
-        double start_node, end_node;
+        int start_node, end_node;
         int total_bandwidth, network_hire;
         read.str("");
         read << topo[i];
         read >> start_node >> end_node >> total_bandwidth >> network_hire;
         Nets[start_node][end_node].total_bandwidth = total_bandwidth;
-        Nets[start_node][end_node].remaining_bandwidth = total_bandwidth;
         Nets[start_node][end_node].network_hire = network_hire;
         Nets[end_node][start_node].total_bandwidth = total_bandwidth;
-        Nets[end_node][start_node].remaining_bandwidth = total_bandwidth;
         Nets[end_node][start_node].network_hire = network_hire;
     }
 
@@ -59,23 +57,20 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     }
 
 
-    //TODO:接入类
-    MCMF mcmf;
+    //TODO:接入msmf类
     //初始化
-    mcmf.setConsumersAndNets(Consumers, Nets);
-    mcmf.setSeverCostAndTotalNeed(SeverCost, TotalNeed);
-
-
-    auto curSeverNo = mcmf.getSeverNo();
+    MCMF mcmf(Consumers, Nets, SeverCost, TotalNeed);
+//    mcmf.setConsumersAndNets(Consumers, Nets);
+//    mcmf.setSeverCostAndTotalNeed(SeverCost, TotalNeed);
 
 
     //传入服务器编号
-    mcmf.setServers(curSeverNo);
-
-    mcmf.mainFunction();//主方法
+//    mcmf.setServers(curSeverNo);
+//
+//    mcmf.mainFunction();//主方法
 
     //mcmf.getBestPath();//输出标准格式最优路径
-    PRINT("%d\n", mcmf.getTotalCost());
+//    PRINT("%lf\n", mcmf.getTotalCost());
 //    cout << endl << mcmf.getTotalCost() << endl;
 //    auto newSever=curSeverNo;
 //    for (int l = 0; l <1000; ++l)
@@ -87,36 +82,42 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 
 
     //模拟退火
-#define T     1000     //初始温度
-#define EPS   1e-8    //终止温度
-#define DELTA 0.98    //温度衰减率
-#define LIMIT 100   //概率选择上限
-#define OLOOP 30    //外循环次数
-#define ILOOP 100  //内循环次数
+#define T     10000     //初始温度
+#define EPS   1e-9      //终止温度
+#define DELTA 0.98      //温度衰减率
+#define LIMIT 6000      //概率选择上限
+#define OLOOP 100       //外循环次数
+#define ILOOP 100       //内循环次数
     double t = T;
+    int P_L = 0;
+    int P_F = 0;
     srand((unsigned int) time(NULL));
-//    auto curSeverNo = mcmf.getSeverNo();
 
+    auto curSeverNo = mcmf.getSeverNo();
     auto newSever = curSeverNo;
 
     auto bestSever1 = curSeverNo;//局部最优
-    auto bestSever2 = curSeverNo;//全局最优
+//    auto bestSever2 = curSeverNo;//全局最优
 
-    double bestCost = mcmf.evaluateCost(curSeverNo);
+    int bestCost = mcmf.evaluateCost(curSeverNo);
+    int maxCost = bestCost;
+    int curCost = bestCost;//当前的费用
 
-    int P_L = 0;
-    int P_F = 0;
+
+
     while (isExit)       //外循环，主要更新参数t，模拟退火过程
     {
         for (int i = 0; i < ILOOP; i++) //内循环，寻找在一定温度下的最优值
         {
+            if (!isExit)break;
             newSever = mcmf.getNewServe(curSeverNo);
-            double newCost = mcmf.evaluateCost(newSever);
-            double curCost = mcmf.evaluateCost(curSeverNo);
+            int newCost = mcmf.evaluateCost(newSever);
+//            curCost = mcmf.evaluateCost(curSeverNo);
             double dE = newCost - curCost;
             if (dE < 0)   //如果找到更优值，直接更新
             {
                 curSeverNo = newSever;
+                curCost = newCost;
                 if (newCost < bestCost)
                     bestSever1 = newSever;
                 P_L = 0;
@@ -125,7 +126,10 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
             {
                 double rd = rand() / (RAND_MAX + 1.0);
                 if (exp(dE / t) > rd && exp(dE / t) < 1)   //如果找到比当前更差的解，以一定概率接受该解，并且这个概率会越来越小
+                {
                     curSeverNo = newSever;
+                    curCost = newCost;
+                }
                 P_L++;
             }
             if (P_L > LIMIT)
@@ -134,24 +138,24 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                 break;
             }
         }
-        if (mcmf.evaluateCost(curSeverNo) < mcmf.evaluateCost(newSever))
-            bestSever2 = curSeverNo;
+//        if (mcmf.evaluateCost(curSeverNo) < mcmf.evaluateCost(newSever))
+//            bestSever2 = curSeverNo;
         if (P_F > OLOOP || t < EPS)
             break;
         t *= DELTA;
     }
-    auto bestSever =
-            mcmf.evaluateCost(bestSever1) < mcmf.evaluateCost(bestSever2) ? bestSever1 : bestSever2;
+//    auto bestSever =
+//            mcmf.evaluateCost(bestSever1) < mcmf.evaluateCost(bestSever2) ? bestSever1 : bestSever2;
 
     PRINT("\n======================================\n最优解\n");
 
-    mcmf.setServers(bestSever);
+    mcmf.setServers(bestSever1);
 
     mcmf.mainFunction();//主方法
 
-    PRINT("\n%s\n",mcmf.getBestPath().c_str());//输出标准格式最优路径
+    PRINT("\n%s\n", mcmf.getBestPath().c_str());//输出标准格式最优路径
 //    cout << mcmf.getBestPath();
-    PRINT("\n总成本:%d\n",mcmf.getTotalCost());
+    PRINT("\n总成本:%d/%d\n", mcmf.getTotalCost(), maxCost);
 //    cout << endl << mcmf.getTotalCost() << endl;
 
 //直连方案(大数据直接输出直连)
