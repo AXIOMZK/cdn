@@ -1,6 +1,11 @@
 //
 // Created by 张琨 on 2017/3/29.
 //
+#ifdef _DEBUG
+#define PRINT   printf
+#else
+#define PRINT(...)
+#endif
 
 #ifndef CDN_MCMF_H
 #define CDN_MCMF_H
@@ -11,8 +16,10 @@
 #include <climits>
 #include <iostream>
 #include <sstream>
+#include <cstdlib>
 
 using namespace std;
+
 struct SeverNoAndAroundBandwidth
 {
     int ServerNo;
@@ -108,6 +115,7 @@ public:
     void setBestPath();//输出标准答案格式
 
     string getBestPath();
+
     //得到部署服务器的成本
     void setTotalServerCost(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &v);
 

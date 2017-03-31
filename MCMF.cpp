@@ -3,18 +3,22 @@
 //
 
 //重构函数
+
+
 #include "MCMF.h"
+
+
 
 void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &SeverNo)
 {
 
-    //TODO:直连的服务器的编号，需要修改
     set<int> SeverNum;
 
     for (auto it = SeverNo.begin(); it != SeverNo.end(); ++it)
     {
         SeverNum.insert((*it).ServerNo);
-        cout << (*it).ServerNo << endl;
+        PRINT("%d--", (*it).ServerNo);
+//        cout << (*it).ServerNo << endl;
     }
 
     //TODO:反复调用是否要做处理
@@ -269,10 +273,11 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                 newServe.insert(pair);
             }
             newServe.erase(newServe.begin());
-        } else if (flag==5) {
+        } else if (flag == 5)
+        {
             //完全产生新服务器
             newServe.clear();
-            int t= 1+(int) (rand() % consumer_nodes);//产生的个数
+            int t = 1 + (int) (rand() % consumer_nodes);//产生的个数
             while (newServe.size() != t)
             {
                 int pos = (int) (rand() % network_nodes);
@@ -281,8 +286,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                 pair.ServeAroundBandwidth = ServeAroundBandwidth[pos];
                 newServe.insert(pair);
             }
-        }
-        else
+        } else
         {
             //随机删除t1个服务器,再随机添加t2个服务器
             //t1,t2都小于等于newServe.size()
@@ -586,7 +590,8 @@ void MCMF::decreaseAndPrintf(vector<int> trace)
         //没有路径达到终点时 判断流量是否已经满足
         if (!isenough())
         {
-            cout << "需求未满足" << endl;
+            PRINT("需求未满足\n");
+//            cout << "需求未满足" << endl;
 
 //            int count=0;
 //            //显示多少节点多少流量未满足,即判断与汇点的带宽
@@ -599,7 +604,8 @@ void MCMF::decreaseAndPrintf(vector<int> trace)
             //选择优化方案
         } else
         {
-            cout << "需求已满足" << endl;
+            PRINT("需求已满足\n");
+//            cout << "需求已满足" << endl;
             //输出
             printvalues();
         }
@@ -622,7 +628,8 @@ void MCMF::decreaseAndPrintf(vector<int> trace)
         }
 
         //修改网络带宽
-        cout << "最小" << minwidth;
+        PRINT("路径流量:%d,链路:", minwidth);
+//        cout << "最小" << minwidth;
         //缩减带宽，带宽为0，成本设为最大。
         for (int j = (int) trace.size() - 2; j > 0; j--)
         {
@@ -639,28 +646,32 @@ void MCMF::decreaseAndPrintf(vector<int> trace)
         int dir = array[1];
         //cout<<"dir:"<<dir<<endl;
         //if(stop==false){
-        cout << "路径：";
+//        cout << "路径：";
 
         vector<int> temPath;
         while (!trace.empty())
         {
-            cout << *trace.rbegin() << " -- ";
+            PRINT("%d--", *trace.rbegin());
+//            cout << *trace.rbegin() << " -- ";
             temPath.push_back(*trace.rbegin());
 //                trace.resize(trace.size()-1);
             trace.erase(--trace.end());
         }
         temPath.push_back(minwidth);
         paths.push_back(temPath);
-        cout << " 距离是：" << distance[maxpoint - 1] << endl;
 
-        //if(min!=INT_MAX){
-        cout << "单条路径费用是：" << distance[maxpoint - 1] * minwidth << endl;
+//        cout << " 距离是：" << distance[maxpoint - 1] << endl;
+
+        PRINT("\n费用:%d", distance[maxpoint - 1] * minwidth);
+
+//        cout << "单条路径费用是：" << distance[maxpoint - 1] * minwidth << endl;
 
         values[dir] = values[dir] + distance[maxpoint - 1] * minwidth;
 
         if (isenough())
         {
-            cout << "需求已满足";
+            PRINT("需求已满足!\n");
+//                  cout << "需求已满足";
         }
     }
 
@@ -671,11 +682,11 @@ void MCMF::decreaseAndPrintf(vector<int> trace)
 void MCMF::printvalues()
 {
     //TODO：values有问题！！！！！！！！
-    // TODO：consumer_nodes换成了network_nodes
     for (int i = 0; i < network_nodes; i++)
     {
         if (values[i] != 0)
-            cout << "消费节点" << i << ":" << "累计路径费用是：" << values[i] << endl;
+            PRINT("消费节点:%d,累计路径费用是:%d",i, values[i]);
+//            cout << "消费节点" << i << ":" << "累计路径费用是：" << values[i] << endl;
     }
 }
 
@@ -693,7 +704,6 @@ bool MCMF::isenough()
     if (count == maxpoint)
     {
         stop = true;
-        // cout << "需求已满足" << endl;
         enough = true;
     }
     return enough;
@@ -746,7 +756,7 @@ int MCMF::evaluateCost(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small
     setServers(v);
     mainFunction();//主方法
     int Tcost = getTotalCost();
-    cout << "总成本:" << Tcost << endl;
+//    cout << "总成本:" << Tcost << endl;
     return Tcost;
 }
 
