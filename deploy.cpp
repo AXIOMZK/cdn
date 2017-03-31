@@ -1,11 +1,6 @@
 #include "deploy.h"
 #include "MCMF.h"
-#define T     1      //初始温度
-#define EPS   1e-8    //终止温度
-#define DELTA 0.98    //温度衰减率
-#define LIMIT 1   //概率选择上限
-#define OLOOP 5    //外循环次数
-#define ILOOP 5   //内循环次数
+
 using namespace std;
 //C++整数规划+模拟退火方案
 
