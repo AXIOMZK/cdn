@@ -7,17 +7,6 @@
 
 void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &SeverNo)
 {
-    //消费节点连接的网络节点编号
-    set<int> ConsumerNum;
-    //节点索引相连消费节点带宽
-    map<int, int> NodesLinkConsumerNeed;
-    for (unsigned long k = 0; k < consumer_nodes; ++k)
-    {
-        ConsumerNum.insert(Consumers[k].node_NO);
-        NodesLinkConsumerNeed[Consumers[k].node_NO] = Consumers[k].need_bandwidth;
-    }
-
-
 
     //TODO:直连的服务器的编号，需要修改
     set<int> SeverNum;
@@ -26,7 +15,11 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
     {
         SeverNum.insert((*it).ServerNo);
     }
-
+    //TODO:反复调用是否要做处理
+    mapswidth.clear();
+    mapscost.clear();
+    vector<vector<int>>().swap(mapswidth);
+    vector<vector<int>>().swap(mapscost);
 
     mapscost.resize(network_nodes + 2, vector<int>(network_nodes + 2));
     mapswidth.resize(network_nodes + 2, vector<int>(network_nodes + 2));
@@ -148,7 +141,6 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
                     if (ConsumerNum.count(j))
                     {
                         mapscost[i][j] = 0;
-                        //TODO:节点索引消费节点带宽
                         mapswidth[i][j] = NodesLinkConsumerNeed[j];
                     } else
                     {
@@ -173,6 +165,10 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
             }
         }
     }
+    setTotalServerCost(SeverNo);
+    //TODO：清空paths
+    paths.clear();
+    vector<vector<int>>().swap(paths);
 //    for (int l = 0; l < network_nodes + 2; ++l)
 //    {
 //        for (int i = 0; i < network_nodes + 2; ++i)
@@ -181,13 +177,13 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
 //        }
 //        cout << endl;
 //    }
-    cout << mapswidth[3][13] << " " << mapscost[3][13] << endl;
-    cout << mapswidth[4][11] << " " << mapscost[4][11] << endl;
-    cout << mapswidth[43][44] << " " << mapscost[43][44] << endl;
-    cout << mapswidth[7][5] << " " << mapscost[7][5] << endl;
-    cout << mapswidth[13][14] << " " << mapscost[13][14] << endl;
-    cout << mapswidth[50][13] << " " << mapscost[50][13] << endl;
-    cout << mapswidth[51][38] << " " << mapscost[51][38] << endl;
+//    cout << mapswidth[3][13] << " " << mapscost[3][13] << endl;
+//    cout << mapswidth[4][11] << " " << mapscost[4][11] << endl;
+//    cout << mapswidth[43][44] << " " << mapscost[43][44] << endl;
+//    cout << mapswidth[7][5] << " " << mapscost[7][5] << endl;
+//    cout << mapswidth[13][14] << " " << mapscost[13][14] << endl;
+//    cout << mapswidth[50][13] << " " << mapscost[50][13] << endl;
+//    cout << mapswidth[51][38] << " " << mapscost[51][38] << endl;
 
 
 }
@@ -201,6 +197,15 @@ void MCMF::setConsumersAndNets(const vector<ResumeInfo> &Consumers, const vector
     network_nodes = Nets.size();
     maxServer = consumer_nodes;
     maxpoint = (int) (network_nodes + 2);
+
+    for (unsigned long k = 0; k < consumer_nodes; ++k)
+    {
+        ConsumerNum.insert(Consumers[k].node_NO);
+        NodesLinkConsumerNeed[Consumers[k].node_NO] = Consumers[k].need_bandwidth;
+        NodesLinkConsumerNO[Consumers[k].node_NO] = (int) k;
+    }
+
+    setServeAroundBandwidth();
 }
 
 MCMF::MCMF()
@@ -291,9 +296,9 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
     return newServe;
 }
 
-int MCMF::getTotalServerCost(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &v)
+void MCMF::setTotalServerCost(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &v)
 {
-    return SeverCost * (int) v.size();
+    ServerTotalCost = SeverCost * (int) v.size();
 }
 
 
@@ -333,75 +338,60 @@ void MCMF::setSeverCostAndTotalNeed(int SeverCost, double TotalNeed)
     MCMF::TotalNeed = TotalNeed;
 }
 
-void MCMF::getPath()
-{
-    values.resize(consumer_nodes);
-    distance.resize((unsigned long) maxpoint);
+void MCMF::mainFunction()
+{//TODO:values初始化大小问题
+    values.clear();
+    preVertex.clear();
+    array.clear();
+    vector<int>().swap(values);
+    vector<int>().swap(preVertex);
+    vector<int>().swap(array);
+    values.resize((unsigned long) maxpoint);
     preVertex.resize((unsigned long) maxpoint);
-    arrays.resize((unsigned long) maxpoint, vector<int>((unsigned long) maxpoint));
-
-    for (int i = 0; i < maxpoint; ++i)
-    {
-        for (int j = 0; j < maxpoint; ++j)
-        {
-            arrays[i][j] = -1;
-        }
-    }
-
-    int array[maxpoint];
+    array.resize((unsigned long) maxpoint);
     int index = 0;
-
     while (!stop)
     {
-
         // cout <<" 距离是："<<mapswidth[5][0]<<","<<mapswidth[0][3]<<endl;
 //两种情况终止循环1.流量都已经满足2.选择了Int_max
 
-
-        Dijkstra(maxpoint, maxpoint - 2, mapscost, distance, preVertex);
-
+//TODO:Dijkstra函数
+        Dijkstra();
         index = maxpoint - 1;
-        int k = -1;
         vector<int> trace;
         trace.push_back(index);
         array[0] = index;
-        if (preVertex[index] != -1) { k = preVertex[index]; }
-        //cout<<k<<endl;
-        arrays[k][0] = index;
         //记录array，用于计算最小带宽。
-        //记录arrays，保存链路
         int i = 0;
-        int m = 0;
-
-        arrays[k][0] = index;
         while (preVertex[index] != -1)
         {
             trace.push_back(preVertex[index]);
             //arrays[k][++i]=preVertex[index];
             i++;
-            m++;
             array[i] = preVertex[index];
-            arrays[k][m] = preVertex[index];
-            //cout<<endl<<"观察数组" <<arrays[k][m]<<"数组别"<<m;
             index = preVertex[index];
         }
-
         //判断流量是否满足，若满足跳出循环
         //数组排序寻找最小的带宽
-        decreaseandprintf(array, trace, distance);
+        decreaseAndPrintf(trace);
     }
+    stop= false;//用完后复原
     //遍历结束后输出总费用
     printvalues();
+    setBestPath();//仅仅只能调用一次
 }
 
 void MCMF::Dijkstra(
-        const int numOfVertex,    /*节点数目*/
-        const int startVertex,    /*源节点*/
-        int map[][maxpoint],          /*有向图邻接矩阵*/
-        int *distance,            /*各个节点到达源节点的距离*/
-        int *prevVertex           /*各个节点的前一个节点*/
+//        const int numOfVertex,    /*节点数目*/
+//        const int startVertex,    /*源节点*/
+//        int map[][maxpoint],          /*有向图邻接矩阵*/
+//       vector<int> distance,            /*各个节点到达源节点的距离*/
+//       vector<int> prevVertex           /*各个节点的前一个节点*/
 )
 {
+    distance.resize((unsigned long) maxpoint);
+    int numOfVertex = maxpoint;
+    int startVertex = maxpoint - 2;
     vector<bool> isInS;                 //是否已经在S集合中
     isInS.reserve(0);
     isInS.assign((unsigned long) numOfVertex, false);   //初始化，所有的节点都不在S集合中
@@ -413,13 +403,13 @@ void MCMF::Dijkstra(
     /*初始化distance和prevVertex数组*/
     for (int i = 0; i < numOfVertex; ++i)
     {
-        distance[i] = map[startVertex][i];
-        if (map[startVertex][i] < INT_MAX)
-            prevVertex[i] = startVertex;
+        distance[i] = mapscost[startVertex][i];
+        if (mapscost[startVertex][i] < INT_MAX)
+            preVertex[i] = startVertex;
         else
-            prevVertex[i] = -1;       //表示还不知道前一个节点是什么
+            preVertex[i] = -1;       //表示还不知道前一个节点是什么
     }
-    prevVertex[startVertex] = -1;
+    preVertex[startVertex] = -1;
 
     /*开始使用贪心思想循环处理不在S集合中的每一个节点*/
     isInS[startVertex] = true;          //开始节点放入S集合中
@@ -457,25 +447,21 @@ void MCMF::Dijkstra(
 
         for (int j = 0; j < numOfVertex; j++)
         {
-            //
-
-
             if (isInS[j] == false && mapscost[u][j] < INT_MAX)
             {
                 int temp = distance[u] + mapscost[u][j];
                 if (temp < distance[j])
                 {
                     distance[j] = temp;
-                    prevVertex[j] = u;
+                    preVertex[j] = u;
                 }
             }
         }
     }
 }
 
-void MCMF::decreaseandprintf(int array[], vector<int> trace, int distance[])
+void MCMF::decreaseAndPrintf(vector<int> trace)
 {
-//TODO:hh
     int minwidth = INT_MAX;
     //数组是逆向排序的
     for (int j = (int) trace.size() - 2; j > 0; j--)
@@ -486,16 +472,17 @@ void MCMF::decreaseandprintf(int array[], vector<int> trace, int distance[])
             //cout << mapswidth[j][j-1]<<" -- ";
         }
     }
-    int check=0;
-    for (auto it=trace.begin();it!=trace.end();it++)
+    int check = 0;
+    for (auto it = trace.begin(); it != trace.end(); it++)
     {
-        if(*it==maxpoint-2){
-            check=1;
+        if (*it == maxpoint - 2)
+        {
+            check = 1;
             break;
         }
     }
     //判断是否还能到达终点
-    if (check==0)
+    if (check == 0)
     {
         stop = true;
         if (!isenough())
@@ -511,8 +498,8 @@ void MCMF::decreaseandprintf(int array[], vector<int> trace, int distance[])
 
         //选择优化方案
 
-    }
-    else{
+    } else
+    {
 
         if (!isenough())
         {
@@ -528,28 +515,30 @@ void MCMF::decreaseandprintf(int array[], vector<int> trace, int distance[])
                         mapscost[array[j]][array[j - 1]] = INT_MAX;
                 }
             }
-
+            //TODO:dir的大小问题
             //保存费用流方向,array存放的是逆向流
             int dir = array[1];
             //cout<<"dir:"<<dir<<endl;
-
             //if(stop==false){
             cout << "路径：";
+
+            vector<int> temPath;
             while (!trace.empty())
             {
                 cout << *trace.rbegin() << " -- ";
+                temPath.push_back(*trace.rbegin());
 //                trace.resize(trace.size()-1);
                 trace.erase(--trace.end());
             }
-
+            temPath.push_back(minwidth);
+            paths.push_back(temPath);
             cout << " 距离是：" << distance[maxpoint - 1] << endl;
 
             //if(min!=INT_MAX){
             cout << "单条路径费用是：" << distance[maxpoint - 1] * minwidth << endl;
+
             values[dir] = values[dir] + distance[maxpoint - 1] * minwidth;
-            //cout<< dir<<"累计路径费用是："<<values[dir]<<endl;
-            //}
-            //}
+
             isenough();
         } else
             //输出各节点损耗
@@ -560,7 +549,9 @@ void MCMF::decreaseandprintf(int array[], vector<int> trace, int distance[])
 //输出每个消费节点在流量满足的情况下，需要的路径费用
 void MCMF::printvalues()
 {
-    for (int i = 0; i < consumer_nodes; i++)
+    //TODO：values有问题！！！！！！！！
+    // TODO：consumer_nodes换成了network_nodes
+    for (int i = 0; i < network_nodes; i++)
     {
         if (values[i] != 0)
             cout << "消费节点" << i << ":" << "累计路径费用是：" << values[i] << endl;
@@ -586,3 +577,66 @@ bool MCMF::isenough()
     }
     return enough;
 }
+
+void MCMF::setBestPath()
+{
+    int sizeLinks = (int) paths.size();
+
+    for (int k = 0; k < sizeLinks; ++k)
+    {
+        paths[k].erase(paths[k].begin());
+        auto it = --(--paths[k].end());
+        paths[k].erase(it);
+        auto it2 = --(--paths[k].end());
+        paths[k].insert(--paths[k].end(), NodesLinkConsumerNO[*(it2)]);
+    }
+}
+
+int MCMF::getLinksTotalCost()
+{
+    int temCost = 0;
+    for (int i = 0; i < values.size(); ++i)
+    {
+        temCost += values[i];
+    }
+    return temCost;
+}
+
+int MCMF::getServerTotalCost()
+{
+    return ServerTotalCost;
+}
+
+int MCMF::getTotalCost()
+{
+    return (getLinksTotalCost() + getServerTotalCost());
+}
+
+int MCMF::evaluateCost(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &v)
+{
+    setServers(v);
+    mainFunction();//主方法
+    return getTotalCost();;
+}
+
+string MCMF::getBestPath()
+{
+    stringstream read;
+    int sizeLinks = (int) paths.size();
+    read << sizeLinks << "\n";
+
+    for (int i = 0; i < sizeLinks; ++i)
+    {
+        read << "\n";
+        for (int j = 0; j < paths[i].size(); ++j)
+        {
+            read << paths[i][j];
+            if (j != paths[i].size() - 1)
+                read << " ";
+        }
+    }
+
+    cout << read.str();
+    return std::string();
+}
+

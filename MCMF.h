@@ -4,11 +4,13 @@
 
 #ifndef CDN_MCMF_H
 #define CDN_MCMF_H
+
 #include <map>
 #include <vector>
 #include <set>
 #include <climits>
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 struct SeverNoAndAroundBandwidth
@@ -46,21 +48,28 @@ private:
     bool stop = false;
     vector<vector<int >> mapscost;
     vector<vector<int >> mapswidth;
-    set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> SeverNo;
+//    set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> SeverNo;//直连方案服务器信息
 
     double TotalNeed;//所有消费节点总需求
     int SeverCost;//单台服务器成本
+    int ServerTotalCost;//服务器总成本
     unsigned long maxServer;//最大服务器数，即消费节点数
     vector<vector<LinkInfo>> Nets;
     vector<ResumeInfo> Consumers;//vector序号为消费节点编号
-    unsigned long links, consumer_nodes, network_nodes;//链路数，消费节点数，网络节点数
-
+    unsigned long consumer_nodes, network_nodes;//链路数，消费节点数，网络节点数
 
     vector<int> distance;/*各个节点到达源节点的距离*/
     vector<int> preVertex;/*各个节点的前一个节点*/
-    vector<vector<int>>arrays;  /*有向图邻接矩阵*/
-    vector<int >array;
-    vector<int>values;
+    vector<int> array;
+    vector<int> values;
+    vector<vector<int>> paths;
+
+    //消费节点连接的网络节点编号
+    set<int> ConsumerNum;
+    //网络节点编号索引相连消费节点带宽
+    map<int, int> NodesLinkConsumerNeed;
+    //网络节点编号索引相连消费节序号
+    map<int, int> NodesLinkConsumerNO;
 
 public:
     MCMF();
@@ -75,29 +84,40 @@ public:
     set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>
     getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &oldServe);
 
-    //得到部署服务器的成本
-    int getTotalServerCost(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &v);
-
 
     void setServeAroundBandwidth();
 
     set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> getSeverNo();
 
-    void getPath();
+    void mainFunction();
 
     bool isenough();
 
     void Dijkstra(
-            const int numOfVertex,    /*节点数目*/
-            const int startVertex,    /*源节点*/
-            int map[][maxpoint],          /*有向图邻接矩阵*/
-            int *distance,            /*各个节点到达源节点的距离*/
-            int *prevVertex           /*各个节点的前一个节点*/
+//            const int numOfVertex,    /*节点数目*/
+//            const int startVertex,    /*源节点*/
+//            int map[][maxpoint],          /*有向图邻接矩阵*/
+//            int *distance,            /*各个节点到达源节点的距离*/
+//            int *prevVertex           /*各个节点的前一个节点*/
     );
 
+    void decreaseAndPrintf(vector<int> trace);
 
-    void decreaseandprintf(int array[], vector<int> trace, int distance[])
     void printvalues();
+
+    void setBestPath();//输出标准答案格式
+
+    string getBestPath();
+    //得到部署服务器的成本
+    void setTotalServerCost(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &v);
+
+    int getLinksTotalCost();
+
+    int getServerTotalCost();
+
+    int getTotalCost();
+
+    int evaluateCost(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &v);
 };
 
 
