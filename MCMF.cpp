@@ -292,7 +292,10 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
         t_provide += (*item).ServeAroundBandwidth;
     }
     if (t_provide < TotalNeed)
+    {
         newServe = getNewServe(oldServe);
+        return newServe;
+    }
     return newServe;
 }
 
@@ -375,7 +378,7 @@ void MCMF::mainFunction()
         //数组排序寻找最小的带宽
         decreaseAndPrintf(trace);
     }
-    stop= false;//用完后复原
+    stop = false;//用完后复原
     //遍历结束后输出总费用
     printvalues();
     setBestPath();//仅仅只能调用一次
