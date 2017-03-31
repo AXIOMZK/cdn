@@ -1,6 +1,5 @@
 #include "deploy.h"
 #include "MCMF.h"
-
 using namespace std;
 //C++整数规划+模拟退火方案
 
@@ -97,6 +96,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 //    auto curSeverNo = mcmf.getSeverNo();
     auto newSever = curSeverNo;
     auto bestSever = curSeverNo;
+    double bestCost=mcmf.evaluateCost(curSeverNo);
 
     int P_L = 0;
     int P_F = 0;
@@ -105,10 +105,15 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         for (int i = 0; i < ILOOP; i++) //内循环，寻找在一定温度下的最优值
         {
             newSever = mcmf.getNewServe(curSeverNo);
-            double dE = mcmf.evaluateCost(newSever) - mcmf.evaluateCost(curSeverNo);
+            double newCost=mcmf.evaluateCost(newSever);
+
+            double curCost=mcmf.evaluateCost(curSeverNo);
+            double dE = newCost-curCost;
             if (dE < 0)   //如果找到更优值，直接更新
             {
                 curSeverNo = newSever;
+                if(newCost<bestCost)
+                    bestSever=newSever;
                 P_L = 0;
                 P_F = 0;
             } else

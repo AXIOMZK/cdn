@@ -14,7 +14,7 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
     for (auto it = SeverNo.begin(); it != SeverNo.end(); ++it)
     {
         SeverNum.insert((*it).ServerNo);
-        cout<<(*it).ServerNo<<endl;
+        cout << (*it).ServerNo << endl;
     }
 
     //TODO:反复调用是否要做处理
@@ -475,46 +475,55 @@ void MCMF::Dijkstra(
     }
 }
 
-void MCMF::decreaseAndPrintf(vector<int> trace) {
+void MCMF::decreaseAndPrintf(vector<int> trace)
+{
     //先判断是否有路径达到终点
     int check = 0;
-    for (auto it = trace.begin(); it != trace.end(); it++) {
-        if (*it == maxpoint - 2) {
+    for (auto it = trace.begin(); it != trace.end(); it++)
+    {
+        if (*it == maxpoint - 2)
+        {
             check = 1;
             break;
         }
     }
 
-    if (check == 0) {
+    if (check == 0)
+    {
         stop = true;
         //没有路径达到终点时 判断流量是否已经满足
-        if (!isenough()) {
+        if (!isenough())
+        {
             cout << "需求未满足" << endl;
 
-            //显示多少节点多少流量未满足,即判断与汇点的带宽
-            for (int i = 0; i < consumer_nodes; i++)
-            {
-                if (values[i] != 0)
-                    cout << "消费节点" << i << ":" << "累计路径费用是：" << values[i] << endl;
-            }
+//            int count=0;
+//            //显示多少节点多少流量未满足,即判断与汇点的带宽
+//            for (int m = 0; m < maxpoint; m++)
+//            {
+//                if (mapswidth[m][maxpoint - 1] != 0) { count++; }
+//            }
 
 
             //选择优化方案
-        } else {
+        } else
+        {
             cout << "需求已满足" << endl;
             //输出
             printvalues();
         }
 
 
-    } else {
+    } else
+    {
         //可以到达最终点
         //寻找最小带宽
         int minwidth = INT_MAX;
         //数组是逆向排序的
         //寻找最小带宽
-        for (int j = (int) trace.size() - 2; j > 0; j--) {//cout << array[j]<< array[j-1]<<" -- ";
-            if (mapswidth[array[j]][array[j - 1]] < minwidth) {
+        for (int j = (int) trace.size() - 2; j > 0; j--)
+        {//cout << array[j]<< array[j-1]<<" -- ";
+            if (mapswidth[array[j]][array[j - 1]] < minwidth)
+            {
                 minwidth = mapswidth[array[j]][array[j - 1]];
                 //cout << mapswidth[j][j-1]<<" -- ";
             }
@@ -523,8 +532,10 @@ void MCMF::decreaseAndPrintf(vector<int> trace) {
         //修改网络带宽
         cout << "最小" << minwidth;
         //缩减带宽，带宽为0，成本设为最大。
-        for (int j = (int) trace.size() - 2; j > 0; j--) {
-            if (mapswidth[array[j]][array[j - 1]] != INT_MAX) {
+        for (int j = (int) trace.size() - 2; j > 0; j--)
+        {
+            if (mapswidth[array[j]][array[j - 1]] != INT_MAX)
+            {
                 mapswidth[array[j]][array[j - 1]] = mapswidth[array[j]][array[j - 1]] - minwidth;
                 //cout <<"shcuhu"<< mapswidth[array[j]][array[j-1]];
                 if (mapswidth[array[j]][array[j - 1]] == 0)
@@ -539,7 +550,8 @@ void MCMF::decreaseAndPrintf(vector<int> trace) {
         cout << "路径：";
 
         vector<int> temPath;
-        while (!trace.empty()) {
+        while (!trace.empty())
+        {
             cout << *trace.rbegin() << " -- ";
             temPath.push_back(*trace.rbegin());
 //                trace.resize(trace.size()-1);
@@ -554,13 +566,13 @@ void MCMF::decreaseAndPrintf(vector<int> trace) {
 
         values[dir] = values[dir] + distance[maxpoint - 1] * minwidth;
 
-        if(isenough()){
-            cout<<"需求已满足";
+        if (isenough())
+        {
+            cout << "需求已满足";
         }
     }
 
 }
-
 
 
 //输出每个消费节点在流量满足的情况下，需要的路径费用
@@ -589,7 +601,7 @@ bool MCMF::isenough()
     if (count == maxpoint)
     {
         stop = true;
-       // cout << "需求已满足" << endl;
+        // cout << "需求已满足" << endl;
         enough = true;
     }
     return enough;
@@ -626,15 +638,23 @@ int MCMF::getServerTotalCost()
 
 int MCMF::getTotalCost()
 {
-    return (getLinksTotalCost() + getServerTotalCost());
+    //不满足流量时的惩罚因子
+    int countSever = 0;
+    //显示多少节点多少流量未满足,即判断与汇点的带宽
+    for (int m = 0; m < maxpoint; m++)
+    {
+        if (mapswidth[m][maxpoint - 1] != 0) { countSever++; }
+    }
+    countSever*=SeverCost;
+    return (getLinksTotalCost() + getServerTotalCost()+countSever);
 }
 
 int MCMF::evaluateCost(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &v)
 {
     setServers(v);
     mainFunction();//主方法
-    int Tcost=getTotalCost();
-    cout<<"总成本:"<<Tcost<<endl;
+    int Tcost = getTotalCost();
+    cout << "总成本:" << Tcost << endl;
     return Tcost;
 }
 
