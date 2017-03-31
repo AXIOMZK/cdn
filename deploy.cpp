@@ -1,6 +1,10 @@
 #include "deploy.h"
 #include "MCMF.h"
-
+#ifdef _DEBUG
+#define PRINT   printf
+#else
+#define PRINT(...)
+#endif
 using namespace std;
 //C++整数规划+模拟退火方案
 
@@ -17,7 +21,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 {
     //执行定时器函数
     signal(SIGALRM, timer);
-    alarm(80); //定时80s
+    alarm(83); //定时80s
 
     double TotalNeed;//所有消费节点总需求
     int SeverCost;
@@ -74,8 +78,8 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     mcmf.mainFunction();//主方法
 
     //mcmf.getBestPath();//输出标准格式最优路径
-
-    cout << endl << mcmf.getTotalCost() << endl;
+    PRINT("%d\n",mcmf.getTotalCost());
+//    cout << endl << mcmf.getTotalCost() << endl;
 //    auto newSever=curSeverNo;
 //    for (int l = 0; l <1000; ++l)
 //    {
@@ -86,12 +90,12 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 
 
     //模拟退火
-#define T     60000     //初始温度
+#define T     1000     //初始温度
 #define EPS   1e-8    //终止温度
 #define DELTA 0.98    //温度衰减率
-#define LIMIT 3000   //概率选择上限
-#define OLOOP 1000    //外循环次数
-#define ILOOP 4000  //内循环次数
+#define LIMIT 100   //概率选择上限
+#define OLOOP 30    //外循环次数
+#define ILOOP 100  //内循环次数
     double t = T;
     srand((unsigned int) time(NULL));
 //    auto curSeverNo = mcmf.getSeverNo();
@@ -105,7 +109,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 
     int P_L = 0;
     int P_F = 0;
-    while (1)       //外循环，主要更新参数t，模拟退火过程
+    while (isExit)       //外循环，主要更新参数t，模拟退火过程
     {
         for (int i = 0; i < ILOOP; i++) //内循环，寻找在一定温度下的最优值
         {
@@ -142,7 +146,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     auto bestSever=
     mcmf.evaluateCost(bestSever1)<mcmf.evaluateCost(bestSever2)?bestSever1:bestSever2;
 
-
+    PRINT("\n======================================\n");
     cout << endl << "======================================"
          << endl << "最优解" << endl;
     mcmf.setServers(bestSever);
@@ -153,7 +157,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 
     cout << endl << mcmf.getTotalCost() << endl;
 
-
+//直连方案(大数据直接输出直连)
 //    read.str("");
 //    stringstream &results = read;
 //    results << consumer_nodes << "\n";

@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     int line_num;
 
 //    char *topo_file = argv[1];
-    char *topo_file = (char *) "/Users/kingzhang.cn/Desktop/HUAWEI/case_example/0/case0.txt";
+    char *topo_file = (char *) "/Users/kingzhang.cn/Desktop/HUAWEI/case_example/1/0/case0.txt";
 
     line_num = read_file(topo, MAX_EDGE_NUM, topo_file);
 
