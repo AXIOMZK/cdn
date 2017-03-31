@@ -2,7 +2,7 @@
 // Created by 张琨 on 2017/3/29.
 //
 
-//重构函数
+//重构函数guywwei
 #include "MCMF.h"
 
 void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &SeverNo)
@@ -25,6 +25,7 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
 
     mapscost.resize(network_nodes + 2, vector<int>(network_nodes + 2));
     mapswidth.resize(network_nodes + 2, vector<int>(network_nodes + 2));
+
 
     for (int i = 0; i < network_nodes + 2; i++)
     {
@@ -474,91 +475,93 @@ void MCMF::Dijkstra(
     }
 }
 
-void MCMF::decreaseAndPrintf(vector<int> trace)
-{
-    int minwidth = INT_MAX;
-    //数组是逆向排序的
-    for (int j = (int) trace.size() - 2; j > 0; j--)
-    {//cout << array[j]<< array[j-1]<<" -- ";
-        if (mapswidth[array[j]][array[j - 1]] < minwidth)
-        {
-            minwidth = mapswidth[array[j]][array[j - 1]];
-            //cout << mapswidth[j][j-1]<<" -- ";
-        }
-    }
+void MCMF::decreaseAndPrintf(vector<int> trace) {
+    //先判断是否有路径达到终点
     int check = 0;
-    for (auto it = trace.begin(); it != trace.end(); it++)
-    {
-        if (*it == maxpoint - 2)
-        {
+    for (auto it = trace.begin(); it != trace.end(); it++) {
+        if (*it == maxpoint - 2) {
             check = 1;
             break;
         }
     }
-    //判断是否还能到达终点
-    if (check == 0)
-    {
+
+    if (check == 0) {
         stop = true;
-        if (!isenough())
-        {
+        //没有路径达到终点时 判断流量是否已经满足
+        if (!isenough()) {
             cout << "需求未满足" << endl;
+
             //显示多少节点多少流量未满足,即判断与汇点的带宽
             for (int i = 0; i < consumer_nodes; i++)
             {
                 if (values[i] != 0)
                     cout << "消费节点" << i << ":" << "累计路径费用是：" << values[i] << endl;
             }
+
+
+            //选择优化方案
+        } else {
+            cout << "需求已满足" << endl;
+            //输出
+            printvalues();
         }
 
-        //选择优化方案
 
-    } else
-    {
-
-        if (!isenough())
-        {
-            cout << "最小" << minwidth;
-            //缩减带宽，带宽为0，成本设为最大。
-            for (int j = (int) trace.size() - 2; j > 0; j--)
-            {
-                if (mapswidth[array[j]][array[j - 1]] != INT_MAX)
-                {
-                    mapswidth[array[j]][array[j - 1]] = mapswidth[array[j]][array[j - 1]] - minwidth;
-                    //cout <<"shcuhu"<< mapswidth[array[j]][array[j-1]];
-                    if (mapswidth[array[j]][array[j - 1]] == 0)
-                        mapscost[array[j]][array[j - 1]] = INT_MAX;
-                }
+    } else {
+        //可以到达最终点
+        //寻找最小带宽
+        int minwidth = INT_MAX;
+        //数组是逆向排序的
+        //寻找最小带宽
+        for (int j = (int) trace.size() - 2; j > 0; j--) {//cout << array[j]<< array[j-1]<<" -- ";
+            if (mapswidth[array[j]][array[j - 1]] < minwidth) {
+                minwidth = mapswidth[array[j]][array[j - 1]];
+                //cout << mapswidth[j][j-1]<<" -- ";
             }
-            //TODO:dir的大小问题
-            //保存费用流方向,array存放的是逆向流
-            int dir = array[1];
-            //cout<<"dir:"<<dir<<endl;
-            //if(stop==false){
-            cout << "路径：";
+        }
 
-            vector<int> temPath;
-            while (!trace.empty())
-            {
-                cout << *trace.rbegin() << " -- ";
-                temPath.push_back(*trace.rbegin());
+        //修改网络带宽
+        cout << "最小" << minwidth;
+        //缩减带宽，带宽为0，成本设为最大。
+        for (int j = (int) trace.size() - 2; j > 0; j--) {
+            if (mapswidth[array[j]][array[j - 1]] != INT_MAX) {
+                mapswidth[array[j]][array[j - 1]] = mapswidth[array[j]][array[j - 1]] - minwidth;
+                //cout <<"shcuhu"<< mapswidth[array[j]][array[j-1]];
+                if (mapswidth[array[j]][array[j - 1]] == 0)
+                    mapscost[array[j]][array[j - 1]] = INT_MAX;
+            }
+        }
+        //TODO:dir的大小问题
+        //保存费用流方向,array存放的是逆向流
+        int dir = array[1];
+        //cout<<"dir:"<<dir<<endl;
+        //if(stop==false){
+        cout << "路径：";
+
+        vector<int> temPath;
+        while (!trace.empty()) {
+            cout << *trace.rbegin() << " -- ";
+            temPath.push_back(*trace.rbegin());
 //                trace.resize(trace.size()-1);
-                trace.erase(--trace.end());
-            }
-            temPath.push_back(minwidth);
-            paths.push_back(temPath);
-            cout << " 距离是：" << distance[maxpoint - 1] << endl;
+            trace.erase(--trace.end());
+        }
+        temPath.push_back(minwidth);
+        paths.push_back(temPath);
+        cout << " 距离是：" << distance[maxpoint - 1] << endl;
 
-            //if(min!=INT_MAX){
-            cout << "单条路径费用是：" << distance[maxpoint - 1] * minwidth << endl;
+        //if(min!=INT_MAX){
+        cout << "单条路径费用是：" << distance[maxpoint - 1] * minwidth << endl;
 
-            values[dir] = values[dir] + distance[maxpoint - 1] * minwidth;
+        values[dir] = values[dir] + distance[maxpoint - 1] * minwidth;
 
-            isenough();
-        } else
-            //输出各节点损耗
-            printvalues();
+        if(isenough()){
+            cout<<"需求已满足";
+        }
     }
+
 }
+
+
 
 //输出每个消费节点在流量满足的情况下，需要的路径费用
 void MCMF::printvalues()
@@ -586,7 +589,7 @@ bool MCMF::isenough()
     if (count == maxpoint)
     {
         stop = true;
-        cout << "需求已满足" << endl;
+       // cout << "需求已满足" << endl;
         enough = true;
     }
     return enough;

@@ -1,5 +1,11 @@
 #include "deploy.h"
 #include "MCMF.h"
+#define T     1      //初始温度
+#define EPS   1e-8    //终止温度
+#define DELTA 0.98    //温度衰减率
+#define LIMIT 1   //概率选择上限
+#define OLOOP 5    //外循环次数
+#define ILOOP 5   //内循环次数
 using namespace std;
 //C++整数规划+模拟退火方案
 
@@ -25,7 +31,6 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     read >> network_nodes >> links >> consumer_nodes;
     //单台服务器成本
     SeverCost = atoi(topo[2]);
-
 
     vector<vector<LinkInfo>> Nets(network_nodes, vector<LinkInfo>(network_nodes));
     for (unsigned long i = 4; i < 4 + links; ++i)
