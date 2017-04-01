@@ -45,9 +45,6 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
             } else
             {
 
-
-
-
                 //如果i是服务器点
                 if (SeverNum.count(i))
                 {
