@@ -488,18 +488,17 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
             }
             newServe.erase(newServe.begin());
         }*/
-        else if (flag >= 80 && flag <90 )
+        else if (flag >= 80 && flag < 90)
         {
             //优先添加所能提供带宽最大的服务器
             unsigned long temp_size = newServe.size();
-            auto it=AllNodeAroundBandwidth.rbegin();
+            auto it = AllNodeAroundBandwidth.rbegin();
             while (newServe.size() == temp_size)
             {
                 newServe.insert(*(it++));
             }
 
-        }
-        else if (flag >= 90 && flag < 93)
+        } else if (flag >= 90 && flag < 93)
         {
             //完全产生新服务器
             newServe.clear();
@@ -695,8 +694,8 @@ void MCMF::setServeAroundBandwidth()
         //vector<int> ServeAroundBandwidth(network_nodes);//序号为服务器所连的节点号，值为评估带宽
         ServeAroundBandwidth.push_back(AroundBandwidth);
         SeverNoAndAroundBandwidth pair;
-        pair.ServeAroundBandwidth=AroundBandwidth;
-        pair.ServerNo=i;
+        pair.ServeAroundBandwidth = AroundBandwidth;
+        pair.ServerNo = i;
         AllNodeAroundBandwidth.insert(pair);
     }
 
@@ -1049,9 +1048,11 @@ string MCMF::getBestPath()
     stringstream read;
     int sizeLinks = (int) paths.size();
     read << sizeLinks << "\n";
-
+    //TODO:存当前消费节点的获得流量
+    vector<int> tem(consumer_nodes, 0);
     for (int i = 0; i < sizeLinks; ++i)
     {
+        tem[paths[i][paths[i].size() - 2]] += paths[i][paths[i].size() - 1];
         read << "\n";
         for (int j = 0; j < paths[i].size(); ++j)
         {
@@ -1060,6 +1061,16 @@ string MCMF::getBestPath()
                 read << " ";
         }
     }
+    //TODO:修正评估错解
+    for (int k = 0; k < tem.size(); ++k)
+    {
+        int s = Consumers[k].need_bandwidth - tem[k];
+        if (s>0)
+        {
+            read<<"\n"<<Consumers[k].node_NO<<" "<<k<<" "<<s;
+        }
+    }
+
     return read.str();
 }
 

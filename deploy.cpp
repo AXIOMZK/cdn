@@ -19,7 +19,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 {
     //执行定时器函数
     signal(SIGALRM, timer);
-    alarm(80); //定时80s
+    alarm(86); //定时80s
 
     int TotalNeed;//所有消费节点总需求
     int SeverCost;
@@ -129,7 +129,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
             DELTA = 0.98;    //温度衰减率
             LIMIT = 15;      //概率选择上限
             OLOOP = 500;      //外循环次数
-            ILOOP = 400;      //内循环次数
+            ILOOP = 450;      //内循环次数
             p0=1.2;
         }
 
