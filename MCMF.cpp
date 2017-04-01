@@ -45,9 +45,6 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
             } else
             {
 
-
-
-
                 //如果i是服务器点
                 if (SeverNum.count(i))
                 {
@@ -68,8 +65,8 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
                             mapswidth[i][j] = 0;
                         }
                         else {
-                        mapscost[i][j] = 0;
-                        mapswidth[i][j] = INT_MAX;
+                            mapscost[i][j] = 0;
+                            mapswidth[i][j] = INT_MAX;
                         }
                     }
                         //j是主汇点
@@ -98,7 +95,7 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
                         mapswidth[i][j] = Nets[i][j].total_bandwidth;
                     }
                 }
-                 //i是消费节点
+                    //i是消费节点
                 else if (ConsumerNum.count(i))
                 {
                     //j是服务器点
@@ -163,13 +160,13 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
                         //如果j是消费点
                         if(ConsumerNum.count(j))
                         {
-                         mapscost[i][j] = INT_MAX;
-                         mapswidth[i][j] = 0;
+                            mapscost[i][j] = INT_MAX;
+                            mapswidth[i][j] = 0;
                         }
                         else
                         {
-                         mapscost[i][j] = 0;
-                         mapswidth[i][j] = INT_MAX;
+                            mapscost[i][j] = 0;
+                            mapswidth[i][j] = INT_MAX;
                         }
                     } else
                     {
@@ -188,13 +185,13 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
                         //j是服务器点
                         if(SeverNum.count(j))
                         {
-                         mapscost[i][j] = INT_MAX;
-                         mapswidth[i][j] = 0;
+                            mapscost[i][j] = INT_MAX;
+                            mapswidth[i][j] = 0;
                         }
                         else
                         {
-                         mapscost[i][j] = 0;
-                         mapswidth[i][j] = NodesLinkConsumerNeed[j];
+                            mapscost[i][j] = 0;
+                            mapswidth[i][j] = NodesLinkConsumerNeed[j];
                         }
                     }
                     else
@@ -471,17 +468,9 @@ void MCMF::setServeAroundBandwidth()
     {
         for (int j = 0; j < network_nodes; ++j)
         {
-
-                AroundBandwidth += Nets[i][j].total_bandwidth;
-
+            AroundBandwidth += Nets[i][j].total_bandwidth;
         }
         //vector<int> ServeAroundBandwidth(network_nodes);//序号为服务器所连的节点号，值为评估带宽
-        //修改
-        //如果i是消费节点
-        if(ConsumerNum.count(i))
-        {
-            AroundBandwidth +=NodesLinkConsumerNeed[i];
-        }
         ServeAroundBandwidth.push_back(AroundBandwidth);
     }
 }
@@ -805,8 +794,6 @@ int MCMF::getTotalCost()
 
 int MCMF::evaluateCost(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &v)
 {
-
-    //将网络图转化为Dj的运算矩阵
     setServers(v);
     mainFunction();//主方法
     int Tcost = getTotalCost();
