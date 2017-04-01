@@ -20,7 +20,7 @@ void timer(int sig) {
 void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename) {
     //执行定时器函数
     signal(SIGALRM, timer);
-    alarm(300); //定时80s
+    alarm(80); //定时80s
 
     double TotalNeed;//所有消费节点总需求
     int SeverCost;
@@ -64,12 +64,12 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename) {
     mcmf.setConsumersAndNets(Consumers, Nets);
     mcmf.setSeverCostAndTotalNeed(SeverCost, TotalNeed);
 
-
+    //mcmf.getSeverNo(),初始化为直连方案
     auto curSeverNo = mcmf.getSeverNo();
 
 //    auto newServerNo = mcmf.getNewServe(curSeverNo);
 
-    //传入服务器编号
+    //传入服务器编号,初使直连，初始化矩阵
     mcmf.setServers(curSeverNo);
 
     mcmf.mainFunction();//主方法
@@ -87,12 +87,12 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename) {
 
 
     //模拟退火
-#define T     1000     //初始温度
+#define T     5000     //初始温度
 #define EPS   1e-8    //终止温度
 #define DELTA 0.98    //温度衰减率
-#define LIMIT 100   //概率选择上限
-#define OLOOP 500    //外循环次数
-#define ILOOP 1000  //内循环次数
+#define LIMIT 3000  //概率选择上限
+#define OLOOP 1000   //外循环次数
+#define ILOOP 4000  //内循环次数
     double t = T;
     srand((unsigned int) time(NULL));
 //    auto curSeverNo = mcmf.getSeverNo();
@@ -138,8 +138,13 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename) {
             break;
         t *= DELTA;
     }
-    auto bestSever =
-            mcmf.evaluateCost(bestSever1) < mcmf.evaluateCost(bestSever2) ? bestSever1 : bestSever2;
+
+    set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> bestSever;
+    if (mcmf.evaluateCost(bestSever1) < mcmf.evaluateCost(bestSever2)) {
+        bestSever = bestSever1;
+    } else {
+        bestSever = bestSever2;
+    }
 
     PRINT("\n======================================\n");
     cout << endl << "======================================"

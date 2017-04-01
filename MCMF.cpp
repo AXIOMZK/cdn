@@ -467,9 +467,17 @@ void MCMF::setServeAroundBandwidth()
     {
         for (int j = 0; j < network_nodes; ++j)
         {
-            AroundBandwidth += Nets[i][j].total_bandwidth;
+
+                AroundBandwidth += Nets[i][j].total_bandwidth;
+
         }
         //vector<int> ServeAroundBandwidth(network_nodes);//序号为服务器所连的节点号，值为评估带宽
+        //修改
+        //如果i是消费节点
+        if(ConsumerNum.count(i))
+        {
+            AroundBandwidth +=NodesLinkConsumerNeed[i];
+        }
         ServeAroundBandwidth.push_back(AroundBandwidth);
     }
 }
@@ -793,6 +801,8 @@ int MCMF::getTotalCost()
 
 int MCMF::evaluateCost(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &v)
 {
+
+    //将网络图转化为Dj的运算矩阵
     setServers(v);
     mainFunction();//主方法
     int Tcost = getTotalCost();
