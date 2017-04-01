@@ -5,7 +5,7 @@
 
 using namespace std;
 
-//C++整数规划+模拟退火方案
+//C++整数规划+模拟退火方案11111111111111111111
 
 int isExit = 1;//定时器标志
 //通过调用alarm来设置计时器，然后继续做别的事情。当计时器计时到0时，信号发送，处理函数被调用。
@@ -19,7 +19,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 {
     //执行定时器函数
     signal(SIGALRM, timer);
-    alarm(80); //定时80s
+    alarm(83); //定时80s
 
     int TotalNeed;//所有消费节点总需求
     int SeverCost;
