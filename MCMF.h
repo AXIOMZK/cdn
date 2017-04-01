@@ -52,7 +52,10 @@ struct Bandwidth_From_Small_To_Big
 class MCMF
 {
 private:
+    //某网络节点作为服务器时的最大提供带宽
     vector<int> ServeAroundBandwidth;//序号为服务器所连的节点号，值为评估带宽
+    //所以节点的评估带宽存储
+    set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>AllNodeAroundBandwidth;
     int maxpoint;
     bool stop = false;
     vector<vector<int> > mapscost;
@@ -78,7 +81,7 @@ private:
     set<int> ConsumerNum;
     //网络节点编号索引相连消费节点带宽
     map<int, int> NodesLinkConsumerNeed;
-    //网络节点编号索引相连消费节序号
+    //网络节点编号索引相连消费节点序号
     map<int, int> NodesLinkConsumerNO;
 
 public:

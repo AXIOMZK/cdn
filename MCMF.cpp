@@ -468,7 +468,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                     newServe.insert(pair);
                 }
             }
-        } else if (flag >= 60 && flag < 85)
+        } else if (flag >= 60 && flag < 70)
         {
             //优先删除所能提供带宽最小的服务器
             if (newServe.size() > minSeverNum)
@@ -488,7 +488,18 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
             }
             newServe.erase(newServe.begin());
         }*/
-        else if (flag >= 85 && flag < 93)
+        else if (flag >= 70 && flag < 80)
+        {
+            //优先添加所能提供带宽最大的服务器
+            unsigned long temp_size = newServe.size();
+            auto it=AllNodeAroundBandwidth.rbegin();
+            while (newServe.size() == temp_size)
+            {
+                newServe.insert(*(it++));
+            }
+
+        }
+        else if (flag >= 80 && flag < 90)
         {
             //完全产生新服务器
             newServe.clear();
@@ -683,6 +694,10 @@ void MCMF::setServeAroundBandwidth()
         }
         //vector<int> ServeAroundBandwidth(network_nodes);//序号为服务器所连的节点号，值为评估带宽
         ServeAroundBandwidth.push_back(AroundBandwidth);
+        SeverNoAndAroundBandwidth pair;
+        pair.ServeAroundBandwidth=AroundBandwidth;
+        pair.ServerNo=i;
+        AllNodeAroundBandwidth.insert(pair);
     }
 
     //得到服务器评估最小数
@@ -698,6 +713,8 @@ void MCMF::setServeAroundBandwidth()
             break;
     }
     minSeverNum = (unsigned long) k;
+
+
 }
 
 set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> MCMF::getSeverNo()
@@ -1045,4 +1062,5 @@ string MCMF::getBestPath()
     }
     return read.str();
 }
+
 
