@@ -32,9 +32,6 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
     for (int i = 0; i < network_nodes + 2; i++)
     {
         //如果i是服务器也是消费节点，不用计算路径费用
-
-
-
         for (int j = 0; j < network_nodes + 2; j++)
         {
             //自身cost=0
@@ -58,16 +55,10 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
                     }
                         //j是主源点
                     else if (j == network_nodes)
-                    {    //修改
-                        //如果i同时是消费点，路径费用为0，不用跑了
-                        if(ConsumerNum.count(i)){
-                            mapscost[i][j] = INT_MAX;
-                            mapswidth[i][j] = 0;
-                        }
-                        else {
-                            mapscost[i][j] = 0;
-                            mapswidth[i][j] = INT_MAX;
-                        }
+                    {
+                         mapscost[i][j] = 0;
+                         mapswidth[i][j] = INT_MAX;
+
                     }
                         //j是主汇点
                     else if (j == network_nodes + 1)
@@ -82,7 +73,7 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
                             mapswidth[i][j] = 0;
 
                         }
-                            //i不是消费节点
+                         //i不是消费节点
                         else
                         {
                             mapscost[i][j] = INT_MAX;
@@ -133,8 +124,8 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
                         //判断i是否为服务点
                         if (SeverNum.count(i))
                         {   //修改
-                            mapscost[i][j] = INT_MAX;
-                            mapswidth[i][j] = 0;
+                            mapscost[i][j] = 0;
+                            mapswidth[i][j] = INT_MAX;
                         }
                             //i不是服务节点
                         else
@@ -156,18 +147,9 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
                     //j是服务点
                     if (SeverNum.count(j))
                     {
-                        //修改
-                        //如果j是消费点
-                        if(ConsumerNum.count(j))
-                        {
-                            mapscost[i][j] = INT_MAX;
-                            mapswidth[i][j] = 0;
-                        }
-                        else
-                        {
-                            mapscost[i][j] = 0;
-                            mapswidth[i][j] = INT_MAX;
-                        }
+                         mapscost[i][j] = 0;
+                         mapswidth[i][j] = INT_MAX;
+
                     } else
                     {
                         mapscost[i][j] = INT_MAX;
@@ -354,10 +336,15 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                 newServe.insert(pair);
             }
         }
+
+        //计算新服务器的输出总量，便于判断其是否符合条件。
         t_provide = 0;
         for (auto item = newServe.begin(); item != newServe.end(); ++item)
-        {
-            t_provide += (*item).ServeAroundBandwidth;
+        {    t_provide += (*item).ServeAroundBandwidth;
+//            for(auto item2 = newServe.begin(); item != newServe.end(); ++item)
+//            {
+//
+//            }
         }
     }
 
@@ -592,11 +579,9 @@ void MCMF::Dijkstra()
         //下一次寻找的开始节点
 
         //当消费点被收录后，已获得一个最短路径，处理相邻矩阵后，继续下一轮搜索，注意搜索停止条件。
-        if (nextVertex == maxpoint - 1) { break; }
+        if (nextVertex == maxpoint - 1) { break;}
 
         /*更新distance*/
-        //如果
-
         for (int j = 0; j < numOfVertex; j++)
         {
             if (isInS[j] == false && mapscost[u][j] < INT_MAX)
