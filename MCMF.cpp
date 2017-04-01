@@ -191,7 +191,6 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
 //    cout << mapswidth[50][13] << " " << mapscost[50][13] << endl;
 //    cout << mapswidth[51][38] << " " << mapscost[51][38] << endl;
 
-
 }
 
 
