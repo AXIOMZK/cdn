@@ -20,6 +20,7 @@
 #else
 #define PRINT(...)
 #endif
+
 using namespace std;
 
 struct SeverNoAndAroundBandwidth
@@ -83,7 +84,7 @@ private:
 public:
     MCMF(const vector<ResumeInfo> &Consumers, const vector<vector<LinkInfo>> &Nets,int SeverCost, double TotalNeed);
 
-    void setConsumersAndNets(const vector<ResumeInfo> &Consumers, const vector<vector<LinkInfo> > &Nets);
+    void setConsumersAndNets(const vector<ResumeInfo> &Consumers, const vector<vector<LinkInfo>> &Nets);
 
     void setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &SeverNo);
 

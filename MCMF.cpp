@@ -468,7 +468,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                     newServe.insert(pair);
                 }
             }
-        } else if (flag >= 60 && flag < 80)
+        } else if (flag >= 60 && flag < 85)
         {
             //优先删除所能提供带宽最小的服务器
             if (newServe.size() > minSeverNum)
@@ -488,7 +488,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
             }
             newServe.erase(newServe.begin());
         }*/
-        else if (flag >= 80 && flag < 90)
+        else if (flag >= 85 && flag < 93)
         {
             //完全产生新服务器
             newServe.clear();
