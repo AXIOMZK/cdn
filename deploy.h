@@ -11,6 +11,7 @@
 #include <climits>
 #include <signal.h>
 using namespace std;
+
 //服务器部署编号(连接的节点号)，评估带宽结构体
 struct SeverNoAndAroundBandwidth;
 //链路信息(双向)
@@ -23,5 +24,5 @@ void deploy_server(char *graph[MAX_EDGE_NUM], int edge_num, char *filename);
 
 void timer(int sig);
 
-
 #endif
+
