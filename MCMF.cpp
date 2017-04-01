@@ -402,7 +402,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
         double flag = 100.0 * ((double) rand()) / (RAND_MAX + 0.0001);
 
 //        cout<<flag<<endl;
-        if (flag >= 0 && flag < 18)
+        if (flag >= 0 && flag < 20)
         {
             //随机删除一个服务器,小型数据
             if (newServe.size() > minSeverNum)
@@ -414,7 +414,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                 newServe.erase(it);
             }
 
-        } else if (flag >= 18 && flag < 30)
+        } else if (flag >= 20 && flag < 40)
         {
             //随机添加一个服务器,小型数据
             unsigned long temp_size = newServe.size();
@@ -427,7 +427,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                 newServe.insert(pair);
             }
 
-        } else if (flag >= 30 && flag < 48)
+        } else if (flag >= 40 && flag < 50)
         {
             //随机按比例删除服务器，中大型数据
             double ra = (double) (8 + rand() % 8) / 100.0;//8%-16%
@@ -444,7 +444,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                 while (pos--) it++;
                 newServe.erase(it);
             }
-        } else if (flag >= 48 && flag < 60)
+        } else if (flag >= 50 && flag < 60)
         {
             //随机按比例增加服务器，中大型数据
             double ra = (double) (8 + rand() % 8) / 100.0;//8%-16%
@@ -468,7 +468,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                     newServe.insert(pair);
                 }
             }
-        } else if (flag >= 60 && flag < 75)
+        } else if (flag >= 60 && flag < 80)
         {
             //优先删除所能提供带宽最小的服务器
             if (newServe.size() > minSeverNum)
@@ -488,7 +488,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
             }
             newServe.erase(newServe.begin());
         }*/
-        else if (flag >= 75 && flag <85 )
+        else if (flag >= 80 && flag <90 )
         {
             //优先添加所能提供带宽最大的服务器
             unsigned long temp_size = newServe.size();
@@ -499,7 +499,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
             }
 
         }
-        else if (flag >= 85 && flag < 90)
+        else if (flag >= 90 && flag < 93)
         {
             //完全产生新服务器
             newServe.clear();

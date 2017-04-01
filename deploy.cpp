@@ -100,12 +100,12 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 
         //TODO:模拟退火
 
-        double T = 1100;     //初始温度
+        double T = 1000;     //初始温度
         double EPS = 1e-9;     //终止温度
         double DELTA = 0.98;     //温度衰减率
         int LIMIT = 10;     //概率选择上限
         int OLOOP = 20000;      //外循环次数
-        int ILOOP = 1500;      //内循环次数
+        int ILOOP = 1000;      //内循环次数
         double t = T;
         int P_L = 0;
         int P_F = 0;
@@ -144,7 +144,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                 } else
                 {
                     double rd = rand() / (RAND_MAX + 1.0);
-                    if (exp(dE / t) > rd && exp(dE / t) < 1.03)   //如果找到比当前更差的解，以一定概率接受该解，并且这个概率会越来越小
+                    if (exp(dE / t) > rd && exp(dE / t) < 1.0)   //如果找到比当前更差的解，以一定概率接受该解，并且这个概率会越来越小
                     {
                         curSeverNo = newSever;
                         curCost = newCost;
