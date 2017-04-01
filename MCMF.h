@@ -13,6 +13,8 @@
 #include <iostream>
 #include <sstream>
 #include <cstdlib>
+#include <algorithm>
+
 #ifdef _DEBUG
 #define PRINT   printf
 #else
@@ -59,7 +61,8 @@ private:
     double TotalNeed;//所有消费节点总需求
     int SeverCost;//单台服务器成本
     int ServerTotalCost;//服务器总成本
-    unsigned long maxServer;//最大服务器数，即消费节点数
+    unsigned long maxServerNum;//最大服务器数，即消费节点数
+    unsigned long minSeverNum;//最小服务器数
     vector<vector<LinkInfo> > Nets;
     vector<ResumeInfo> Consumers;//vector序号为消费节点编号
     unsigned long consumer_nodes, network_nodes;//链路数，消费节点数，网络节点数
@@ -118,7 +121,9 @@ public:
 
     int getTotalCost();
 
-    int evaluateCost(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &v);
+    int evaluateCost(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &sever);
+
+
 };
 
 
