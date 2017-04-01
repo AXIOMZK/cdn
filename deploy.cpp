@@ -19,7 +19,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 {
     //执行定时器函数
     signal(SIGALRM, timer);
-    alarm(80); //定时80s
+    alarm(85); //定时80s
 
     int TotalNeed;//所有消费节点总需求
     int SeverCost;
@@ -56,7 +56,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         TotalNeed += need_bandwidth;
     }
 
-    if (links > 1999)
+    if (links > 2000)
     {
         //TODO:直连方案(大数据直接输出直连)
         read.str("");
@@ -97,15 +97,45 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
             cout<<dE<<endl;
         }*/
 
+        double T;     //初始温度
+        double EPS;     //终止温度
+        double DELTA;     //温度衰减率
+        int LIMIT;    //概率选择上限
+        int OLOOP;      //外循环次数
+        int ILOOP;      //内循环次数
+
+        double p0;   //退火接受参数
+
+        if (links > 1000)
+        {
+            T = 1000;     //初始温度
+            EPS = 1e-9;     //终止温度
+            DELTA = 0.98;     //温度衰减率
+            LIMIT = 10;     //概率选择上限
+            OLOOP = 20000;      //外循环次数
+            ILOOP = 1000;      //内循环次数
+            p0 = 1.0;
+        } else
+        {
+//            T = 650;         //初始温度
+//            EPS = 1e-9;      //终止温度
+//            DELTA = 0.95;    //温度衰减率
+//            LIMIT = 20;      //概率选择上限
+//            OLOOP = 300;      //外循环次数
+//            ILOOP = 400;      //内循环次数
+//            p0=1.22;
+            T = 1000;         //初始温度
+            EPS = 1e-9;      //终止温度
+            DELTA = 0.98;    //温度衰减率
+            LIMIT = 15;      //概率选择上限
+            OLOOP = 500;      //外循环次数
+            ILOOP = 400;      //内循环次数
+            p0=1.2;
+        }
 
         //TODO:模拟退火
 
-        double T = 1000;     //初始温度
-        double EPS = 1e-9;     //终止温度
-        double DELTA = 0.98;     //温度衰减率
-        int LIMIT = 10;     //概率选择上限
-        int OLOOP = 20000;      //外循环次数
-        int ILOOP = 1000;      //内循环次数
+
         double t = T;
         int P_L = 0;
         int P_F = 0;
@@ -122,10 +152,9 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         int curCost = bestCost;//当前的费用
 
 
-
         while (isExit)       //外循环，主要更新参数t，模拟退火过程
         {
-            cout<<"==========================P_F:"<<P_F<<endl;
+//            cout<<"==========================P_F:"<<P_F<<endl;
             for (int i = 0; i < ILOOP; i++) //内循环，寻找在一定温度下的最优值
             {
                 if (!isExit)break;
@@ -136,7 +165,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                 {
                     curSeverNo = newSever;
                     curCost = newCost;
-                    cout<<newCost<<endl;
+//                    cout<<newCost<<endl;
                     if (newCost < bestCost)
                         bestSever1 = newSever;
                     P_L = 0;
@@ -144,14 +173,15 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                 } else
                 {
                     double rd = rand() / (RAND_MAX + 1.0);
-                    if (exp(dE / t) > rd && exp(dE / t) < 1.0)   //如果找到比当前更差的解，以一定概率接受该解，并且这个概率会越来越小
+                    if (exp(dE / t) > rd && exp(dE / t) < p0)
+                        //如果找到比当前更差的解，以一定概率接受该解，并且这个概率会越来越小
                     {
                         curSeverNo = newSever;
                         curCost = newCost;
-                        cout<<"BadCost="<<curCost<<endl;
+//                        cout<<"BadCost="<<curCost<<endl;
                     }
                     P_L++;
-                    cout<<"              P_L="<<P_L<<endl;
+//                    cout<<"              P_L="<<P_L<<endl;
                 }
                 if (P_L > LIMIT)
                 {
@@ -177,10 +207,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         //    cout << mcmf.getBestPath();
         PRINT("\n总成本:%d/%d\n", mcmf.getTotalCost(), maxCost);
 
-//        COUT( "\nILOOP:%d    OLOOP:%d   T:%lf",ILOOP,OLOOP,T);
-//        COUT("\n总成本:%d/%d\n", mcmf.getTotalCost(), maxCost);
-
-        printf("\n总成本:%d/%d\n", mcmf.getTotalCost(), maxCost);
+//        printf("\n总成本:%d/%d\n", mcmf.getTotalCost(), maxCost);
         //    cout << endl << mcmf.getTotalCost() << endl;
 
         const string &strtemp = mcmf.getBestPath();
