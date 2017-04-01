@@ -85,9 +85,9 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 #define T     10000     //初始温度
 #define EPS   1e-9      //终止温度
 #define DELTA 0.98      //温度衰减率
-#define LIMIT 6000      //概率选择上限
+#define LIMIT 2000      //概率选择上限
 #define OLOOP 100       //外循环次数
-#define ILOOP 150       //内循环次数
+#define ILOOP 860       //内循环次数
     double t = T;
     int P_L = 0;
     int P_F = 0;
@@ -156,6 +156,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     PRINT("\n%s\n", mcmf.getBestPath().c_str());//输出标准格式最优路径
 //    cout << mcmf.getBestPath();
     PRINT("\n总成本:%d/%d\n", mcmf.getTotalCost(), maxCost);
+    printf("\n总成本:%d/%d\n", mcmf.getTotalCost(), maxCost);
 //    cout << endl << mcmf.getTotalCost() << endl;
 
 //直连方案(大数据直接输出直连)
