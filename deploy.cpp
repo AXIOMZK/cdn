@@ -19,7 +19,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 {
     //执行定时器函数
     signal(SIGALRM, timer);
-    alarm(85); //定时80s
+    alarm(80); //定时80s
 
     int TotalNeed;//所有消费节点总需求
     int SeverCost;
