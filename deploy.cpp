@@ -230,7 +230,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         //    cout << mcmf.getBestPath();
         PRINT("\n总成本:%d/%d\n", bestCost, maxCost);
 
-//        printf("\n总成本:%d/%d\n", mcmf.getTotalCost(), maxCost);
+        printf("\n总成本:%d/%d\n", bestCost, maxCost);
         //    cout << endl << mcmf.getTotalCost() << endl;
 
         const string &strtemp = mcmf.getBestPath();
