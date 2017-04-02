@@ -395,14 +395,90 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
 {
     //非递归版本
     auto newServe = oldServe;
+    auto old_size = oldServe.size();
 //    srand((unsigned int) time(NULL));此处不需要加
     int t_provide = 0;//服务器可能的最大提供流量
+    //随机删除一个服务器,小型数据
+    double a1;
+    //随机添加一个服务器,小型数据
+    double a2;
+    //随机按比例删除服务器，中大型数据
+    double a3;
+    //随机按比例增加服务器，中大型数据
+    double a4;
+    //优先删除所能提供带宽最小的服务器
+    double a5;
+    //优先添加所能提供带宽最大的服务器
+    double a6;
+    //完全产生新服务器
+    double a7;
+    //随机添加t1个服务器,再随机删除t2个服务器
+    //a7~100
+    if (old_size > 300)
+    {
+        //大型数据
+        //随机删除一个服务器,小型数据
+        a1 = 5;
+        //随机添加一个服务器,小型数据
+        a2 = 10;
+        //随机按比例删除服务器，中大型数据
+        a3 = 40;
+        //随机按比例增加服务器，中大型数据
+        a4 = 60;
+        //优先删除所能提供带宽最小的服务器
+        a5 = 70;
+        //优先添加所能提供带宽最大的服务器
+        a6 = 80;
+        //完全产生新服务器
+        a7 = 90;
+        //随机添加t1个服务器,再随机删除t2个服务器
+        //a7~100
+
+    } else if (old_size > 100)
+    {
+        //中型数据
+        //随机删除一个服务器,小型数据
+        a1 = 20;
+        //随机添加一个服务器,小型数据
+        a2 = 40;
+        //随机按比例删除服务器，中大型数据
+        a3 = 50;
+        //随机按比例增加服务器，中大型数据
+        a4 = 60;
+        //优先删除所能提供带宽最小的服务器
+        a5 = 80;
+        //优先添加所能提供带宽最大的服务器
+        a6 = 90;
+        //完全产生新服务器
+        a7 = 93;
+        //随机添加t1个服务器,再随机删除t2个服务器
+        //a7~100
+    } else
+    {
+        //小型数据
+        //随机删除一个服务器,小型数据
+        a1 = 20;
+        //随机添加一个服务器,小型数据
+        a2 = 40;
+        //随机按比例删除服务器，中大型数据
+        a3 = 50;
+        //随机按比例增加服务器，中大型数据
+        a4 = 60;
+        //优先删除所能提供带宽最小的服务器
+        a5 = 80;
+        //优先添加所能提供带宽最大的服务器
+        a6 = 90;
+        //完全产生新服务器
+        a7 = 95;
+        //随机添加t1个服务器,再随机删除t2个服务器
+        //a7~100
+    }
     while (newServe.size() > maxServerNum || t_provide < TotalNeed)
     {
         double flag = 100.0 * ((double) rand()) / (RAND_MAX + 0.0001);
 
 //        cout<<flag<<endl;
-        if (flag >= 0 && flag < 20)
+        if (flag >= 0 && flag < a1)
         {
             //随机删除一个服务器,小型数据
             if (newServe.size() > minSeverNum)
@@ -414,7 +490,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                 newServe.erase(it);
             }
 
-        } else if (flag >= 20 && flag < 40)
+        } else if (flag >= a1 && flag < a2)
         {
             //随机添加一个服务器,小型数据
             unsigned long temp_size = newServe.size();
@@ -427,7 +503,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                 newServe.insert(pair);
             }
 
-        } else if (flag >= 40 && flag < 50)
+        } else if (flag >= a2 && flag < a3)
         {
             //随机按比例删除服务器，中大型数据
             double ra = (double) (8 + rand() % 8) / 100.0;//8%-16%
@@ -444,7 +520,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                 while (pos--) it++;
                 newServe.erase(it);
             }
-        } else if (flag >= 50 && flag < 60)
+        } else if (flag >= a3 && flag < a4)
         {
             //随机按比例增加服务器，中大型数据
             double ra = (double) (8 + rand() % 8) / 100.0;//8%-16%
@@ -468,7 +544,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                     newServe.insert(pair);
                 }
             }
-        } else if (flag >= 60 && flag < 80)
+        } else if (flag >= a4 && flag < a5)
         {
             //优先删除所能提供带宽最小的服务器
             if (newServe.size() > minSeverNum)
@@ -488,7 +564,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
             }
             newServe.erase(newServe.begin());
         }*/
-        else if (flag >= 80 && flag < 90)
+        else if (flag >= a5 && flag < a6)
         {
             //优先添加所能提供带宽最大的服务器
             unsigned long temp_size = newServe.size();
@@ -498,7 +574,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                 newServe.insert(*(it++));
             }
 
-        } else if (flag >= 90 && flag < 93)
+        } else if (flag >= a6 && flag < a7)
         {
             //完全产生新服务器
             newServe.clear();
@@ -513,6 +589,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                 newServe.insert(pair);
             }
         }
+
             /*else
             {
                 //随机删除t1个服务器,再随机添加t2个服务器
@@ -1065,9 +1142,9 @@ string MCMF::getBestPath()
     for (int k = 0; k < tem.size(); ++k)
     {
         int s = Consumers[k].need_bandwidth - tem[k];
-        if (s>0)
+        if (s > 0)
         {
-            read<<"\n"<<Consumers[k].node_NO<<" "<<k<<" "<<s;
+            read << "\n" << Consumers[k].node_NO << " " << k << " " << s;
         }
     }
 

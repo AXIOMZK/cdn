@@ -17,9 +17,9 @@ void timer(int sig)
 
 void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 {
-    //执行定时器函数
-    signal(SIGALRM, timer);
-    alarm(86); //定时80s
+//    //执行定时器函数
+//    signal(SIGALRM, timer);
+//    alarm(86); //定时80s
 
     int TotalNeed;//所有消费节点总需求
     int SeverCost;
@@ -56,7 +56,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         TotalNeed += need_bandwidth;
     }
 
-    if (links > 2000)
+    if (links > 4000)
     {
         //TODO:直连方案(大数据直接输出直连)
         read.str("");
@@ -106,8 +106,23 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 
         double p0;   //退火接受参数
 
-        if (links > 1000)
+        if (links > 2000)
         {
+            //执行定时器函数
+            signal(SIGALRM, timer);
+            alarm(56); //定时80s
+            T = 1000;     //初始温度
+            EPS = 1e-9;     //终止温度
+            DELTA = 0.98;     //温度衰减率
+            LIMIT = 10;     //概率选择上限
+            OLOOP = 20000;      //外循环次数
+            ILOOP = 1000;      //内循环次数
+            p0 = 1.0;
+        } else if (links > 1000)
+        {
+            //执行定时器函数
+            signal(SIGALRM, timer);
+            alarm(88); //定时80s
             T = 1000;     //初始温度
             EPS = 1e-9;     //终止温度
             DELTA = 0.98;     //温度衰减率
@@ -117,6 +132,9 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
             p0 = 1.0;
         } else
         {
+            //执行定时器函数
+            signal(SIGALRM, timer);
+            alarm(89); //定时80s
 //            T = 650;         //初始温度
 //            EPS = 1e-9;      //终止温度
 //            DELTA = 0.95;    //温度衰减率
@@ -130,7 +148,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
             LIMIT = 15;      //概率选择上限
             OLOOP = 500;      //外循环次数
             ILOOP = 450;      //内循环次数
-            p0=1.2;
+            p0 = 1.2;
         }
 
         //TODO:模拟退火
