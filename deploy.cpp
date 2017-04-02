@@ -142,10 +142,10 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 //            OLOOP = 300;      //外循环次数
 //            ILOOP = 400;      //内循环次数
 //            p0=1.22;
-            T = 1000;         //初始温度
+            T = 900;         //初始温度
             EPS = 1e-9;      //终止温度
             DELTA = 0.98;    //温度衰减率
-            LIMIT = 15;      //概率选择上限
+            LIMIT = 33;      //概率选择上限
             OLOOP = 500;      //外循环次数
             ILOOP = 450;      //内循环次数
             p0 = 1.2;
@@ -230,7 +230,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         //    cout << mcmf.getBestPath();
         PRINT("\n总成本:%d/%d\n", bestCost, maxCost);
 
-        printf("\n总成本:%d/%d\n", bestCost, maxCost);
+//        printf("\n总成本:%d/%d\n", bestCost, maxCost);
         //    cout << endl << mcmf.getTotalCost() << endl;
 
         const string &strtemp = mcmf.getBestPath();
