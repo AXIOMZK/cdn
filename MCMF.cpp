@@ -11,8 +11,15 @@
 void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &SeverNo)
 {
     set<int> SeverNum;
+    //TODO:服务器转换，加上直连服务器
+    auto newServe;
+    //取并集合
+    set_union(SeverNo.begin(), SeverNo.end(), SeverDirect.begin(), SeverDirect.end(),
+              inserter(newServe, newServe.begin()));
+
+
     PRINT("\n===================\n");
-    for (auto it = SeverNo.begin(); it != SeverNo.end(); ++it)
+    for (auto it = newServe.begin(); it != newServe.end(); ++it)
     {
         SeverNum.insert((*it).ServerNo);
         PRINT("%d\n", (*it).ServerNo);
@@ -34,7 +41,7 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
         //如果i是服务器也是消费节点，不用计算路径费用
         for (int j = 0; j < network_nodes + 2; j++)
         {
-            if(!isExit)return;
+            if (!isExit)return;
             //自身cost=0
             if (i == j)
             {
@@ -340,7 +347,7 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
             }
         }
     }*/
-    setTotalServerCost(SeverNo);
+    setTotalServerCost(newServe);
     //TODO：清空paths
     paths.clear();
     vector<vector<int>>().swap(paths);
@@ -398,10 +405,8 @@ set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>
 MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &oldServe)
 {
     //非递归版本
-
+    auto sizeDirect = SeverDirect.size();
     auto newServe = oldServe;
-    auto old_size = consumer_nodes;
-//    srand((unsigned int) time(NULL));此处不需要加
     int t_provide = 0;//服务器可能的最大提供流量
     //随机删除一个服务器,小型数据
     double a1;
@@ -419,7 +424,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
     double a7;
     //随机添加t1个服务器,再随机删除t2个服务器
     //a7~100
-    if (old_size > 300)
+    if (consumer_nodes > 300)
     {
         //大型数据
         //随机删除一个服务器,小型数据
@@ -439,7 +444,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
         //随机添加t1个服务器,再随机删除t2个服务器
         //a7~100
 
-    } else if (old_size > 100)
+    } else if (consumer_nodes > 100)
     {
         //中型数据
         //随机删除一个服务器,小型数据
@@ -795,8 +800,6 @@ void MCMF::setServeAroundBandwidth()
             break;
     }
     minSeverNum = (unsigned long) k;
-
-
 }
 
 set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> MCMF::getSeverNo()
@@ -810,7 +813,12 @@ set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> MCMF::getSeverNo()
         pair.ServeAroundBandwidth = ServeAroundBandwidth[Consumers[l].node_NO];
         SeverNo.insert(pair);
     }
-    return SeverNo;
+    auto newServe;
+    //取差集
+    set_difference(SeverNo.begin(), SeverNo.end(), SeverDirect.begin(), SeverDirect.end(),
+                   inserter(newServe, newServe.begin()));
+
+    return newServe;
 }
 
 
@@ -839,7 +847,7 @@ void MCMF::mainFunction()
 
 //TODO:Dijkstra函数
         Dijkstra();
-        if(!isExit)
+        if (!isExit)
             return;
         index = maxpoint - 1;
         vector<int> trace;
@@ -849,7 +857,7 @@ void MCMF::mainFunction()
         int i = 0;
         while (preVertex[index] != -1)
         {
-            if(!isExit)
+            if (!isExit)
                 return;
             trace.push_back(preVertex[index]);
             //arrays[k][++i]=preVertex[index];
@@ -1082,9 +1090,9 @@ bool MCMF::isenough()
     return enough;
 }
 
-void MCMF::setBestPath(vector<vector<int>>&tpaths)
+void MCMF::setBestPath(vector<vector<int>> &tpaths)
 {
-    paths=tpaths;
+    paths = tpaths;
     int sizeLinks = (int) paths.size();
     for (int k = 0; k < sizeLinks; ++k)
     {
@@ -1126,9 +1134,10 @@ int MCMF::getTotalCost()
 
 int MCMF::evaluateCost(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &v)
 {
+
     setServers(v);
     mainFunction();//主方法
-    if(!isExit)
+    if (!isExit)
         return INT_MAX;
     int Tcost = getTotalCost();
     PRINT("总成本:%d", Tcost);
@@ -1169,13 +1178,13 @@ string MCMF::getBestPath()
 
 void MCMF::setSeverDirect()
 {
-    for (auto it = Consumers.begin(); it!= Consumers.end() ; ++it)
+    for (auto it = Consumers.begin(); it != Consumers.end(); ++it)
     {
-        if((*it).need_bandwidth>ServeAroundBandwidth[(*it).node_NO])
+        if ((*it).need_bandwidth > ServeAroundBandwidth[(*it).node_NO])
         {
             SeverNoAndAroundBandwidth pair;
-            pair.ServeAroundBandwidth=(*it).need_bandwidth;
-            pair.ServerNo=(*it).node_NO;
+            pair.ServeAroundBandwidth = (*it).need_bandwidth;
+            pair.ServerNo = (*it).node_NO;
             SeverDirect.insert(pair);
         }
     }
