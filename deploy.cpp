@@ -138,6 +138,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                     curCost = newCost;
                     cout<<newCost<<endl;
                     if (newCost < bestCost)
+                        bestCost=newCost;
                         bestSever1 = newSever;
                     P_L = 0;
                     P_F = 0;
