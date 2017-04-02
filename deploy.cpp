@@ -7,7 +7,7 @@ using namespace std;
 
 //C++整数规划+模拟退火方案
 
-int isExit = 1;//定时器标志
+
 //通过调用alarm来设置计时器，然后继续做别的事情。当计时器计时到0时，信号发送，处理函数被调用。
 
 void timer(int sig)
@@ -110,7 +110,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         {
             //执行定时器函数
             signal(SIGALRM, timer);
-            alarm(56); //定时80s
+            alarm(86); //定时80s
             T = 1000;     //初始温度
             EPS = 1e-9;     //终止温度
             DELTA = 0.98;     //温度衰减率
@@ -168,7 +168,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         int bestCost = mcmf.evaluateCost(curSeverNo);
         int maxCost = bestCost;
         int curCost = bestCost;//当前的费用
-
+        auto bestPath=mcmf.paths;//保存最优路径
 
         while (isExit)       //外循环，主要更新参数t，模拟退火过程
         {
@@ -185,7 +185,12 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                     curCost = newCost;
 //                    cout<<newCost<<endl;
                     if (newCost < bestCost)
+                    {
+                        bestCost=newCost;
                         bestSever1 = newSever;
+                        bestPath=mcmf.paths;
+                    }
+
                     P_L = 0;
                     P_F = 0;
                 } else
@@ -217,13 +222,13 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 
         PRINT("\n======================================\n最优解\n");
 
-        mcmf.setServers(bestSever1);
+//        mcmf.setServers(bestSever1);
 
-        mcmf.mainFunction();//主方法
-
+//        mcmf.mainFunction();//主方法
+        mcmf.setBestPath(bestPath);
         PRINT("\n%s\n", mcmf.getBestPath().c_str());//输出标准格式最优路径
         //    cout << mcmf.getBestPath();
-        PRINT("\n总成本:%d/%d\n", mcmf.getTotalCost(), maxCost);
+        PRINT("\n总成本:%d/%d\n", bestCost, maxCost);
 
 //        printf("\n总成本:%d/%d\n", mcmf.getTotalCost(), maxCost);
         //    cout << endl << mcmf.getTotalCost() << endl;

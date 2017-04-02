@@ -2,10 +2,10 @@
 // Created by 张琨 on 2017/3/29.
 //
 
-
 #ifndef CDN_MCMF_H
 #define CDN_MCMF_H
 
+#include "global.h"
 #include <map>
 #include <vector>
 #include <set>
@@ -14,7 +14,6 @@
 #include <sstream>
 #include <cstdlib>
 #include <algorithm>
-
 #ifdef _DEBUG
 #define PRINT   printf
 #else
@@ -22,6 +21,7 @@
 #endif
 
 using namespace std;
+
 
 struct SeverNoAndAroundBandwidth
 {
@@ -75,7 +75,7 @@ private:
     vector<int> preVertex;/*各个节点的前一个节点*/
     vector<int> array;
     vector<int> values;
-    vector<vector<int> > paths;
+
 
     //消费节点连接的网络节点编号
     set<int> ConsumerNum;
@@ -85,6 +85,8 @@ private:
     map<int, int> NodesLinkConsumerNO;
 
 public:
+    vector<vector<int> > paths;
+
     MCMF(const vector<ResumeInfo> &Consumers, const vector<vector<LinkInfo>> &Nets,int SeverCost, double TotalNeed);
 
     void setConsumersAndNets(const vector<ResumeInfo> &Consumers, const vector<vector<LinkInfo>> &Nets);
@@ -112,7 +114,7 @@ public:
 
     void printvalues();
 
-    void setBestPath();//输出标准答案格式
+    void setBestPath(vector<vector<int>>&tpaths);//输出标准答案格式
 
     string getBestPath();
 

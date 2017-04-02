@@ -1,6 +1,7 @@
 #ifndef __ROUTE_H__
 #define __ROUTE_H__
 
+#include "global.h"
 #include <cmath>
 #include "lib_io.h"
 #include <iostream>
@@ -21,7 +22,6 @@ struct ResumeInfo;
 struct Bandwidth_From_Small_To_Big;
 
 void deploy_server(char *graph[MAX_EDGE_NUM], int edge_num, char *filename);
-
 void timer(int sig);
 
 #endif

@@ -34,6 +34,7 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
         //如果i是服务器也是消费节点，不用计算路径费用
         for (int j = 0; j < network_nodes + 2; j++)
         {
+            if(!isExit)return;
             //自身cost=0
             if (i == j)
             {
@@ -395,7 +396,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
 {
     //非递归版本
     auto newServe = oldServe;
-    auto old_size = oldServe.size();
+    auto old_size = consumer_nodes;
 //    srand((unsigned int) time(NULL));此处不需要加
     int t_provide = 0;//服务器可能的最大提供流量
     //随机删除一个服务器,小型数据
@@ -422,15 +423,15 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
         //随机添加一个服务器,小型数据
         a2 = 10;
         //随机按比例删除服务器，中大型数据
-        a3 = 40;
+        a3 = 20;
         //随机按比例增加服务器，中大型数据
-        a4 = 60;
+        a4 = 30;
         //优先删除所能提供带宽最小的服务器
         a5 = 70;
         //优先添加所能提供带宽最大的服务器
-        a6 = 80;
+        a6 = 90;
         //完全产生新服务器
-        a7 = 90;
+        a7 = 95;
         //随机添加t1个服务器,再随机删除t2个服务器
         //a7~100
 
@@ -475,6 +476,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
     }
     while (newServe.size() > maxServerNum || t_provide < TotalNeed)
     {
+        if (!isExit)return newServe;
         double flag = 100.0 * ((double) rand()) / (RAND_MAX + 0.0001);
 
 //        cout<<flag<<endl;
@@ -833,6 +835,8 @@ void MCMF::mainFunction()
 
 //TODO:Dijkstra函数
         Dijkstra();
+        if(!isExit)
+            return;
         index = maxpoint - 1;
         vector<int> trace;
         trace.push_back(index);
@@ -841,6 +845,8 @@ void MCMF::mainFunction()
         int i = 0;
         while (preVertex[index] != -1)
         {
+            if(!isExit)
+                return;
             trace.push_back(preVertex[index]);
             //arrays[k][++i]=preVertex[index];
             i++;
@@ -854,7 +860,8 @@ void MCMF::mainFunction()
     stop = false;//用完后复原
     //遍历结束后输出总费用
 //    printvalues();
-    setBestPath();//仅仅只能调用一次
+    //TODO:setPath
+//    setBestPath(paths);//仅仅只能调用一次
 }
 
 void MCMF::Dijkstra()
@@ -873,6 +880,7 @@ void MCMF::Dijkstra()
     /*初始化distance和prevVertex数组*/
     for (int i = 0; i < numOfVertex; ++i)
     {
+        if (!isExit)return;
         distance[i] = mapscost[startVertex][i];
         if (mapscost[startVertex][i] < INT_MAX)
             preVertex[i] = startVertex;
@@ -895,6 +903,7 @@ void MCMF::Dijkstra()
         int tempDistance = INT_MAX;
         for (int j = 0; j < numOfVertex; ++j)
         {
+            if (!isExit)return;
             if ((isInS[j] == false) && (distance[j] < tempDistance))//寻找不在S集合中的distance最小的节点
             {   //有新点加入时，允许下次执行，否则不再执行
                 //stop=false;
@@ -917,6 +926,7 @@ void MCMF::Dijkstra()
 
         for (int j = 0; j < numOfVertex; j++)
         {
+            if (!isExit)return;
             if (isInS[j] == false && mapscost[u][j] < INT_MAX)
             {
                 int temp = distance[u] + mapscost[u][j];
@@ -1068,10 +1078,10 @@ bool MCMF::isenough()
     return enough;
 }
 
-void MCMF::setBestPath()
+void MCMF::setBestPath(vector<vector<int>>&tpaths)
 {
+    paths=tpaths;
     int sizeLinks = (int) paths.size();
-
     for (int k = 0; k < sizeLinks; ++k)
     {
         paths[k].erase(paths[k].begin());
@@ -1114,6 +1124,8 @@ int MCMF::evaluateCost(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small
 {
     setServers(v);
     mainFunction();//主方法
+    if(!isExit)
+        return INT_MAX;
     int Tcost = getTotalCost();
     PRINT("总成本:%d", Tcost);
 //    cout << "总成本:" << Tcost << endl;
