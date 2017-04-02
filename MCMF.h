@@ -61,6 +61,7 @@ private:
     vector<vector<int> > mapscost;
     vector<vector<int> > mapswidth;
     set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> SeverDirect;//消费节点必须直连的服务器节点信息
+    int DirectBandwidth;//SeverDirect总评估带宽
     double TotalNeed;//所有消费节点总需求
     int SeverCost;//单台服务器成本
     int ServerTotalCost;//服务器总成本
