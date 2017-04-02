@@ -110,7 +110,9 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         {
             //执行定时器函数
             signal(SIGALRM, timer);
-            alarm(86); //定时80s
+            //300~800
+            double time=(SeverCost-300.0)/500*90.0;
+            alarm((unsigned int) time); //定时90s
             T = 1000;     //初始温度
             EPS = 1e-9;     //终止温度
             DELTA = 0.98;     //温度衰减率
@@ -120,9 +122,12 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
             p0 = 1.0;
         } else if (links > 1000)
         {
+
+
             //执行定时器函数
             signal(SIGALRM, timer);
-            alarm(88); //定时80s
+            double time=(SeverCost-500.0)/1000*90.0;
+            alarm((unsigned int) time); //定时90s
             T = 1000;     //初始温度
             EPS = 1e-9;     //终止温度
             DELTA = 0.98;     //温度衰减率
@@ -134,7 +139,8 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         {
             //执行定时器函数
             signal(SIGALRM, timer);
-            alarm(89); //定时80s
+            double time=(SeverCost-600.0)/800*90.0;
+            alarm((unsigned int) time); //定时90s
 //            T = 650;         //初始温度
 //            EPS = 1e-9;      //终止温度
 //            DELTA = 0.95;    //温度衰减率
@@ -145,10 +151,10 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
             T = 900;         //初始温度
             EPS = 1e-9;      //终止温度
             DELTA = 0.98;    //温度衰减率
-            LIMIT = 33;      //概率选择上限
-            OLOOP = 500;      //外循环次数
-            ILOOP = 450;      //内循环次数
-            p0 = 1.2;
+            LIMIT = 10;      //概率选择上限
+            OLOOP = 500000;      //外循环次数
+            ILOOP = 45000;      //内循环次数
+            p0 = 1.0;
         }
 
         //TODO:模拟退火
