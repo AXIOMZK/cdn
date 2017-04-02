@@ -382,6 +382,9 @@ void MCMF::setConsumersAndNets(const vector<ResumeInfo> &Consumers, const vector
     }
 
     setServeAroundBandwidth();
+
+    setSeverDirect();
+
 }
 
 MCMF::MCMF(const vector<ResumeInfo> &Consumers, const vector<vector<LinkInfo>> &Nets, int SeverCost, double TotalNeed)
@@ -395,6 +398,7 @@ set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>
 MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &oldServe)
 {
     //非递归版本
+
     auto newServe = oldServe;
     auto old_size = consumer_nodes;
 //    srand((unsigned int) time(NULL));此处不需要加
@@ -1161,6 +1165,20 @@ string MCMF::getBestPath()
     }
 
     return read.str();
+}
+
+void MCMF::setSeverDirect()
+{
+    for (auto it = Consumers.begin(); it!= Consumers.end() ; ++it)
+    {
+        if((*it).need_bandwidth>ServeAroundBandwidth[(*it).node_NO])
+        {
+            SeverNoAndAroundBandwidth pair;
+            pair.ServeAroundBandwidth=(*it).need_bandwidth;
+            pair.ServerNo=(*it).node_NO;
+            SeverDirect.insert(pair);
+        }
+    }
 }
 
 
