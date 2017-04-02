@@ -111,7 +111,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
             //执行定时器函数
             signal(SIGALRM, timer);
             //300~800
-            double time=(SeverCost-300.0)/500*90.0;
+            double time=(SeverCost-200.0)/500*90.0;
             alarm((unsigned int) time); //定时90s
             T = 1000;     //初始温度
             EPS = 1e-9;     //终止温度
@@ -126,7 +126,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 
             //执行定时器函数
             signal(SIGALRM, timer);
-            double time=(SeverCost-500.0)/1000*90.0;
+            double time=(SeverCost-700.0)/900*90.0;
             alarm((unsigned int) time); //定时90s
             T = 1000;     //初始温度
             EPS = 1e-9;     //终止温度
@@ -139,7 +139,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         {
             //执行定时器函数
             signal(SIGALRM, timer);
-            double time=(SeverCost-600.0)/800*90.0;
+            double time=(SeverCost-900.0)/1100*90.0;
             alarm((unsigned int) time); //定时90s
 //            T = 650;         //初始温度
 //            EPS = 1e-9;      //终止温度
@@ -152,8 +152,8 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
             EPS = 1e-9;      //终止温度
             DELTA = 0.98;    //温度衰减率
             LIMIT = 10;      //概率选择上限
-            OLOOP = 500000;      //外循环次数
-            ILOOP = 45000;      //内循环次数
+            OLOOP = 5000000;      //外循环次数
+            ILOOP = 4500000;      //内循环次数
             p0 = 1.0;
         }
 
