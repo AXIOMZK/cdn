@@ -153,7 +153,6 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 
         //TODO:模拟退火
 
-
         double t = T;
         int P_L = 0;
         int P_F = 0;
