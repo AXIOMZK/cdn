@@ -1189,7 +1189,8 @@ string MCMF::getBestPath()
 {
     stringstream read;
     int sizeLinks = (int) paths.size();
-    read << sizeLinks << "\n";
+//    read << sizeLinks << "\n";
+    read << "\n";
     //TODO:存当前消费节点的获得流量
     vector<int> tem(consumer_nodes, 0);
     for (int i = 0; i < sizeLinks; ++i)
@@ -1209,11 +1210,15 @@ string MCMF::getBestPath()
         int s = Consumers[k].need_bandwidth - tem[k];
         if (s > 0)
         {
+            sizeLinks++;
             read << "\n" << Consumers[k].node_NO << " " << k << " " << s;
         }
     }
-
-    return read.str();
+    string result = read.str();
+    read.str("");
+    read << sizeLinks;
+    result = read.str() + result;
+    return result;
 }
 
 void MCMF::setSeverDirect()
