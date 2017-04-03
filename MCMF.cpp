@@ -849,71 +849,79 @@ set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> MCMF::getSeverNo()
         SeverNoAndAroundBandwidth pair;
         pair.ServerNo = Consumers[l].node_NO;
         //取与必须直连服务器集合的差集合
-//        if (SeverDirect.count(pair.ServerNo))continue;
+        if (SeverDirect.count(pair.ServerNo))continue;
         pair.ServeAroundBandwidth = ServeAroundBandwidth[Consumers[l].node_NO];
         SeverNo.insert(pair);
     }
-    //TODO：暂时没考虑差集问题，先当所有直连情况实现
+/*    //TODO：暂时没考虑差集问题，先当所有直连情况实现
     //TODO:对直连方案进行贪心处理
     //假设传入一个服务器编号(所有包含必须直连点)SeverNo
     //转换成vector
-    auto SeverVector = SeverNOSetToVector(SeverNo);
-
+//    auto SeverVector = SeverNOSetToVector(SeverNo);
+    auto SeverNo2 = SeverNo;
+    SeverNo.clear();
 
 
     //相邻网络节点都设置服务器，去除一个
-    for (auto i = SeverNo.begin(); i != --SeverNo.end();)
+*//*    for (auto i = SeverNo.begin(); i != SeverNo.end();)
     {
-        for (auto j = ++i; j != SeverNo.end();)
+        auto mustI = SeverDirect.count((*i).ServerNo);
+        if (mustI)
         {
-
-            if (Nets[(*i).ServerNo][(*j).ServerNo].total_bandwidth == 0)
+            //同步去必须直连点
+            SeverNo.erase(i++);
+            continue;
+        } else
+        {
+            bool isDel = false;
+            for (auto j = SeverNo2.begin(); j != SeverNo2.end(); j++)
             {
-                auto mustI = SeverDirect.count((*i).ServerNo);
-                auto mustJ = SeverDirect.count((*j).ServerNo);
-                if (mustI && mustJ)
-                {
-                    j++;
-                } else if (mustI)
-                {
-                    SeverNo.erase(j++);
-                } else if (mustJ)
-                {
-                    SeverNo.erase(i++);
-                } else
+                if (Nets[(*i).ServerNo][(*j).ServerNo].total_bandwidth != 0)
                 {
                     if (ServeAroundBandwidth[(*i).ServerNo] < ServeAroundBandwidth[(*j).ServerNo])
                     {
-                        SeverNoAndAroundBandwidth pair;
-                        pair.ServerNo = (*j).ServerNo;
-                        pair.ServeAroundBandwidth = ServeAroundBandwidth[(*j).ServerNo];
-                        SeverNo.insert(pair);
-                    } else
-                    {
-                        SeverNoAndAroundBandwidth pair;
-                        pair.ServerNo = (*i).ServerNo;
-                        pair.ServeAroundBandwidth = ServeAroundBandwidth[(*i).ServerNo];
-                        SeverNo.insert(pair);
-
+                        SeverNo.erase(i++);
+                        isDel = true;
+                        break;
                     }
                 }
-
-            } else
-                j++;
-
-
+            }
+            if (!isDel)i++;
         }
+    }*//*
+
+    //相邻网络节点都设置服务器，则去除
+    for (auto i = SeverNo2.begin(); i != SeverNo2.end(); i++)
+    {
+
+        for (auto j = SeverNo.begin(); j != SeverNo.end();)
+        {
+            if (Nets[(*i).ServerNo][(*j).ServerNo].total_bandwidth != 0)
+            {
+                if (ServeAroundBandwidth[(*i).ServerNo] > ServeAroundBandwidth[(*j).ServerNo])
+                {
+                    SeverNo.erase(j++);
+                } else j++;
+            } else j++;
+        }
+
+        SeverNo.insert(*i);
     }
 
+    //取与必须直连服务器集合的差集合
+    for (auto i = SeverNo.begin(); i != SeverNo.end();)
+    {
+        if (SeverDirect.count((*i).ServerNo))
+        {
+            //同步去必须直连点
+            SeverNo.erase(i++);
+        }else i++;
+    }*/
 
-
-
-
-//    set<int>setNew;
-//    set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> newServe;
-//    //取差集
-//    set_difference(setSever.begin(), setSever.end(), SeverDirect.begin(), SeverDirect.end(), inserter(setNew, setNew.begin()));
-
+/*    set<int>setNew;
+    set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> newServe;
+    //取差集
+    set_difference(setSever.begin(), setSever.end(), SeverDirect.begin(), SeverDirect.end(), inserter(setNew, setNew.begin()));*/
     return SeverNo;
 }
 
@@ -1245,7 +1253,8 @@ string MCMF::getBestPath()
 {
     stringstream read;
     int sizeLinks = (int) paths.size();
-    read << sizeLinks << "\n";
+//    read << sizeLinks << "\n";
+    read << "\n";
     //TODO:存当前消费节点的获得流量
     vector<int> tem(consumer_nodes, 0);
     for (int i = 0; i < sizeLinks; ++i)
@@ -1265,11 +1274,15 @@ string MCMF::getBestPath()
         int s = Consumers[k].need_bandwidth - tem[k];
         if (s > 0)
         {
+            sizeLinks++;
             read << "\n" << Consumers[k].node_NO << " " << k << " " << s;
         }
     }
-
-    return read.str();
+    string result = read.str();
+    read.str("");
+    read << sizeLinks;
+    result = read.str() + result;
+    return result;
 }
 
 void MCMF::setSeverDirect()
