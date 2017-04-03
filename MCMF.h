@@ -183,8 +183,6 @@ public:
     //将个体二进制字节流转化为服务器编号，用于计算目标函数
     vector<int> getServerFromBit(const server &singlepopcurrent);
 
-    //求个体适应度
-    int main_value(const vector<int> serverforfit);
 
     //根据个体的适应度进行排序
     void SortAndChoosePopcurrent();//选择操作

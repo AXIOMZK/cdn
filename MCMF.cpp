@@ -379,8 +379,10 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
 
 void MCMF::setConsumersAndNets(const vector<ResumeInfo> &Consumers, const vector<vector<LinkInfo>> &Nets)
 {
-    this->Consumers = Consumers;
-    this->Nets = Nets;
+//    this->Consumers = Consumers;
+    this->Consumers.assign(Consumers.begin(),Consumers.end());
+//    this->Nets = Nets;
+    this->Nets.assign(Nets.begin(),Nets.end());
     consumer_nodes = Consumers.size();
     network_nodes = Nets.size();
     maxServerNum = consumer_nodes;
@@ -827,7 +829,8 @@ void MCMF::setServeAroundBandwidth()
     }
 
     //得到服务器评估最小数
-    auto temp = ServeAroundBandwidth;
+    vector<int> temp;
+    temp.assign(ServeAroundBandwidth.begin(),ServeAroundBandwidth.end());
     sort(temp.rbegin(), temp.rend());
     int sum = 0;
     int k = 0;
@@ -1292,14 +1295,6 @@ vector<int> MCMF::getServerFromBit(const server &singlepopcurrent)
 }
 
 
-//需要能能够从外部直接传输函数，加强鲁棒性
-int MCMF::main_value(const vector<int> serverforfit)// 函数：求个体的适应度；
-{
-
-    int cost = 0;
-    //TODO  适应度函数
-    return cost;
-}
 
 //根据适应度排序（由大到小）
 //新旧解结合筛选
@@ -1532,13 +1527,13 @@ MCMF::getNewGA(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>
     {
         //大型数据
         //随机删除一个服务器,小型数据
-        a1 = 5;
+        a1 = 10;
         //随机添加一个服务器,小型数据
-        a2 = 10;
+        a2 = 20;
         //随机按比例删除服务器，中大型数据
-        a3 = 20;
+        a3 = 30;
         //随机按比例增加服务器，中大型数据
-        a4 = 30;
+        a4 = 40;
         //优先删除所能提供带宽最小的服务器
         a5 = 70;
         //优先添加所能提供带宽最大的服务器
