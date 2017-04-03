@@ -160,10 +160,10 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 
         auto curSeverNo = mcmf.getSeverNo();
         auto newSever = curSeverNo;
+//        mcmf.getPro_server(curSeverNo);
 
         auto bestSever1 = curSeverNo;//局部最优
         //    auto bestSever2 = curSeverNo;//全局最优
-
         int bestCost = mcmf.evaluateCost(curSeverNo);
         int maxCost = bestCost;
         int curCost = bestCost;//当前的费用

@@ -14,6 +14,7 @@
 #include <sstream>
 #include <cstdlib>
 #include <algorithm>
+
 #ifdef _DEBUG
 #define PRINT   printf
 #else
@@ -49,13 +50,36 @@ struct Bandwidth_From_Small_To_Big
     }
 };
 
+struct SeverSetAndCost
+{
+    set<int> SetSeverNO;//服务器编号集合
+    int cost;//对应的成本
+};
+
+struct pro_serverFromSmallToBig
+{
+    bool operator()(const SeverSetAndCost &left, const SeverSetAndCost &right) const
+    {
+        return (left.cost < right.cost);
+    }
+};
+
+struct server
+{
+    vector<int> serverNO;//一共net_node,bit来对染色体进行编码
+
+    int fit = 0;//适应值
+    double rfit = 0;//相对的fit值，即所占的百分比
+    double cfit = 0;//积累概率
+};
+
 class MCMF
 {
 private:
     //某网络节点作为服务器时的最大提供带宽
     vector<int> ServeAroundBandwidth;//序号为服务器所连的节点号，值为评估带宽
     //所以节点的评估带宽存储
-    set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>AllNodeAroundBandwidth;
+    set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> AllNodeAroundBandwidth;
     int maxpoint;
     bool stop = false;
     vector<vector<int> > mapscost;
@@ -87,7 +111,7 @@ private:
 public:
     vector<vector<int> > paths;
 
-    MCMF(const vector<ResumeInfo> &Consumers, const vector<vector<LinkInfo>> &Nets,int SeverCost, double TotalNeed);
+    MCMF(const vector<ResumeInfo> &Consumers, const vector<vector<LinkInfo>> &Nets, int SeverCost, double TotalNeed);
 
     void setConsumersAndNets(const vector<ResumeInfo> &Consumers, const vector<vector<LinkInfo>> &Nets);
 
@@ -114,7 +138,7 @@ public:
 
     void printvalues();
 
-    void setBestPath(vector<vector<int>>&tpaths);//输出标准答案格式
+    void setBestPath(vector<vector<int>> &tpaths);//输出标准答案格式
 
     string getBestPath();
 
@@ -131,6 +155,52 @@ public:
 
     void setSeverDirect();
 
+
+
+
+
+
+
+
+
+
+
+
+    //遗传相关
+
+    vector<SeverSetAndCost> pro_server;//服务器编号集群未编码
+    void setPro_server(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &curSever);
+
+    int Max_Point;//二进制网络节点数
+
+    //  server popcurrent [PopulationSize];    // 初始种群规模
+    vector<server> popcurrent;
+
+    vector<server> popnext;    // 更新后种群规模仍为；
+
+    void init_popcurrent();//将十组Server转化为十组基因，进行种群的初始化
+
+    //将个体二进制字节流转化为服务器编号，用于计算目标函数
+    vector<int> getServerFromBit(const server &singlepopcurrent);
+
+    //求个体适应度
+    int main_value(const vector<int> serverforfit);
+
+    //根据个体的适应度进行排序
+    void SortAndChoosePopcurrent();//选择操作
+
+    // 基于概率分布的轮盘法选择
+    void randompickup_new();
+
+    void crossover();//交叉操作
+
+    void mutation();//突变
+
+
+    double r8_uniform_ab(double a, double b, int &seed);//生成a~b之间均匀分布的数字
+
+    set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>
+    getNewGA(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &oldServe);
 };
 
 
