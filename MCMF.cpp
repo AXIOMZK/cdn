@@ -453,11 +453,11 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
     {
         //中型数据
         //随机删除一个服务器,小型数据
-        a1 = 20;
+        a1 = 30;
         //随机添加一个服务器,小型数据
-        a2 = 40;
+        a2 = 60;
         //随机按比例删除服务器，中大型数据
-        a3 = 50;
+        a3 = 60;
         //随机按比例增加服务器，中大型数据
         a4 = 60;
         //优先删除所能提供带宽最小的服务器
@@ -472,11 +472,11 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
     {
         //小型数据
         //随机删除一个服务器,小型数据
-        a1 = 20;
+        a1 = 30;
         //随机添加一个服务器,小型数据
-        a2 = 40;
+        a2 = 60;
         //随机按比例删除服务器，中大型数据
-        a3 = 50;
+        a3 = 60;
         //随机按比例增加服务器，中大型数据
         a4 = 60;
         //优先删除所能提供带宽最小的服务器
@@ -484,7 +484,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
         //优先添加所能提供带宽最大的服务器
         a6 = 90;
         //完全产生新服务器
-        a7 = 95;
+        a7 = 94;
         //随机添加t1个服务器,再随机删除t2个服务器
         //a7~100
     }
@@ -593,6 +593,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                     newServe.insert(pair);
                 }
             }
+
         }
             /*else if (flag == 4)
             {
