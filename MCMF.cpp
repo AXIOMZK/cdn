@@ -379,8 +379,10 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
 
 void MCMF::setConsumersAndNets(const vector<ResumeInfo> &Consumers, const vector<vector<LinkInfo>> &Nets)
 {
-    this->Consumers = Consumers;
-    this->Nets = Nets;
+//    this->Consumers = Consumers;
+//    this->Nets = Nets;
+    this->Consumers.assign(Consumers.begin(),Consumers.end());
+    this->Nets.assign(Nets.begin(),Nets.end());
     consumer_nodes = Consumers.size();
     network_nodes = Nets.size();
     maxServerNum = consumer_nodes;
@@ -453,15 +455,15 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
     {
         //中型数据
         //随机删除一个服务器,小型数据
-        a1 = 30;
+        a1 = 35;
         //随机添加一个服务器,小型数据
-        a2 = 60;
+        a2 = 70;
         //随机按比例删除服务器，中大型数据
-        a3 = 60;
+        a3 = 70;
         //随机按比例增加服务器，中大型数据
-        a4 = 60;
+        a4 = 70;
         //优先删除所能提供带宽最小的服务器
-        a5 = 80;
+        a5 = 85;
         //优先添加所能提供带宽最大的服务器
         a6 = 90;
         //完全产生新服务器
