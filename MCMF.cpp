@@ -12,9 +12,9 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
 {
     set<int> SeverNum;
     //TODO:服务器转换，加上直连服务器
-    auto newServe=SeverNo;
+    auto newServe = SeverNo;
     //取并集合
-    for (auto it=SeverDirect.begin(); it!= SeverDirect.end(); ++it)
+    for (auto it = SeverDirect.begin(); it != SeverDirect.end(); ++it)
     {
         SeverNoAndAroundBandwidth pair;
         pair.ServerNo = *it;
@@ -580,7 +580,8 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
             //优先删除所能提供带宽最小的服务器
             if (newServe.size() + sizeDirect > minSeverNum && !newServe.empty())
                 newServe.erase(newServe.begin());
-            else{
+            else
+            {
                 //随机添加一个服务器,小型数据
                 unsigned long temp_size = newServe.size();
                 while (newServe.size() == temp_size)
@@ -661,7 +662,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
         else
         {
             //随机添加t1个服务器,再随机删除t2个服务器
-            unsigned long temp_size = (int) newServe.size()+sizeDirect;
+            unsigned long temp_size = (int) newServe.size() + sizeDirect;
             //添加删除后的服务器数,保证服务器数在minSeverNum~maxServerNum之间
             int stdCount = (int) (minSeverNum + (int) (rand() % (1 + maxServerNum - minSeverNum)));
             //随机出一个添加的个数
@@ -682,7 +683,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
             //TODO:测试
 //            cout << endl << temp_size << "+" << addCount << "-" << delCount << "=" << stdCount << endl;
             //添加操作
-            while (newServe.size()+sizeDirect != temp_size + addCount)
+            while (newServe.size() + sizeDirect != temp_size + addCount)
             {
                 int pos = (int) (rand() % network_nodes);
                 SeverNoAndAroundBandwidth pair;
@@ -692,7 +693,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                 newServe.insert(pair);
             }
             //删除操作
-            while (delCount--&&!newServe.empty())
+            while (delCount-- && !newServe.empty())
             {
                 int pos = (int) (rand() % newServe.size());
 //                cout << "pos:" << pos << "--" << newServe.size() << endl;
@@ -848,10 +849,66 @@ set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> MCMF::getSeverNo()
         SeverNoAndAroundBandwidth pair;
         pair.ServerNo = Consumers[l].node_NO;
         //取与必须直连服务器集合的差集合
-        if (SeverDirect.count(pair.ServerNo))continue;
+//        if (SeverDirect.count(pair.ServerNo))continue;
         pair.ServeAroundBandwidth = ServeAroundBandwidth[Consumers[l].node_NO];
         SeverNo.insert(pair);
     }
+    //TODO：暂时没考虑差集问题，先当所有直连情况实现
+    //TODO:对直连方案进行贪心处理
+    //假设传入一个服务器编号(所有包含必须直连点)SeverNo
+    //转换成vector
+    auto SeverVector = SeverNOSetToVector(SeverNo);
+
+
+
+    //相邻网络节点都设置服务器，去除一个
+    for (auto i = SeverNo.begin(); i != --SeverNo.end();)
+    {
+        for (auto j = ++i; j != SeverNo.end();)
+        {
+
+            if (Nets[(*i).ServerNo][(*j).ServerNo].total_bandwidth == 0)
+            {
+                auto mustI = SeverDirect.count((*i).ServerNo);
+                auto mustJ = SeverDirect.count((*j).ServerNo);
+                if (mustI && mustJ)
+                {
+                    j++;
+                } else if (mustI)
+                {
+                    SeverNo.erase(j++);
+                } else if (mustJ)
+                {
+                    SeverNo.erase(i++);
+                } else
+                {
+                    if (ServeAroundBandwidth[(*i).ServerNo] < ServeAroundBandwidth[(*j).ServerNo])
+                    {
+                        SeverNoAndAroundBandwidth pair;
+                        pair.ServerNo = (*j).ServerNo;
+                        pair.ServeAroundBandwidth = ServeAroundBandwidth[(*j).ServerNo];
+                        SeverNo.insert(pair);
+                    } else
+                    {
+                        SeverNoAndAroundBandwidth pair;
+                        pair.ServerNo = (*i).ServerNo;
+                        pair.ServeAroundBandwidth = ServeAroundBandwidth[(*i).ServerNo];
+                        SeverNo.insert(pair);
+
+                    }
+                }
+
+            } else
+                j++;
+
+
+        }
+    }
+
+
+
+
+
 //    set<int>setNew;
 //    set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> newServe;
 //    //取差集
@@ -1230,6 +1287,17 @@ void MCMF::setSeverDirect()
         }
     }
 
+}
+
+vector<int> MCMF::SeverNOSetToVector(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &sever)
+{
+    vector<int> vector1;
+    for (auto it = sever.begin(); it != sever.end(); ++it)
+    {
+        vector1.push_back((*it).ServerNo);
+    }
+
+    return vector1;
 }
 
 

@@ -131,6 +131,8 @@ public:
 
     void setSeverDirect();
 
+    vector<int> SeverNOSetToVector(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &sever);
+
 };
 
 
