@@ -125,11 +125,11 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 //            alarm(88); //定时80s
             T = 1000;     //初始温度
             EPS = 1e-9;     //终止温度
-            DELTA = 0.98;     //温度衰减率
-            LIMIT = 250;     //概率选择上限
-            OLOOP = 2000;      //外循环次数
-            ILOOP = 1000;      //内循环次数
-            p0 = 1.2;
+            DELTA = 0.95;     //温度衰减率
+            LIMIT = 25;     //概率选择上限
+            OLOOP = 100;      //外循环次数
+            ILOOP = 100;      //内循环次数
+            p0 = 1.3;
         } else
         {
             //执行定时器函数
@@ -167,7 +167,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         int bestCost = mcmf.evaluateCost(curSeverNo);
         int maxCost = bestCost;
         int curCost = bestCost;//当前的费用
-        auto bestPath=mcmf.paths;//保存最优路径
+        auto bestPath = mcmf.paths;//保存最优路径
 
         while (isExit)       //外循环，主要更新参数t，模拟退火过程
         {
@@ -178,6 +178,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                 newSever = mcmf.getNewServe(curSeverNo);
                 int newCost = mcmf.evaluateCost(newSever);
                 double dE = newCost - curCost;
+//                cout << "/" << maxCost << "   dE=" << dE << endl;
                 if (dE < 0)   //如果找到更优值，直接更新
                 {
                     curSeverNo = newSever;
@@ -185,18 +186,19 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 //                    cout<<newCost<<endl;
                     if (newCost < bestCost)
                     {
-                        bestCost=newCost;
+                        bestCost = newCost;
                         bestSever1 = newSever;
-                        bestPath=mcmf.paths;
+                        bestPath = mcmf.paths;
                     }
                     P_L = 0;
-                    P_F = 0;
+//                    P_F = 0;
                 } else
                 {
-                    double rd = rand() / (RAND_MAX + 1.0);
-                    if (exp(dE / t) > rd && exp(dE / t) < p0)
+                    double rd = rand() / (RAND_MAX + 0.0001);
+                    if (0 < exp(-dE / t) && exp(-dE / t) < rd)
                         //如果找到比当前更差的解，以一定概率接受该解，并且这个概率会越来越小
                     {
+//                        cout<<"t="<<t<<"  p="<<exp(-dE / t)<<endl;
                         curSeverNo = newSever;
                         curCost = newCost;
 //                        cout<<"BadCost="<<curCost<<endl;
@@ -207,7 +209,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                 if (P_L > LIMIT)
                 {
                     P_F++;
-                    P_L=0;//TODO:是否要加？
+                    P_L = 0;//TODO:是否要加？
                     break;
                 }
             }

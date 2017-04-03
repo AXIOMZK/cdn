@@ -1169,7 +1169,9 @@ int MCMF::getTotalCost()
         if (mapswidth[m][maxpoint - 1] != 0) { countSever++; }
     }
     countSever *= SeverCost;
-    return (getLinksTotalCost() + getServerTotalCost() + countSever);
+    int totalcost=getLinksTotalCost() + getServerTotalCost() + countSever;
+    cout<<"总成本:"<<totalcost;
+    return totalcost;
 }
 
 int MCMF::evaluateCost(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &v)
