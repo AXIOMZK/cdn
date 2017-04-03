@@ -122,14 +122,14 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         {
             //执行定时器函数
             signal(SIGALRM, timer);
-            alarm(88); //定时80s
+//            alarm(88); //定时80s
             T = 1000;     //初始温度
             EPS = 1e-9;     //终止温度
             DELTA = 0.98;     //温度衰减率
-            LIMIT = 10;     //概率选择上限
-            OLOOP = 20000;      //外循环次数
+            LIMIT = 250;     //概率选择上限
+            OLOOP = 2000;      //外循环次数
             ILOOP = 1000;      //内循环次数
-            p0 = 1.0;
+            p0 = 1.2;
         } else
         {
             //执行定时器函数
@@ -189,7 +189,6 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                         bestSever1 = newSever;
                         bestPath=mcmf.paths;
                     }
-
                     P_L = 0;
                     P_F = 0;
                 } else
@@ -208,7 +207,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                 if (P_L > LIMIT)
                 {
                     P_F++;
-//                    P_L=0;//TODO:是否要加？
+                    P_L=0;//TODO:是否要加？
                     break;
                 }
             }
@@ -229,7 +228,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         //    cout << mcmf.getBestPath();
         PRINT("\n总成本:%d/%d\n", bestCost, maxCost);
 
-//        printf("\n总成本:%d/%d\n", bestCost, maxCost);
+        printf("\n总成本:%d/%d\n", bestCost, maxCost);
 
         const string &strtemp = mcmf.getBestPath();
         char *topo_file = (char *) strtemp.c_str();
