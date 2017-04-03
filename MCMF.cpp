@@ -504,6 +504,19 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                 auto it = newServe.begin();
                 while (pos--) it++;
                 newServe.erase(it);
+            } else
+            {
+                //随机添加一个服务器,小型数据
+                unsigned long temp_size = newServe.size();
+                while (newServe.size() == temp_size)
+                {
+                    int pos = (int) (rand() % network_nodes);
+                    SeverNoAndAroundBandwidth pair;
+                    pair.ServerNo = pos;
+                    pair.ServeAroundBandwidth = ServeAroundBandwidth[pos];
+                    if (SeverDirect.count(pos))continue;
+                    newServe.insert(pair);
+                }
             }
 
         } else if (flag >= a1 && flag < a2)
@@ -567,6 +580,19 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
             //优先删除所能提供带宽最小的服务器
             if (newServe.size() + sizeDirect > minSeverNum && !newServe.empty())
                 newServe.erase(newServe.begin());
+            else{
+                //随机添加一个服务器,小型数据
+                unsigned long temp_size = newServe.size();
+                while (newServe.size() == temp_size)
+                {
+                    int pos = (int) (rand() % network_nodes);
+                    SeverNoAndAroundBandwidth pair;
+                    pair.ServerNo = pos;
+                    pair.ServeAroundBandwidth = ServeAroundBandwidth[pos];
+                    if (SeverDirect.count(pos))continue;
+                    newServe.insert(pair);
+                }
+            }
         }
             /*else if (flag == 4)
             {
