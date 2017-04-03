@@ -12,10 +12,15 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
 {
     set<int> SeverNum;
     //TODO:服务器转换，加上直连服务器
-    set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> newServe;
+    auto newServe=SeverNo;
     //取并集合
-    set_union(SeverNo.begin(), SeverNo.end(), SeverDirect.begin(), SeverDirect.end(),
-              inserter(newServe, newServe.begin()));
+    for (auto it=SeverDirect.begin(); it!= SeverDirect.end(); ++it)
+    {
+        SeverNoAndAroundBandwidth pair;
+        pair.ServerNo = *it;
+        pair.ServeAroundBandwidth = ServeAroundBandwidth[*it];
+        newServe.insert(pair);
+    }
 
 
     PRINT("\n===================\n");
@@ -36,10 +41,10 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
     mapswidth.resize(network_nodes + 2, vector<int>(network_nodes + 2));
 
     //新版本(优化直连变换)
-    for (unsigned long i = 0; i < network_nodes + 2; i++)
+    for (int i = 0; i < network_nodes + 2; i++)
     {
         //如果i是服务器也是消费节点，不用计算路径费用
-        for (unsigned long j = 0; j < network_nodes + 2; j++)
+        for (int j = 0; j < network_nodes + 2; j++)
         {
             if (!isExit)return;
             //自身cost=0
@@ -511,7 +516,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                 SeverNoAndAroundBandwidth pair;
                 pair.ServerNo = pos;
                 pair.ServeAroundBandwidth = ServeAroundBandwidth[pos];
-                if (SeverDirect.count(pair))continue;
+                if (SeverDirect.count(pos))continue;
                 newServe.insert(pair);
             }
 
@@ -553,7 +558,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                     SeverNoAndAroundBandwidth pair;
                     pair.ServerNo = pos;
                     pair.ServeAroundBandwidth = ServeAroundBandwidth[pos];
-                    if (SeverDirect.count(pair))continue;
+                    if (SeverDirect.count(pos))continue;
                     newServe.insert(pair);
                 }
             }
@@ -584,7 +589,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
             auto it = AllNodeAroundBandwidth.rbegin();
             while (newServe.size() == temp_size)
             {
-                if (!SeverDirect.count(*it))
+                if (!SeverDirect.count((*it).ServerNo))
                     newServe.insert(*it);
                 ++it;
             }
@@ -601,7 +606,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                 SeverNoAndAroundBandwidth pair;
                 pair.ServerNo = pos;
                 pair.ServeAroundBandwidth = ServeAroundBandwidth[pos];
-                if (SeverDirect.count(pair))continue;
+                if (SeverDirect.count(pos))continue;
                 newServe.insert(pair);
             }
         }
@@ -657,7 +662,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                 SeverNoAndAroundBandwidth pair;
                 pair.ServerNo = pos;
                 pair.ServeAroundBandwidth = ServeAroundBandwidth[pos];
-                if (SeverDirect.count(pair))continue;
+                if (SeverDirect.count(pos))continue;
                 newServe.insert(pair);
             }
             //删除操作
@@ -816,14 +821,17 @@ set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> MCMF::getSeverNo()
     {
         SeverNoAndAroundBandwidth pair;
         pair.ServerNo = Consumers[l].node_NO;
+        //取与必须直连服务器集合的差集合
+        if (SeverDirect.count(pair.ServerNo))continue;
         pair.ServeAroundBandwidth = ServeAroundBandwidth[Consumers[l].node_NO];
         SeverNo.insert(pair);
     }
-    set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> newServe;
-    //取差集
-    set_difference(SeverNo.begin(), SeverNo.end(), SeverDirect.begin(), SeverDirect.end(), inserter(newServe, newServe.begin()));
+//    set<int>setNew;
+//    set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> newServe;
+//    //取差集
+//    set_difference(setSever.begin(), setSever.end(), SeverDirect.begin(), SeverDirect.end(), inserter(setNew, setNew.begin()));
 
-    return newServe;
+    return SeverNo;
 }
 
 
@@ -1191,7 +1199,7 @@ void MCMF::setSeverDirect()
             SeverNoAndAroundBandwidth pair;
             pair.ServeAroundBandwidth = (*it).need_bandwidth;
             pair.ServerNo = (*it).node_NO;
-            SeverDirect.insert(pair);
+            SeverDirect.insert(pair.ServerNo);
             DirectBandwidth += (*it).need_bandwidth;
         }
     }
