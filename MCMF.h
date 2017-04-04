@@ -178,7 +178,7 @@ public:
     double StdFit;
 
     vector<SeverSetAndCost> pro_server;//服务器编号集群未编码
-    void setPro_server(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &curSever);
+    void setPro_server(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &curSever,int x);
 
     int Max_Point;//二进制网络节点数
 

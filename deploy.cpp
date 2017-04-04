@@ -17,9 +17,6 @@ void timer(int sig)
 
 void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 {
-//    //执行定时器函数
-//    signal(SIGALRM, timer);
-//    alarm(86); //定时80s
 
     int TotalNeed;//所有消费节点总需求
     int SeverCost;
@@ -152,9 +149,6 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         }
 
 
-
-        //TODO:模拟退火
-
         double t = T;
         int P_L = 0;
         int P_F = 0;
@@ -163,10 +157,10 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         auto curSeverNo = mcmf.getSeverNo();
 
         //TODO:遗传进化
-        int  bestCost;
-        mcmf.setPro_server(curSeverNo);
+        int bestCost;
+        mcmf.setPro_server(curSeverNo, 50);
         mcmf.init_popcurrent();
-        for (int j = 0; j <50 ; ++j)
+        while (isExit)
         {
             mcmf.randompickup_new();
             mcmf.crossover();
@@ -174,93 +168,91 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
             //算适应度
             mcmf.evaluateNextFit();
             mcmf.SortAndChoosePopcurrent(50);
-            bestCost=mcmf.popcurrent[0].cost;
+            bestCost = mcmf.popcurrent[0].cost;
             printf("\n总成本:%d/%d\n", bestCost, 108000);
         }
-        bestCost=mcmf.popcurrent[0].cost;
-        auto bestPath=mcmf.paths;
+        bestCost = mcmf.popcurrent[0].cost;
+        auto bestPath = mcmf.paths;
         mcmf.setBestPath(bestPath);
         printf("\n%s\n", mcmf.getBestPath().c_str());//输出标准格式最优路径
         printf("\n总成本:%d/%d\n", bestCost, 108000);
 
 
+        //TODO:模拟退火
 
+        /*     auto newSever = curSeverNo;
 
-/*        auto newSever = curSeverNo;
-//        mcmf.getPro_server(curSeverNo);
+             auto bestSever1 = curSeverNo;//局部最优
+             //    auto bestSever2 = curSeverNo;//全局最优
+             int bestCost = mcmf.evaluateCost(curSeverNo);
+             int maxCost = bestCost;
+             int curCost = bestCost;//当前的费用
+             auto bestPath = mcmf.paths;//保存最优路径
 
-        auto bestSever1 = curSeverNo;//局部最优
-        //    auto bestSever2 = curSeverNo;//全局最优
-        int bestCost = mcmf.evaluateCost(curSeverNo);
-        int maxCost = bestCost;
-        int curCost = bestCost;//当前的费用
-        auto bestPath=mcmf.paths;//保存最优路径
+             while (isExit)       //外循环，主要更新参数t，模拟退火过程
+             {
+     //            cout<<"==========================P_F:"<<P_F<<endl;
+                 for (int i = 0; i < ILOOP; i++) //内循环，寻找在一定温度下的最优值
+                 {
+                     if (!isExit)break;
+                     newSever = mcmf.getNewServe(curSeverNo);
+                     int newCost = mcmf.evaluateCost(newSever);
+                     double dE = newCost - curCost;
+                     if (dE < 0)   //如果找到更优值，直接更新
+                     {
+                         curSeverNo = newSever;
+                         curCost = newCost;
+     //                    cout<<newCost<<endl;
+                         if (newCost < bestCost)
+                         {
+                             bestCost = newCost;
+                             bestSever1 = newSever;
+                             bestPath = mcmf.paths;
+     //                        cout<<bestCost<<endl;
+                         }
 
-        while (isExit)       //外循环，主要更新参数t，模拟退火过程
-        {
-//            cout<<"==========================P_F:"<<P_F<<endl;
-            for (int i = 0; i < ILOOP; i++) //内循环，寻找在一定温度下的最优值
-            {
-                if (!isExit)break;
-                newSever = mcmf.getNewServe(curSeverNo);
-                int newCost = mcmf.evaluateCost(newSever);
-                double dE = newCost - curCost;
-                if (dE < 0)   //如果找到更优值，直接更新
-                {
-                    curSeverNo = newSever;
-                    curCost = newCost;
-//                    cout<<newCost<<endl;
-                    if (newCost < bestCost)
-                    {
-                        bestCost=newCost;
-                        bestSever1 = newSever;
+                         P_L = 0;
+                         P_F = 0;
+                     } else
+                     {
+                         double rd = rand() / (RAND_MAX + 1.0);
+                         if (exp(dE / t) > rd && exp(dE / t) < p0)
+                             //如果找到比当前更差的解，以一定概率接受该解，并且这个概率会越来越小
+                         {
+                             curSeverNo = newSever;
+                             curCost = newCost;
+     //                        cout<<"BadCost="<<curCost<<endl;
+                         }
+                         P_L++;
+     //                    cout<<"              P_L="<<P_L<<endl;
+                     }
+                     if (P_L > LIMIT)
+                     {
+                         P_F++;
+     //                    P_L=0;//TODO:是否要加？
+                         break;
+                     }
+                 }
+                 //        if (mcmf.evaluateCost(curSeverNo) < mcmf.evaluateCost(newSever))
+                 //            bestSever2 = curSeverNo;
+                 if (P_F > OLOOP || t < EPS)
+                     break;
+                 t *= DELTA;
+             }
 
-                        bestPath=mcmf.paths;
-//                        cout<<bestCost<<endl;
-                    }
+             PRINT("\n======================================\n最优解\n");
 
-                    P_L = 0;
-                    P_F = 0;
-                } else
-                {
-                    double rd = rand() / (RAND_MAX + 1.0);
-                    if (exp(dE / t) > rd && exp(dE / t) < p0)
-                        //如果找到比当前更差的解，以一定概率接受该解，并且这个概率会越来越小
-                    {
-                        curSeverNo = newSever;
-                        curCost = newCost;
-//                        cout<<"BadCost="<<curCost<<endl;
-                    }
-                    P_L++;
-//                    cout<<"              P_L="<<P_L<<endl;
-                }
-                if (P_L > LIMIT)
-                {
-                    P_F++;
-//                    P_L=0;//TODO:是否要加？
-                    break;
-                }
-            }
-            //        if (mcmf.evaluateCost(curSeverNo) < mcmf.evaluateCost(newSever))
-            //            bestSever2 = curSeverNo;
-            if (P_F > OLOOP || t < EPS)
-                break;
-            t *= DELTA;
-        }
+     //        mcmf.setServers(bestSever1);
 
-        PRINT("\n======================================\n最优解\n");
+     //        mcmf.mainFunction();//主方法
+             mcmf.setBestPath(bestPath);
+             PRINT("\n%s\n", mcmf.getBestPath().c_str());//输出标准格式最优路径
+             //    cout << mcmf.getBestPath();
+             PRINT("\n总成本:%d/%d\n", bestCost, maxCost);
 
-//        mcmf.setServers(bestSever1);
-
-//        mcmf.mainFunction();//主方法
-        mcmf.setBestPath(bestPath);
-        PRINT("\n%s\n", mcmf.getBestPath().c_str());//输出标准格式最优路径
-        //    cout << mcmf.getBestPath();
-        PRINT("\n总成本:%d/%d\n", bestCost, maxCost);
-
-        printf("\n总成本:%d/%d\n", bestCost, maxCost);
-        //    cout << endl << mcmf.getTotalCost() << endl;*/
-
+             printf("\n总成本:%d/%d\n", bestCost, maxCost);
+             //    cout << endl << mcmf.getTotalCost() << endl;
+     */
         const string &strtemp = mcmf.getBestPath();
         char *topo_file = (char *) strtemp.c_str();
         write_result(topo_file, filename);
