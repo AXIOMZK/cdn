@@ -163,19 +163,30 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         auto curSeverNo = mcmf.getSeverNo();
 
         //TODO:遗传进化
+        int  bestCost;
         mcmf.setPro_server(curSeverNo);
         mcmf.init_popcurrent();
-        mcmf.randompickup_new();
-        mcmf.crossover();
-        mcmf.mutation();
-        //算适应度
-        mcmf.evaluateNextFit();
-        mcmf.SortAndChoosePopcurrent(50);
+        for (int j = 0; j <50 ; ++j)
+        {
+            mcmf.randompickup_new();
+            mcmf.crossover();
+            mcmf.mutation();
+            //算适应度
+            mcmf.evaluateNextFit();
+            mcmf.SortAndChoosePopcurrent(50);
+            bestCost=mcmf.popcurrent[0].cost;
+            printf("\n总成本:%d/%d\n", bestCost, 108000);
+        }
+        bestCost=mcmf.evaluateCost(mcmf.getServerFromBit(mcmf.popcurrent[0]));
+        auto bestPath=mcmf.paths;
+        mcmf.setBestPath(bestPath);
+        printf("\n%s\n", mcmf.getBestPath().c_str());//输出标准格式最优路径
+        printf("\n总成本:%d/%d\n", bestCost, 108000);
 
 
 
 
-        auto newSever = curSeverNo;
+/*        auto newSever = curSeverNo;
 //        mcmf.getPro_server(curSeverNo);
 
         auto bestSever1 = curSeverNo;//局部最优
@@ -203,7 +214,9 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                     {
                         bestCost=newCost;
                         bestSever1 = newSever;
+
                         bestPath=mcmf.paths;
+//                        cout<<bestCost<<endl;
                     }
 
                     P_L = 0;
@@ -246,7 +259,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         PRINT("\n总成本:%d/%d\n", bestCost, maxCost);
 
         printf("\n总成本:%d/%d\n", bestCost, maxCost);
-        //    cout << endl << mcmf.getTotalCost() << endl;
+        //    cout << endl << mcmf.getTotalCost() << endl;*/
 
         const string &strtemp = mcmf.getBestPath();
         char *topo_file = (char *) strtemp.c_str();
@@ -264,6 +277,4 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     // 直接调用输出文件的方法输出到指定文件中(ps请注意格式的正确性，如果有解，第一行只有一个数据；第二行为空；第三行开始才是具体的数据，数据之间用一个空格分隔开)
 
 }
-
-
 

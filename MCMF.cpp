@@ -1263,7 +1263,8 @@ void MCMF::init_popcurrent()   // 初始化 编码
         }
         //加上成本
         //TODO:适应度函数
-        pair.fit = 50 * exp(8 * (StdFit - pro_server[i].cost) / StdFit);
+        pair.cost=pro_server[i].cost;
+        pair.fit = 50 * exp(8 * (StdFit -pro_server[i].cost ) / StdFit);
 
         popcurrent.push_back(pair);
 
@@ -1334,8 +1335,12 @@ void MCMF::SortAndChoosePopcurrent(int x)          // 函数：选择个体；
     merge(popcurrent.begin(), popcurrent.end(), popnext.begin(), popnext.end(), vecMerge.begin());
 
     //取前50
-
     popcurrent.assign(vecMerge.begin(), vecMerge.begin() + x);
+    for (int i = 0; i <50 ; ++i)
+    {
+       cout<<"fit="<<popcurrent[i].fit<<"   cost="<<popcurrent[i].cost<<endl;
+    }
+
     popnext.clear();
 
 }
@@ -1350,7 +1355,6 @@ void MCMF::randompickup_new()
     int i;
     int j;
     double p;
-    double sum = 0.0;
     //计算相对概率，前两项精英至少保留1个
     // popnext.push_back(popcurrent[0]);
     // popnext.push_back(popcurrent[1]);
@@ -1462,13 +1466,20 @@ void MCMF::mutation()               // 函数：变异操作；
     for (int i = 0; i < popnext.size(); i++)
     {
         randommutation = rand() % 100;
-        if (randommutation <= 20)
+        if (randommutation <= 60)
         {
-            randomlocation = rand() % Max_Point;
-            //保证必须直连点不变异
-            if (!SeverDirect.count(randomlocation))
-                popnext[i].serverNO[randomlocation]
-                        = popnext[i].serverNO[randomlocation] ^ 1;
+            int count= 1+(int) (rand() % (network_nodes / 20));
+            int t=0;
+            while (t != count){
+                randomlocation = rand() % Max_Point;
+                //保证必须直连点不变异
+                if (!SeverDirect.count(randomlocation)){
+                    popnext[i].serverNO[randomlocation]
+                            = popnext[i].serverNO[randomlocation] ^ 1;
+                    ++t;
+                }
+            }
+
         }
     }
 }
@@ -1804,6 +1815,8 @@ void MCMF::evaluateNextFit()
     for (int i = 0; i <popnext.size() ; ++i)
     {
         double cost=evaluateCost(getServerFromBit(popnext[i]));
+        cout<<"                "<<cost<<endl;
+        popnext[i].cost= (int) cost;
         popnext[i].fit =
                 50 * exp(8 * (StdFit - pro_server[i].cost) / StdFit);
     }

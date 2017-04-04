@@ -71,7 +71,7 @@ struct server
     double fit;//适应值
     double rfit = 0;//相对的fit值，即所占的百分比
     double cfit = 0;//积累概率
-
+    int  cost=INT_MAX;
     bool operator<(const server &m) const
     {
         return fit < m.fit;
