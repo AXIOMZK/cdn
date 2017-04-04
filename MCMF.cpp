@@ -1998,7 +1998,7 @@ set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> MCMF::getGASeverNo()
     set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> SeverNo;
     //最大带宽服务器产生的组合
     /*int t = (int) (minSeverNum + (int) (rand() % (1 + maxServerNum - minSeverNum)));*/
-    int t = (int) (maxServerNum + minSeverNum) / 6;
+    int t = (int)  (minSeverNum+maxServerNum)/21;
     cout << "t=" << t << endl;
     auto it = AllNodeAroundBandwidth.rbegin();
     for (int i = 0; i < t; ++i)

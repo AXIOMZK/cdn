@@ -145,7 +145,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
             LIMIT = 33;      //概率选择上限
             OLOOP = 500;      //外循环次数
             ILOOP = 450;      //内循环次数
-            p0 = 1.2;
+            p0 = 1.1;
         }
 
         double t = T;
@@ -155,7 +155,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 
 
         //TODO:遗传进化
-        auto curSeverNo = mcmf.getGASeverNo();
+/*        auto curSeverNo = mcmf.getGASeverNo();
         int bestCost;
         mcmf.setPro_server(curSeverNo, 10);
         mcmf.init_popcurrent();
@@ -174,11 +174,11 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         auto bestPath = mcmf.paths;
         mcmf.setBestPath(bestPath);
         printf("\n%s\n", mcmf.getBestPath().c_str());//输出标准格式最优路径
-        printf("\n总成本:%d/%d\n", bestCost, 108000);
+        printf("\n总成本:%d/%d\n", bestCost, 108000);*/
 
 
         //TODO:模拟退火
-/*        auto curSeverNo = mcmf.getSeverNo();
+        auto curSeverNo = mcmf.getSeverNo();
         auto newSever = curSeverNo;
 
         auto bestSever1 = curSeverNo;//局部最优
@@ -201,13 +201,13 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                 {
                     curSeverNo = newSever;
                     curCost = newCost;
-                    cout << newCost << endl;
+//                    cout << newCost << endl;
                     if (newCost < bestCost)
                     {
                         bestCost = newCost;
                         bestSever1 = newSever;
                         bestPath = mcmf.paths;
-                        //                        cout<<bestCost<<endl;
+//                        cout << bestCost << endl;
                     }
 
                     P_L = 0;
@@ -223,7 +223,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                         //                             cout<<"BadCost="<<curCost<<endl;
                     }
                     P_L++;
-                    cout << "              P_L=" << P_L << endl;
+//                    cout << "              P_L=" << P_L << endl;
                 }
                 if (P_L > LIMIT)
                 {
@@ -248,7 +248,13 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         PRINT("\n%s\n", mcmf.getBestPath().c_str());//输出标准格式最优路径
         //    cout << mcmf.getBestPath();
         PRINT("\n总成本:%d/%d\n", bestCost, maxCost);
-        printf("\n总成本:%d/%d\n", bestCost, maxCost);*/
+//        printf("\n总成本:%d/%d\n", bestCost, maxCost);
+
+
+
+
+
+
 
         //    cout << endl << mcmf.getTotalCost() << endl;
         const string &strtemp = mcmf.getBestPath();
