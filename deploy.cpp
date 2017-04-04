@@ -177,7 +177,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
             bestCost=mcmf.popcurrent[0].cost;
             printf("\n总成本:%d/%d\n", bestCost, 108000);
         }
-        bestCost=mcmf.evaluateCost(mcmf.getServerFromBit(mcmf.popcurrent[0]));
+        bestCost=mcmf.popcurrent[0].cost;
         auto bestPath=mcmf.paths;
         mcmf.setBestPath(bestPath);
         printf("\n%s\n", mcmf.getBestPath().c_str());//输出标准格式最优路径

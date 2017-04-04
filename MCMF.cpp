@@ -1263,9 +1263,9 @@ void MCMF::init_popcurrent()   // 初始化 编码
         }
         //加上成本
         //TODO:适应度函数
-        pair.cost=pro_server[i].cost;
-        pair.fit = 50 * exp(8 * (StdFit -pro_server[i].cost ) / StdFit);
-
+        pair.cost = pro_server[i].cost;
+        pair.fit = 50.0 * exp(8.0 * (StdFit - (double)pro_server[i].cost) / StdFit);
+        cout<<"cost:"<<pair.cost<<"    fit:"<<pair.fit<<endl;
         popcurrent.push_back(pair);
 
         //用于轮盘赌选择法
@@ -1290,11 +1290,11 @@ set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> MCMF::getServerFromB
         if (singlepopcurrent.serverNO[i] == 1)
         {
             SeverNoAndAroundBandwidth pair;
-            pair.ServerNo=i;
+            pair.ServerNo = i;
             //去除必须直连点
-            if(SeverDirect.count(i))continue;
+            if (SeverDirect.count(i))continue;
             pair.ServeAroundBandwidth
-                    =ServeAroundBandwidth[i];
+                    = ServeAroundBandwidth[i];
             set1.insert(pair);
         }
     }
@@ -1331,17 +1331,26 @@ void MCMF::SortAndChoosePopcurrent(int x)          // 函数：选择个体；
     //... vec1,vec2赋值
     sort(popcurrent.begin(), popcurrent.end(), ServerFitFromBigToSmall);
     sort(popnext.begin(), popnext.end(), ServerFitFromBigToSmall);
-    vecMerge.resize(pro_server.size() + popnext.size());
+    vecMerge.resize(popcurrent.size() + popnext.size());
     merge(popcurrent.begin(), popcurrent.end(), popnext.begin(), popnext.end(), vecMerge.begin());
 
     //取前50
+    popcurrent.clear();
     popcurrent.assign(vecMerge.begin(), vecMerge.begin() + x);
-    for (int i = 0; i <50 ; ++i)
+    for (int i = 0; i < 50; ++i)
     {
-       cout<<"fit="<<popcurrent[i].fit<<"   cost="<<popcurrent[i].cost<<endl;
+        cout << "fit=" << popcurrent[i].fit << "   cost=" << popcurrent[i].cost << endl;
     }
-
     popnext.clear();
+    double sum = 0;
+    for (int j = 0; j < popcurrent.size(); ++j)
+    {
+        sum += popcurrent[j].fit;
+    }
+    for (int j = 0; j < popcurrent.size(); ++j)
+    {
+        popcurrent[j].rfit = popcurrent[j].fit / sum;
+    }
 
 }
 
@@ -1351,10 +1360,6 @@ void MCMF::SortAndChoosePopcurrent(int x)          // 函数：选择个体；
 void MCMF::randompickup_new()
 {
 
-    int men;
-    int i;
-    int j;
-    double p;
     //计算相对概率，前两项精英至少保留1个
     // popnext.push_back(popcurrent[0]);
     // popnext.push_back(popcurrent[1]);
@@ -1362,26 +1367,20 @@ void MCMF::randompickup_new()
     //calculate the cumulative fitness,即计算积累概率
     popcurrent[0].cfit = popcurrent[0].rfit;
 
-    for (men = 1; men < popcurrent.size(); men++)
+    for (int men = 1; men < popcurrent.size(); men++)
     {
         popcurrent[men].cfit = popcurrent[men - 1].cfit + popcurrent[men].rfit;
     }
-
-    for (i = 0; i < popcurrent.size(); i++)
-    {   //产生0~1之间的随机数
-        //p = r8_uniform_ab( 0, 1, seed );//通过函数生成0~1之间均匀分布的数字
-        p = ((double) rand()) / (RAND_MAX + 0.00001);
-        if (p < popcurrent[0].cfit)
+    popnext.clear();
+    for (int k = 0; k < popcurrent.size(); ++k)
+    {
+        double p = ((double) rand()) / (RAND_MAX + 0.00001);
+        for (int i = 0; i < popcurrent.size(); ++i)
         {
-            popnext.push_back(popcurrent[0]);
-        } else
-        {
-            for (j = 0; j < popcurrent.size() - 1; j++)
+            if (p < popcurrent[i].cfit)
             {
-                if (popcurrent[j].cfit <= p && p < popcurrent[j + 1].cfit)
-                {
-                    popnext.push_back(popcurrent[j + 1]);
-                }
+                popnext.push_back(popcurrent[i]);
+                break;
             }
         }
     }
@@ -1468,12 +1467,14 @@ void MCMF::mutation()               // 函数：变异操作；
         randommutation = rand() % 100;
         if (randommutation <= 60)
         {
-            int count= 1+(int) (rand() % (network_nodes / 20));
-            int t=0;
-            while (t != count){
+            int count = 1 + (int) (rand() % (network_nodes / 20));
+            int t = 0;
+            while (t != count)
+            {
                 randomlocation = rand() % Max_Point;
                 //保证必须直连点不变异
-                if (!SeverDirect.count(randomlocation)){
+                if (!SeverDirect.count(randomlocation))
+                {
                     popnext[i].serverNO[randomlocation]
                             = popnext[i].serverNO[randomlocation] ^ 1;
                     ++t;
@@ -1486,6 +1487,27 @@ void MCMF::mutation()               // 函数：变异操作；
 
 void MCMF::setPro_server(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &curSever)
 {
+    /* newSever = mcmf.getNewServe(curSeverNo);
+     int newCost = mcmf.evaluateCost(newSever);
+     double dE = newCost - curCost;
+     if (dE < 0)   //如果找到更优值，直接更新
+     {
+         curSeverNo = newSever;
+         curCost = newCost;
+ //                    cout<<newCost<<endl;
+         if (newCost < bestCost)
+         {
+             bestCost=newCost;
+             bestSever1 = newSever;
+
+             bestPath=mcmf.paths;
+ //                        cout<<bestCost<<endl;
+         }
+
+         P_L = 0;
+         P_F = 0;
+     }*/
+
     auto temSever = curSever;
     for (int j = 0; j < 100; ++j)
     {
@@ -1812,13 +1834,13 @@ MCMF::getNewGA(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>
 
 void MCMF::evaluateNextFit()
 {
-    for (int i = 0; i <popnext.size() ; ++i)
+
+    for (int i = 0; i < popnext.size(); ++i)
     {
-        double cost=evaluateCost(getServerFromBit(popnext[i]));
-        cout<<"                "<<cost<<endl;
-        popnext[i].cost= (int) cost;
+        double cost = evaluateCost(getServerFromBit(popnext[i]));
+        popnext[i].cost = (int) cost;
         popnext[i].fit =
-                50 * exp(8 * (StdFit - pro_server[i].cost) / StdFit);
+                50 * exp(8.0 * (StdFit - (double)popnext[i].cost) / StdFit);
+        cout << popnext.size()<< "      cost" << cost <<"    fit"<<popnext[i].fit<< endl;
     }
 }
-
