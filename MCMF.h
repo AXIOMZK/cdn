@@ -215,6 +215,10 @@ public:
     int getNumOfServers(vector<int> serverNO);
 
     int getbandwidthOfServers(vector<int> serverNO);
+
+
+    //遗传算法产生新的服务器编号组合
+    set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> getGASeverNo();
 };
 
 
