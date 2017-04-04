@@ -151,6 +151,8 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
             p0 = 1.2;
         }
 
+
+
         //TODO:模拟退火
 
         double t = T;
@@ -159,6 +161,20 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         srand((unsigned int) time(NULL));
 
         auto curSeverNo = mcmf.getSeverNo();
+
+        //TODO:遗传进化
+        mcmf.setPro_server(curSeverNo);
+        mcmf.init_popcurrent();
+        mcmf.randompickup_new();
+        mcmf.crossover();
+        mcmf.mutation();
+        //算适应度
+        mcmf.evaluateNextFit();
+        mcmf.SortAndChoosePopcurrent(50);
+
+
+
+
         auto newSever = curSeverNo;
 //        mcmf.getPro_server(curSeverNo);
 

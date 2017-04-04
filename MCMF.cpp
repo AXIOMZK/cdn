@@ -380,9 +380,9 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
 void MCMF::setConsumersAndNets(const vector<ResumeInfo> &Consumers, const vector<vector<LinkInfo>> &Nets)
 {
 //    this->Consumers = Consumers;
-    this->Consumers.assign(Consumers.begin(),Consumers.end());
+    this->Consumers.assign(Consumers.begin(), Consumers.end());
 //    this->Nets = Nets;
-    this->Nets.assign(Nets.begin(),Nets.end());
+    this->Nets.assign(Nets.begin(), Nets.end());
     consumer_nodes = Consumers.size();
     network_nodes = Nets.size();
     maxServerNum = consumer_nodes;
@@ -830,7 +830,7 @@ void MCMF::setServeAroundBandwidth()
 
     //得到服务器评估最小数
     vector<int> temp;
-    temp.assign(ServeAroundBandwidth.begin(),ServeAroundBandwidth.end());
+    temp.assign(ServeAroundBandwidth.begin(), ServeAroundBandwidth.end());
     sort(temp.rbegin(), temp.rend());
     int sum = 0;
     int k = 0;
@@ -1239,7 +1239,6 @@ void MCMF::setSeverDirect()
             DirectBandwidth += (*it).need_bandwidth;
         }
     }
-
 }
 
 
@@ -1247,11 +1246,11 @@ void MCMF::setSeverDirect()
 
 //TODO:遗传相关
 
-void MCMF::init_popcurrent()   // 函数：随机生成初始种群；
+void MCMF::init_popcurrent()   // 初始化 编码
 {
     Max_Point = (int) network_nodes;
     // int random ;
-    double sumcost = 0;
+    double sumFit = 0;
     // 从种群中的第1个染色体到第n个染色体
     for (int i = 0; i < pro_server.size(); i++)
     {
@@ -1263,47 +1262,57 @@ void MCMF::init_popcurrent()   // 函数：随机生成初始种群；
             pair.serverNO[(*j)] = 1;
         }
         //加上成本
-        pair.fit = pro_server[i].cost;
+        //TODO:适应度函数
+        pair.fit = 50 * exp(8 * (StdFit - pro_server[i].cost) / StdFit);
 
         popcurrent.push_back(pair);
 
         //用于轮盘赌选择法
-        sumcost += popcurrent[i].fit;
+        sumFit += popcurrent[i].fit;
     }
 
     //计算适应值得百分比，该参数是在用轮盘赌选择法时需要用到的
     for (int k = 0; k < popcurrent.size(); k++)
     {    //染色体适应度的百分比
-        popcurrent[k].rfit = (double) popcurrent[k].fit / sumcost;
+        //TODO:适应度算错了吧
+        popcurrent[k].rfit = (double) popcurrent[k].fit / sumFit;
     }
-
 }
 
 
-vector<int> MCMF::getServerFromBit(const server &singlepopcurrent)
+//得到去除必须直连点后的服务器
+set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> MCMF::getServerFromBit(const server &singlepopcurrent)
 {
-    vector<int> server;
+    set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> set1;
     for (int i = 0; i < Max_Point; i++)
     {
         if (singlepopcurrent.serverNO[i] == 1)
         {
-            server.push_back(i);
+            SeverNoAndAroundBandwidth pair;
+            pair.ServerNo=i;
+            //去除必须直连点
+            if(SeverDirect.count(i))continue;
+            pair.ServeAroundBandwidth
+                    =ServeAroundBandwidth[i];
+            set1.insert(pair);
         }
-
     }
-    return server;
+    return set1;
 }
 
 
+bool ServerFitFromBigToSmall(const server &m1, const server &m2)
+{
+    return m2.fit < m1.fit;
+}
 
 //根据适应度排序（由大到小）
 //新旧解结合筛选
-void MCMF::SortAndChoosePopcurrent()          // 函数：选择个体；
+void MCMF::SortAndChoosePopcurrent(int x)          // 函数：选择个体；
 {
-    int i, j;
+    /*int i, j;
     server temp;                                // 中间变量
-    //因此此处设计的是个个体，所以参数是
-    //
+
     for (i = 0; i < popcurrent.size() - 1; i++)                           // 根据个体适应度来排序；（冒泡法）
     {
         for (j = 0; j < popcurrent.size() - 1 - i; j++)
@@ -1313,15 +1322,21 @@ void MCMF::SortAndChoosePopcurrent()          // 函数：选择个体；
                 temp = popcurrent[j + 1];
                 popcurrent[j + 1] = popcurrent[j];
                 popcurrent[j] = temp;
-
             }
         }
-    }
+    }*/
 
+    vector<server> vecMerge;
+    //... vec1,vec2赋值
+    sort(popcurrent.begin(), popcurrent.end(), ServerFitFromBigToSmall);
+    sort(popnext.begin(), popnext.end(), ServerFitFromBigToSmall);
+    vecMerge.resize(pro_server.size() + popnext.size());
+    merge(popcurrent.begin(), popcurrent.end(), popnext.begin(), popnext.end(), vecMerge.begin());
 
-    //删除后一半的解
+    //取前50
 
-
+    popcurrent.assign(vecMerge.begin(), vecMerge.begin() + x);
+    popnext.clear();
 
 }
 
@@ -1408,7 +1423,7 @@ void MCMF::crossover()              // 函数：交叉操作；
 
     // 交叉点控制在0到Max_Point-1之间；
     // 随机产生交叉点；
-
+    //TODO:交叉算法是否有问题
     for (int i = 0; i < popnext.size() - 1; i += 2)
     {
         int random = (rand() % (Max_Point - 1) + 1);
@@ -1433,19 +1448,29 @@ void MCMF::mutation()               // 函数：变异操作；
     int randommutation;
     int randomlocation;
     //每个染色体有20%概率变异
-    for (int i = 0; i < popcurrent.size(); i++)
+    //TODO:改为next？
+    /*for (int i = 0; i < popcurrent.size(); i++)
     {
-        //TODO:随机处理
-//        srand((unsigned int) time(NULL));
         randommutation = rand() % 100;
-        if (randommutation < 20)
+        if (randommutation <= 20)
         {
             randomlocation = rand() % Max_Point;
             popcurrent[i].serverNO[randomlocation]
                     = popcurrent[i].serverNO[randomlocation] ^ 1;
         }
+    }*/
+    for (int i = 0; i < popnext.size(); i++)
+    {
+        randommutation = rand() % 100;
+        if (randommutation <= 20)
+        {
+            randomlocation = rand() % Max_Point;
+            //保证必须直连点不变异
+            if (!SeverDirect.count(randomlocation))
+                popnext[i].serverNO[randomlocation]
+                        = popnext[i].serverNO[randomlocation] ^ 1;
+        }
     }
-
 }
 
 void MCMF::setPro_server(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &curSever)
@@ -1461,6 +1486,8 @@ void MCMF::setPro_server(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Sma
         SeverSetAndCost pair;
         pair.SetSeverNO = temp;
         pair.cost = evaluateCost(temSever);
+        //适应度标准值
+        if (j == 0)StdFit = pair.cost;
         pro_server.push_back(pair);
         temSever = getNewGA(temSever);
 
@@ -1470,6 +1497,7 @@ void MCMF::setPro_server(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Sma
         }
         cout<<endl;*/
     }
+
 }
 
 /* int random ;
@@ -1770,3 +1798,14 @@ MCMF::getNewGA(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>
     return newServe;
 
 }
+
+void MCMF::evaluateNextFit()
+{
+    for (int i = 0; i <popnext.size() ; ++i)
+    {
+        double cost=evaluateCost(getServerFromBit(popnext[i]));
+        popnext[i].fit =
+                50 * exp(8 * (StdFit - pro_server[i].cost) / StdFit);
+    }
+}
+

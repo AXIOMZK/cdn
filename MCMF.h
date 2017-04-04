@@ -56,22 +56,29 @@ struct SeverSetAndCost
     int cost;//对应的成本
 };
 
-struct pro_serverFromSmallToBig
-{
-    bool operator()(const SeverSetAndCost &left, const SeverSetAndCost &right) const
-    {
-        return (left.cost < right.cost);
-    }
-};
+//struct pro_serverFromSmallToBig
+//{
+//    bool operator()(const SeverSetAndCost &left, const SeverSetAndCost &right) const
+//    {
+//        return (left.cost < right.cost);
+//    }
+//};
 
 struct server
 {
     vector<int> serverNO;//一共net_node,bit来对染色体进行编码
 
-    int fit = 0;//适应值
+    double fit;//适应值
     double rfit = 0;//相对的fit值，即所占的百分比
     double cfit = 0;//积累概率
+
+    bool operator<(const server &m) const
+    {
+        return fit < m.fit;
+    }
 };
+
+
 
 class MCMF
 {
@@ -168,24 +175,26 @@ public:
 
     //遗传相关
 
+    double StdFit;
+
     vector<SeverSetAndCost> pro_server;//服务器编号集群未编码
     void setPro_server(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &curSever);
 
     int Max_Point;//二进制网络节点数
 
-    //  server popcurrent [PopulationSize];    // 初始种群规模
-    vector<server> popcurrent;
+    //  server popcurrent [PopulationSize];  // 初始种群规模
+    vector<server> popcurrent;   // 初始种群
 
-    vector<server> popnext;    // 更新后种群规模仍为；
+    vector<server> popnext;    // 更新后种群
 
     void init_popcurrent();//将十组Server转化为十组基因，进行种群的初始化
 
     //将个体二进制字节流转化为服务器编号，用于计算目标函数
-    vector<int> getServerFromBit(const server &singlepopcurrent);
+    set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> getServerFromBit(const server &singlepopcurrent);
 
 
     //根据个体的适应度进行排序
-    void SortAndChoosePopcurrent();//选择操作
+    void SortAndChoosePopcurrent(int x);//选择操作
 
     // 基于概率分布的轮盘法选择
     void randompickup_new();
@@ -199,7 +208,13 @@ public:
 
     set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>
     getNewGA(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &oldServe);
+
+    void evaluateNextFit();
+
+
 };
+
+
 
 
 #endif //CDN_MCMF_H
