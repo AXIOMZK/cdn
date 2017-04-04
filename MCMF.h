@@ -67,7 +67,8 @@ struct SeverSetAndCost
 struct server
 {
     vector<int> serverNO;//一共net_node,bit来对染色体进行编码
-
+    double bandwidths;
+    int num_of_sercers;
     double fit;//适应值
     double rfit = 0;//相对的fit值，即所占的百分比
     double cfit = 0;//积累概率
@@ -211,7 +212,9 @@ public:
 
     void evaluateNextFit();
 
+    int getNumOfServers(vector<int> serverNO);
 
+    int getbandwidthOfServers(vector<int> serverNO);
 };
 
 

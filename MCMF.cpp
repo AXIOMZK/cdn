@@ -473,7 +473,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
         //完全产生新服务器
         a7 = 90;
         //随机添加t1个服务器,再随机删除t2个服务器
-        a8 =100;
+        a8 = 100;
         //添加一个最大服务器,再删除最小的服务器
         //a8~100
     } else
@@ -868,7 +868,7 @@ set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> MCMF::getSeverNo()
 
     //最大带宽服务器产生的组合
     /*int t = (int) (minSeverNum + (int) (rand() % (1 + maxServerNum - minSeverNum)));*/
-    int t= (int) ((maxServerNum + minSeverNum) / 4);
+    int t = (int) (maxServerNum + minSeverNum) / 3;
     cout << "t=" << t << endl;
     auto it = AllNodeAroundBandwidth.rbegin();
     for (int i = 0; i < t; ++i)
@@ -1285,10 +1285,13 @@ void MCMF::init_popcurrent()   // 初始化 编码
         server pair = server();
         pair.serverNO.resize((unsigned long) Max_Point, 0);
         // 从染色体的第1个基因位到第n个基因位====编码
+        pair.bandwidths = 0;
         for (auto j = pro_server[i].SetSeverNO.begin(); j != pro_server[i].SetSeverNO.end(); j++)
         {
             pair.serverNO[(*j)] = 1;
+            pair.bandwidths += ServeAroundBandwidth[(*j)];
         }
+        pair.num_of_sercers = (int) pro_server[i].SetSeverNO.size();
         //加上成本
         //TODO:适应度函数
         pair.cost = pro_server[i].cost;
@@ -1370,7 +1373,7 @@ void MCMF::SortAndChoosePopcurrent(int x)          // 函数：选择个体；
     popcurrent.resize((unsigned long) x);
     popcurrent.assign(vecMerge.begin(), vecMerge.begin() + x);
 
-    for (int i = 0; i < 50; ++i)
+    for (int i = 0; i < popcurrent.size(); ++i)
     {
         cout << "fit=" << popcurrent[i].fit << "   cost=" << popcurrent[i].cost << endl;
     }
@@ -1466,15 +1469,28 @@ void MCMF::crossover()              // 函数：交叉操作；
     //TODO:交叉算法是否有问题
     //产生的个数,随机产生minSeverNum~maxServerNum的整数
 //    int t = (int) (minSeverNum + (int) (rand() % (1 + maxServerNum - minSeverNum)));
+
     for (int i = 0; i < popnext.size() - 1; i += 2)
     {
-        int random = (rand() % (Max_Point - 1) + 1);
-        auto temp = popnext[i].serverNO;
-        popnext[i].serverNO.resize((unsigned long) random);
-        popnext[i].serverNO.insert(popnext[i].serverNO.end(), popnext[i + 1].serverNO.begin() + random,
-                                   popnext[i + 1].serverNO.end());
-        popnext[i + 1].serverNO.resize((unsigned long) random);
-        popnext[i + 1].serverNO.insert(popnext[i + 1].serverNO.end(), temp.begin() + random, temp.end());
+        do
+        {
+            int random = (rand() % (Max_Point - 1) + 1);
+            auto temp = popnext[i].serverNO;
+            popnext[i].serverNO.resize((unsigned long) random);
+            popnext[i].serverNO.insert(popnext[i].serverNO.end(), popnext[i + 1].serverNO.begin() + random,
+                                       popnext[i + 1].serverNO.end());
+            popnext[i + 1].serverNO.resize((unsigned long) random);
+            popnext[i + 1].serverNO.insert(popnext[i + 1].serverNO.end(), temp.begin() + random, temp.end());
+
+            popnext[i].num_of_sercers = getNumOfServers(popnext[i].serverNO);
+            popnext[i + 1].num_of_sercers = getNumOfServers(popnext[i + 1].serverNO);
+
+            popnext[i].bandwidths = getbandwidthOfServers(popnext[i].serverNO);
+            popnext[i + 1].bandwidths = getbandwidthOfServers(popnext[i + 1].serverNO);
+        } while (popnext[i].bandwidths < TotalNeed || popnext[i].num_of_sercers > maxServerNum ||
+                 popnext[i].num_of_sercers < minSeverNum || popnext[i + 1].bandwidths < TotalNeed ||
+                 popnext[i + 1].num_of_sercers > maxServerNum ||
+                 popnext[i + 1].num_of_sercers < minSeverNum);
 
     }
 
@@ -1499,36 +1515,69 @@ void MCMF::mutation()               // 函数：变异操作；
     }*/
     for (int i = 0; i < popnext.size(); i++)
     {
-        randommutation = rand() % 100;
-        if (randommutation <= 90)
+        do
         {
-            int count = 1 + (int) (rand() % (network_nodes / 10));
-            int t = 0;
-            while (t != count)
+            randommutation = rand() % 100;
+            if (randommutation <= 60)
             {
-                randomlocation = rand() % Max_Point;
-                //保证必须直连点不变异
-                if (!SeverDirect.count(randomlocation))
+                int count = (int) 2;
+                int t = 0;
+                while (t != count)
                 {
-                    popnext[i].serverNO[randomlocation]
-                            = popnext[i].serverNO[randomlocation] ^ 1;
-                    ++t;
+                    randomlocation = rand() % Max_Point;
+                    //保证必须直连点不变异
+                    if (!SeverDirect.count(randomlocation))
+                    {
+                        if (rand() % 100 > 50)
+                            popnext[i].serverNO[randomlocation]
+                                    = popnext[i].serverNO[randomlocation] & 0;
+                        else
+                            popnext[i].serverNO[randomlocation]
+                                    = popnext[i].serverNO[randomlocation] ^ 1;
+                        ++t;
+                    }
                 }
-            }
-
-        }
+                popnext[i].num_of_sercers = getNumOfServers(popnext[i].serverNO);
+                popnext[i].bandwidths = getbandwidthOfServers(popnext[i].serverNO);
+            } else break;
+        } while (popnext[i].bandwidths < TotalNeed || popnext[i].num_of_sercers > maxServerNum ||
+                 popnext[i].num_of_sercers < minSeverNum);
     }
 }
 
 void MCMF::setPro_server(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &curSevers, int x)
 {
+    //加一组直连的解
+    set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> SeverNo;
+    for (int l = 0; l < Consumers.size(); ++l)
+    {
+        SeverNoAndAroundBandwidth pair;
+        pair.ServerNo = Consumers[l].node_NO;
+        //取与必须直连服务器集合的差集合
+        if (SeverDirect.count(pair.ServerNo))continue;
+        pair.ServeAroundBandwidth = ServeAroundBandwidth[Consumers[l].node_NO];
+        SeverNo.insert(pair);
+    }
+
+    set<int> temp = SeverDirect;
+    for (auto i = SeverNo.begin(); i != SeverNo.end(); ++i)
+    {
+        temp.insert((*i).ServerNo);
+    }
+    SeverSetAndCost pair;
+    pair.SetSeverNO = temp;
+    //TODO:StdFit标准费用初始化
+    StdFit = pair.cost = evaluateCost(SeverNo);
+    pro_server.push_back(pair);
+
+
     int ct = 0;
     int curCost, newCost, bestCost;
     auto curSever = curSevers;
-    //TODO:StdFit标准费用初始化
-    StdFit = curCost = newCost = bestCost = evaluateCost(curSever);
+
+    curCost = newCost = bestCost = evaluateCost(curSever);
     auto newSever = curSever;
-    while (ct < x)
+    while (ct < x - 1)
     {
         newSever = getNewGA(curSever);
         newCost = evaluateCost(newSever);
@@ -1541,13 +1590,13 @@ void MCMF::setPro_server(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Sma
             {
                 bestCost = curCost;
                 ct++;
-                set<int> temp = SeverDirect;
+                set<int> temp2 = SeverDirect;
                 for (auto i = curSever.begin(); i != curSever.end(); ++i)
                 {
-                    temp.insert((*i).ServerNo);
+                    temp2.insert((*i).ServerNo);
                 }
-                SeverSetAndCost pair;
-                pair.SetSeverNO = temp;
+                SeverSetAndCost pair2;
+                pair.SetSeverNO = temp2;
                 pair.cost = bestCost;
                 pro_server.push_back(pair);
             }
@@ -1605,18 +1654,20 @@ MCMF::getNewGA(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>
     //完全产生新服务器
     double a7;
     //随机添加t1个服务器,再随机删除t2个服务器
-    //a7~100
+    double a8;
+    //添加一个最大服务器,再删除最小的服务器
+    //a8~100
     if (consumer_nodes > 300)
     {
         //大型数据
         //随机删除一个服务器,小型数据
-        a1 = 10;
+        a1 = 5;
         //随机添加一个服务器,小型数据
-        a2 = 20;
+        a2 = 10;
         //随机按比例删除服务器，中大型数据
-        a3 = 30;
+        a3 = 20;
         //随机按比例增加服务器，中大型数据
-        a4 = 40;
+        a4 = 30;
         //优先删除所能提供带宽最小的服务器
         a5 = 70;
         //优先添加所能提供带宽最大的服务器
@@ -1624,27 +1675,31 @@ MCMF::getNewGA(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>
         //完全产生新服务器
         a7 = 95;
         //随机添加t1个服务器,再随机删除t2个服务器
-        //a7~100
+        a8 = 100;
+        //添加一个最大服务器,再删除最小的服务器
+        //a8~100
 
     } else if (consumer_nodes > 100)
     {
         //中型数据
         //随机删除一个服务器,小型数据
-        a1 = 30;
+        a1 = 10;
         //随机添加一个服务器,小型数据
-        a2 = 60;
+        a2 = 20;
         //随机按比例删除服务器，中大型数据
-        a3 = 60;
+        a3 = 20;
         //随机按比例增加服务器，中大型数据
-        a4 = 60;
+        a4 = 20;
         //优先删除所能提供带宽最小的服务器
-        a5 = 80;
+        a5 = 40;
         //优先添加所能提供带宽最大的服务器
-        a6 = 90;
+        a6 = 60;
         //完全产生新服务器
-        a7 = 93;
+        a7 = 65;
         //随机添加t1个服务器,再随机删除t2个服务器
-        //a7~100
+        a8 = 75;
+        //添加一个最大服务器,再删除最小的服务器
+        //a8~100
     } else
     {
         //小型数据
@@ -1661,9 +1716,11 @@ MCMF::getNewGA(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>
         //优先添加所能提供带宽最大的服务器
         a6 = 90;
         //完全产生新服务器
-        a7 = 94;
+        a7 = 92;
         //随机添加t1个服务器,再随机删除t2个服务器
-        //a7~100
+        a8 = 96;
+        //添加一个最大服务器,再删除最小的服务器
+        //a8~100
     }
     while (newServe.size() + sizeDirect > maxServerNum || t_provide < TotalNeed)
     {
@@ -1799,7 +1856,30 @@ MCMF::getNewGA(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>
                 if (SeverDirect.count(pos))continue;
                 newServe.insert(pair);
             }
-        } else
+        }
+
+            /*else
+            {
+                //随机删除t1个服务器,再随机添加t2个服务器
+                //t1,t2都小于等于newServe.size()
+                unsigned long temp_size = (int) newServe.size();
+                int t1 = 1 + (int) (rand() % temp_size);
+                int t2 = 1 + (int) (rand() % temp_size);
+                for (int i = 0; i < t1; ++i)
+                {
+                    newServe.erase(newServe.begin());
+                }
+
+                while (newServe.size() != temp_size - t1 + t2)
+                {
+                    int pos = (int) (rand() % network_nodes);
+                    SeverNoAndAroundBandwidth pair;
+                    pair.ServerNo = pos;
+                    pair.ServeAroundBandwidth = ServeAroundBandwidth[pos];
+                    newServe.insert(pair);
+                }
+            }*/
+        else if (flag >= a7 && flag < a8)
         {
             //随机添加t1个服务器,再随机删除t2个服务器
             unsigned long temp_size = (int) newServe.size() + sizeDirect;
@@ -1842,6 +1922,20 @@ MCMF::getNewGA(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>
                 newServe.erase(it);
             }
 
+        } else
+        {
+            auto it = AllNodeAroundBandwidth.rbegin();
+            //添加一个最大服务器,再删除最小的服务器
+            unsigned long temp_size = (int) newServe.size();
+            while (newServe.size() == temp_size)
+            {
+//                int pos = (int) (rand() % network_nodes);
+                SeverNoAndAroundBandwidth pair;
+                pair.ServerNo = (*it++).ServerNo;
+                pair.ServeAroundBandwidth = ServeAroundBandwidth[pair.ServerNo];
+                newServe.insert(pair);
+            }
+            newServe.erase(newServe.begin());
         }
         t_provide = DirectBandwidth;
         for (auto item = newServe.begin(); item != newServe.end(); ++item)
@@ -1851,7 +1945,6 @@ MCMF::getNewGA(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>
     }
 
     return newServe;
-
 }
 
 void MCMF::evaluateNextFit()
@@ -1865,4 +1958,20 @@ void MCMF::evaluateNextFit()
                 50 * exp(8.0 * ((StdFit - (double) popnext[i].cost) / StdFit) - 0.15);
         cout << popnext.size() << "      cost" << cost << "    fit" << popnext[i].fit << endl;
     }
+}
+
+int MCMF::getNumOfServers(vector<int> pop)
+{
+    int sum = accumulate(pop.begin(), pop.end(), 0);
+    return sum;
+}
+
+int MCMF::getbandwidthOfServers(vector<int> serverNO)
+{
+    int sumBandwidth = 0;
+    for (int i = 0; i < serverNO.size(); ++i)
+    {
+        sumBandwidth += serverNO[i] * ServeAroundBandwidth[i];
+    }
+    return sumBandwidth;
 }

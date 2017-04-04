@@ -154,11 +154,13 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         int P_F = 0;
         srand((unsigned int) time(NULL));
 
+
+
         auto curSeverNo = mcmf.getSeverNo();
 
         //TODO:遗传进化
-       /* int bestCost;
-        mcmf.setPro_server(curSeverNo, 50);
+        int bestCost;
+        mcmf.setPro_server(curSeverNo, 10);
         mcmf.init_popcurrent();
         while (isExit)
         {
@@ -167,7 +169,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
             mcmf.mutation();
             //算适应度
             mcmf.evaluateNextFit();
-            mcmf.SortAndChoosePopcurrent(50);
+            mcmf.SortAndChoosePopcurrent(10);
             bestCost = mcmf.popcurrent[0].cost;
             printf("\n总成本:%d/%d\n", bestCost, 108000);
         }
@@ -175,12 +177,12 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         auto bestPath = mcmf.paths;
         mcmf.setBestPath(bestPath);
         printf("\n%s\n", mcmf.getBestPath().c_str());//输出标准格式最优路径
-        printf("\n总成本:%d/%d\n", bestCost, 108000);*/
+        printf("\n总成本:%d/%d\n", bestCost, 108000);
 
 
         //TODO:模拟退火
 
-             auto newSever = curSeverNo;
+/*             auto newSever = curSeverNo;
 
              auto bestSever1 = curSeverNo;//局部最优
              //    auto bestSever2 = curSeverNo;//全局最优
@@ -250,7 +252,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
              //    cout << mcmf.getBestPath();
              PRINT("\n总成本:%d/%d\n", bestCost, maxCost);
 
-             printf("\n总成本:%d/%d\n", bestCost, maxCost);
+             printf("\n总成本:%d/%d\n", bestCost, maxCost);*/
              //    cout << endl << mcmf.getTotalCost() << endl;
         const string &strtemp = mcmf.getBestPath();
         char *topo_file = (char *) strtemp.c_str();
