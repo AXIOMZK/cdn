@@ -85,7 +85,7 @@ class MCMF
 private:
     //某网络节点作为服务器时的最大提供带宽
     vector<int> ServeAroundBandwidth;//序号为服务器所连的节点号，值为评估带宽
-    //所以节点的评估带宽存储
+    //所有节点的评估带宽存储
     set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> AllNodeAroundBandwidth;
     int maxpoint;
     bool stop = false;

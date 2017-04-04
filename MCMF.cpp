@@ -430,7 +430,9 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
     //完全产生新服务器
     double a7;
     //随机添加t1个服务器,再随机删除t2个服务器
-    //a7~100
+    double a8;
+    //添加一个最大服务器,再删除最小的服务器
+    //a8~100
     if (consumer_nodes > 300)
     {
         //大型数据
@@ -449,7 +451,9 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
         //完全产生新服务器
         a7 = 95;
         //随机添加t1个服务器,再随机删除t2个服务器
-        //a7~100
+        a8 = 100;
+        //添加一个最大服务器,再删除最小的服务器
+        //a8~100
 
     } else if (consumer_nodes > 100)
     {
@@ -467,9 +471,11 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
         //优先添加所能提供带宽最大的服务器
         a6 = 90;
         //完全产生新服务器
-        a7 = 93;
+        a7 = 90;
         //随机添加t1个服务器,再随机删除t2个服务器
-        //a7~100
+        a8 =100;
+        //添加一个最大服务器,再删除最小的服务器
+        //a8~100
     } else
     {
         //小型数据
@@ -486,9 +492,11 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
         //优先添加所能提供带宽最大的服务器
         a6 = 90;
         //完全产生新服务器
-        a7 = 94;
+        a7 = 92;
         //随机添加t1个服务器,再随机删除t2个服务器
-        //a7~100
+        a8 = 96;
+        //添加一个最大服务器,再删除最小的服务器
+        //a8~100
     }
     while (newServe.size() + sizeDirect > maxServerNum || t_provide < TotalNeed)
     {
@@ -597,22 +605,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                 }
             }
 
-        }
-            /*else if (flag == 4)
-            {
-                //随机添加一个服务器,再删除最小的服务器
-                unsigned long temp_size = (int) newServe.size();
-                while (newServe.size() == temp_size)
-                {
-                    int pos = (int) (rand() % network_nodes);
-                    SeverNoAndAroundBandwidth pair;
-                    pair.ServerNo = pos;
-                    pair.ServeAroundBandwidth = ServeAroundBandwidth[pos];
-                    newServe.insert(pair);
-                }
-                newServe.erase(newServe.begin());
-            }*/
-        else if (flag >= a5 && flag < a6)
+        } else if (flag >= a5 && flag < a6)
         {
             //优先添加所能提供带宽最大的服务器
             unsigned long temp_size = newServe.size();
@@ -662,7 +655,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                     newServe.insert(pair);
                 }
             }*/
-        else
+        else if (flag >= a7 && flag < a8)
         {
             //随机添加t1个服务器,再随机删除t2个服务器
             unsigned long temp_size = (int) newServe.size() + sizeDirect;
@@ -705,6 +698,20 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                 newServe.erase(it);
             }
 
+        } else
+        {
+            auto it = AllNodeAroundBandwidth.rbegin();
+            //添加一个最大服务器,再删除最小的服务器
+            unsigned long temp_size = (int) newServe.size();
+            while (newServe.size() == temp_size)
+            {
+//                int pos = (int) (rand() % network_nodes);
+                SeverNoAndAroundBandwidth pair;
+                pair.ServerNo = (*it++).ServerNo;
+                pair.ServeAroundBandwidth = ServeAroundBandwidth[pair.ServerNo];
+                newServe.insert(pair);
+            }
+            newServe.erase(newServe.begin());
         }
         t_provide = DirectBandwidth;
         for (auto item = newServe.begin(); item != newServe.end(); ++item)
@@ -846,9 +853,10 @@ void MCMF::setServeAroundBandwidth()
 
 set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> MCMF::getSeverNo()
 {
-    //服务器初始编号，即直连方案编号，外加一个参考可能提供带宽量,按带宽从小到大排序
     set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> SeverNo;
-    for (int l = 0; l < Consumers.size(); ++l)
+
+    //服务器初始编号，即直连方案编号，外加一个参考可能提供带宽量,按带宽从小到大排序
+    /*for (int l = 0; l < Consumers.size(); ++l)
     {
         SeverNoAndAroundBandwidth pair;
         pair.ServerNo = Consumers[l].node_NO;
@@ -856,7 +864,27 @@ set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> MCMF::getSeverNo()
         if (SeverDirect.count(pair.ServerNo))continue;
         pair.ServeAroundBandwidth = ServeAroundBandwidth[Consumers[l].node_NO];
         SeverNo.insert(pair);
+    }*/
+
+    //最大带宽服务器产生的组合
+    /*int t = (int) (minSeverNum + (int) (rand() % (1 + maxServerNum - minSeverNum)));*/
+    int t= (int) ((maxServerNum + minSeverNum) / 4);
+    cout << "t=" << t << endl;
+    auto it = AllNodeAroundBandwidth.rbegin();
+    for (int i = 0; i < t; ++i)
+    {
+        SeverNoAndAroundBandwidth pair;
+        pair.ServerNo = (*it++).ServerNo;
+        //取与必须直连服务器集合的差集合
+        if (SeverDirect.count(pair.ServerNo))continue;
+        pair.ServeAroundBandwidth = ServeAroundBandwidth[pair.ServerNo];
+        SeverNo.insert(pair);
     }
+
+
+
+
+
 //    set<int>setNew;
 //    set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> newServe;
 //    //取差集
@@ -1264,7 +1292,7 @@ void MCMF::init_popcurrent()   // 初始化 编码
         //加上成本
         //TODO:适应度函数
         pair.cost = pro_server[i].cost;
-        pair.fit = 50.0 * exp(8.0 * (StdFit - (double) pro_server[i].cost) / StdFit);
+        pair.fit = 50.0 * exp(8.0 * ((StdFit - (double) pro_server[i].cost) / StdFit - 0.15));
         cout << "cost:" << pair.cost << "    fit:" << pair.fit << endl;
         popcurrent.push_back(pair);
 
@@ -1275,8 +1303,7 @@ void MCMF::init_popcurrent()   // 初始化 编码
     //计算适应值得百分比，该参数是在用轮盘赌选择法时需要用到的
     for (int k = 0; k < popcurrent.size(); k++)
     {    //染色体适应度的百分比
-        //TODO:适应度算错了吧
-        popcurrent[k].rfit = (double) popcurrent[k].fit / sumFit;
+        popcurrent[k].rfit = popcurrent[k].fit / sumFit;
     }
 }
 
@@ -1437,6 +1464,8 @@ void MCMF::crossover()              // 函数：交叉操作；
     // 交叉点控制在0到Max_Point-1之间；
     // 随机产生交叉点；
     //TODO:交叉算法是否有问题
+    //产生的个数,随机产生minSeverNum~maxServerNum的整数
+//    int t = (int) (minSeverNum + (int) (rand() % (1 + maxServerNum - minSeverNum)));
     for (int i = 0; i < popnext.size() - 1; i += 2)
     {
         int random = (rand() % (Max_Point - 1) + 1);
@@ -1491,7 +1520,7 @@ void MCMF::mutation()               // 函数：变异操作；
     }
 }
 
-void MCMF::setPro_server(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &curSevers,int x)
+void MCMF::setPro_server(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &curSevers, int x)
 {
     int ct = 0;
     int curCost, newCost, bestCost;
@@ -1524,8 +1553,6 @@ void MCMF::setPro_server(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Sma
             }
         }
     }
-
-
 }
 
 /* int random ;
@@ -1835,7 +1862,7 @@ void MCMF::evaluateNextFit()
         double cost = evaluateCost(getServerFromBit(popnext[i]));
         popnext[i].cost = (int) cost;
         popnext[i].fit =
-                50 * exp(8.0 * (StdFit - (double) popnext[i].cost) / StdFit);
+                50 * exp(8.0 * ((StdFit - (double) popnext[i].cost) / StdFit) - 0.15);
         cout << popnext.size() << "      cost" << cost << "    fit" << popnext[i].fit << endl;
     }
 }

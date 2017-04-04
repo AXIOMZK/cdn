@@ -157,7 +157,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         auto curSeverNo = mcmf.getSeverNo();
 
         //TODO:遗传进化
-        int bestCost;
+       /* int bestCost;
         mcmf.setPro_server(curSeverNo, 50);
         mcmf.init_popcurrent();
         while (isExit)
@@ -175,12 +175,12 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         auto bestPath = mcmf.paths;
         mcmf.setBestPath(bestPath);
         printf("\n%s\n", mcmf.getBestPath().c_str());//输出标准格式最优路径
-        printf("\n总成本:%d/%d\n", bestCost, 108000);
+        printf("\n总成本:%d/%d\n", bestCost, 108000);*/
 
 
         //TODO:模拟退火
 
-        /*     auto newSever = curSeverNo;
+             auto newSever = curSeverNo;
 
              auto bestSever1 = curSeverNo;//局部最优
              //    auto bestSever2 = curSeverNo;//全局最优
@@ -191,7 +191,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 
              while (isExit)       //外循环，主要更新参数t，模拟退火过程
              {
-     //            cout<<"==========================P_F:"<<P_F<<endl;
+//                 cout<<"==========================P_F:"<<P_F<<endl;
                  for (int i = 0; i < ILOOP; i++) //内循环，寻找在一定温度下的最优值
                  {
                      if (!isExit)break;
@@ -202,7 +202,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                      {
                          curSeverNo = newSever;
                          curCost = newCost;
-     //                    cout<<newCost<<endl;
+                         cout<<newCost<<endl;
                          if (newCost < bestCost)
                          {
                              bestCost = newCost;
@@ -221,15 +221,15 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                          {
                              curSeverNo = newSever;
                              curCost = newCost;
-     //                        cout<<"BadCost="<<curCost<<endl;
+//                             cout<<"BadCost="<<curCost<<endl;
                          }
                          P_L++;
-     //                    cout<<"              P_L="<<P_L<<endl;
+                         cout<<"              P_L="<<P_L<<endl;
                      }
                      if (P_L > LIMIT)
                      {
                          P_F++;
-     //                    P_L=0;//TODO:是否要加？
+                         P_L=0;//TODO:是否要加？
                          break;
                      }
                  }
@@ -252,7 +252,6 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 
              printf("\n总成本:%d/%d\n", bestCost, maxCost);
              //    cout << endl << mcmf.getTotalCost() << endl;
-     */
         const string &strtemp = mcmf.getBestPath();
         char *topo_file = (char *) strtemp.c_str();
         write_result(topo_file, filename);
