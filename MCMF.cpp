@@ -909,17 +909,20 @@ void MCMF::setSeverCostAndTotalNeed(int SeverCost, double TotalNeed)
 void MCMF::mainFunction()
 {//TODO:values初始化大小问题
     values.clear();
-    widthvalues.clear();
+    serverwidth.clear();
+    servercost.clear();
     serverfit.clear();
     preVertex.clear();
     array.clear();
     vector<int>().swap(values);
-    vector<int>().swap(widthvalues);
+    vector<int>().swap(serverwidth);
+    vector<int>().swap(servercost);
     vector<double>().swap(serverfit);
     vector<int>().swap(preVertex);
     vector<int>().swap(array);
     values.resize((unsigned long) maxpoint);
-    widthvalues.resize((unsigned long) maxpoint);
+    serverwidth.resize((unsigned long) maxpoint);
+    servercost.resize((unsigned long) maxpoint);
     serverfit.resize((unsigned long) maxpoint);
     preVertex.resize((unsigned long) maxpoint);
     array.resize((unsigned long) maxpoint);
@@ -1151,7 +1154,10 @@ void MCMF::decreaseAndPrintf(vector<int> trace)
 
         values[dir] = values[dir] + distance[maxpoint - 1] * minwidth;
         //cout<<"values[dir]__"<<values[dir]<<"dir__"<<dir<<endl;
-        widthvalues[widthdir] = widthvalues[widthdir] + distance[maxpoint - 1] * minwidth;
+        serverwidth[widthdir] = serverwidth[widthdir]+minwidth;
+        servercost[widthdir] = servercost[widthdir] + distance[maxpoint - 1];
+
+
        // cout<<"widthvalues[widthdir]__"<<widthvalues[widthdir]<<"widthdir__"<<widthdir<<endl;
 
         if (isenough())
@@ -1218,20 +1224,24 @@ bool MCMF::isenough()
 }
 
 void MCMF::setServerFit() {
-    double widthcount=0;
+    double serverwidthcount=0;
+    double servercostcount=0;
 
     for (int i = 0; i < network_nodes; i++)
     {
-        if (widthvalues[i] != 0) {
-            widthcount += widthvalues[i];
+        if (serverwidth[i] != 0) {
+            serverwidthcount += serverwidth[i];
+        }
+        if(servercost[i]!=0){
+            servercostcount  += serverwidth[i];
         }
     }
 
     for (int i = 0; i < network_nodes; i++)
     {
-        if (widthvalues[i] != 0) {
-            serverfit[i]=widthvalues[i]/widthcount;
-
+        if (serverwidth[i] != 0)
+        {
+            serverfit[i]=serverwidthcount/(servercostcount+0.0);
         }
     }
 

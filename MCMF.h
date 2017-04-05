@@ -75,7 +75,8 @@ private:
     vector<int> preVertex;/*各个节点的前一个节点*/
     vector<int> array;
     vector<int> values;
-    vector<int> widthvalues;
+    vector<int> serverwidth;
+    vector<int> servercost;
     vector<double>serverfit;
 
     //消费节点连接的网络节点编号
