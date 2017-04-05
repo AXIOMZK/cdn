@@ -72,13 +72,13 @@ struct server
     double fit;//适应值
     double rfit = 0;//相对的fit值，即所占的百分比
     double cfit = 0;//积累概率
-    int  cost=INT_MAX;
+    int cost = INT_MAX;
+
     bool operator<(const server &m) const
     {
         return fit < m.fit;
     }
 };
-
 
 
 class MCMF
@@ -115,6 +115,27 @@ private:
     map<int, int> NodesLinkConsumerNeed;
     //网络节点编号索引相连消费节点序号
     map<int, int> NodesLinkConsumerNO;
+
+
+    //退火选择参数
+//随机删除一个服务器,小型数据
+    double a1;
+//随机添加一个服务器,小型数据
+    double a2;
+//随机按比例删除服务器，中大型数据
+    double a3;
+//随机按比例增加服务器，中大型数据
+    double a4;
+//优先删除所能提供带宽最小的服务器
+    double a5;
+//优先添加所能提供带宽最大的服务器
+    double a6;
+//完全产生新服务器
+    double a7;
+//随机添加t1个服务器,再随机删除t2个服务器
+    double a8;
+//添加一个最大服务器,再删除最小的服务器
+//a8~100
 
 public:
     vector<vector<int> > paths;
@@ -179,7 +200,7 @@ public:
     double StdFit;
 
     vector<SeverSetAndCost> pro_server;//服务器编号集群未编码
-    void setPro_server(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &curSever,int x);
+    void setPro_server(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &curSever, int x);
 
     int Max_Point;//二进制网络节点数
 
@@ -220,8 +241,6 @@ public:
     //遗传算法产生新的服务器编号组合
     set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> getGASeverNo();
 };
-
-
 
 
 #endif //CDN_MCMF_H

@@ -100,7 +100,6 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         int LIMIT;    //概率选择上限
         int OLOOP;      //外循环次数
         int ILOOP;      //内循环次数
-
         double p0;   //退火接受参数
 
         if (links > 2000)
@@ -124,9 +123,9 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
             EPS = 1e-9;     //终止温度
             DELTA = 0.98;     //温度衰减率
             LIMIT = 10;     //概率选择上限
-            OLOOP = 20000;      //外循环次数
+            OLOOP = 2000;      //外循环次数
             ILOOP = 1000;      //内循环次数
-            p0 = 1.0;
+            p0 = 0.95;
         } else
         {
             //执行定时器函数
@@ -139,13 +138,13 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 //            OLOOP = 300;      //外循环次数
 //            ILOOP = 400;      //内循环次数
 //            p0=1.22;
-            T = 900;         //初始温度
+            T = 1000;         //初始温度
             EPS = 1e-9;      //终止温度
             DELTA = 0.98;    //温度衰减率
-            LIMIT = 33;      //概率选择上限
+            LIMIT = 40;      //概率选择上限
             OLOOP = 500;      //外循环次数
             ILOOP = 450;      //内循环次数
-            p0 = 1.1;
+            p0 = 0.904;
         }
 
         double t = T;
@@ -214,13 +213,14 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                     P_F = 0;
                 } else
                 {
-                    double rd = rand() / (RAND_MAX + 1.0);
-                    if (exp(dE / t) > rd && exp(dE / t) < p0)
+                    double rd = rand() / (RAND_MAX )+0.4;
+//                    if (exp(dE / t) > rd && exp(dE / t) < p0)
+                    if (exp(-dE / t) > rd && exp(-dE / t) > p0)
                         //如果找到比当前更差的解，以一定概率接受该解，并且这个概率会越来越小
                     {
                         curSeverNo = newSever;
                         curCost = newCost;
-                        //                             cout<<"BadCost="<<curCost<<endl;
+                        cout << "BadCost=" << curCost << endl;
                     }
                     P_L++;
 //                    cout << "              P_L=" << P_L << endl;
@@ -237,6 +237,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
             if (P_F > OLOOP || t < EPS)
                 break;
             t *= DELTA;
+            cout<<"========================="<<t<<endl;
         }
 
         PRINT("\n======================================\n最优解\n");
@@ -248,7 +249,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         PRINT("\n%s\n", mcmf.getBestPath().c_str());//输出标准格式最优路径
         //    cout << mcmf.getBestPath();
         PRINT("\n总成本:%d/%d\n", bestCost, maxCost);
-//        printf("\n总成本:%d/%d\n", bestCost, maxCost);
+        printf("\n总成本:%d/%d\n", bestCost, maxCost);
 
 
 
