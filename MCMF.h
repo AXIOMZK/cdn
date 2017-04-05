@@ -140,13 +140,13 @@ private:
 public:
     vector<vector<int> > paths;
 
-    MCMF(const vector<ResumeInfo> &Consumers, const vector<vector<LinkInfo>> &Nets, int SeverCost, double TotalNeed);
+    MCMF(const vector<ResumeInfo> &Consumers, const vector<vector<LinkInfo>> &Nets, const int &SeverCost,const double &TotalNeed);
 
     void setConsumersAndNets(const vector<ResumeInfo> &Consumers, const vector<vector<LinkInfo>> &Nets);
 
     void setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &SeverNo);
 
-    void setSeverCostAndTotalNeed(int SeverCost, double TotalNeed);
+    void setSeverCostAndTotalNeed(const int &SeverCost, const double &TotalNeed);
 
     //模拟退火产生新的服务器编号组合
     set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>

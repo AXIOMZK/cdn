@@ -41,10 +41,10 @@ void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_
     mapswidth.resize(network_nodes + 2, vector<int>(network_nodes + 2));
 
     //新版本(优化直连变换)
-    for (int i = 0; i < network_nodes + 2; i++)
+    for (int i = 0; i < network_nodes + 2; ++i)
     {
         //如果i是服务器也是消费节点，不用计算路径费用
-        for (int j = 0; j < network_nodes + 2; j++)
+        for (int j = 0; j < network_nodes + 2; ++j)
         {
             if (!isExit)return;
             //自身cost=0
@@ -401,7 +401,7 @@ void MCMF::setConsumersAndNets(const vector<ResumeInfo> &Consumers, const vector
 
 }
 
-MCMF::MCMF(const vector<ResumeInfo> &Consumers, const vector<vector<LinkInfo>> &Nets, int SeverCost, double TotalNeed)
+MCMF::MCMF(const vector<ResumeInfo> &Consumers, const vector<vector<LinkInfo>> &Nets,const int &SeverCost,const double &TotalNeed)
 {
     setConsumersAndNets(Consumers, Nets);
     setSeverCostAndTotalNeed(SeverCost, TotalNeed);
@@ -497,7 +497,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                 int pos = (int) (rand() % newServe.size());
 //                cout<<pos<<endl;
                 auto it = newServe.begin();
-                while (pos--) it++;
+                while (pos--) ++it;
                 newServe.erase(it);
             } else
             {
@@ -543,7 +543,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
             {
                 int pos = (int) (rand() % newServe.size());
                 auto it = newServe.begin();
-                while (pos--) it++;
+                while (pos--) ++it;
                 newServe.erase(it);
             }
 //            cout<<"      3"<<endl;
@@ -683,7 +683,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                 int pos = (int) (rand() % newServe.size());
 //                cout << "pos:" << pos << "--" << newServe.size() << endl;
                 auto it = newServe.begin();
-                while (pos--) it++;
+                while (pos--) ++it;
                 newServe.erase(it);
             }
 //            cout<<"      8"<<endl;
@@ -865,7 +865,7 @@ set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> MCMF::getSeverNo()
 }
 
 
-void MCMF::setSeverCostAndTotalNeed(int SeverCost, double TotalNeed)
+void MCMF::setSeverCostAndTotalNeed(const int &SeverCost, const double &TotalNeed)
 {
     MCMF::SeverCost = SeverCost;
     MCMF::TotalNeed = TotalNeed;
@@ -1743,7 +1743,7 @@ MCMF::getNewGA(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>
                 int pos = (int) (rand() % newServe.size());
 //                cout<<pos<<endl;
                 auto it = newServe.begin();
-                while (pos--) it++;
+                while (pos--) ++it;
                 newServe.erase(it);
             } else
             {
@@ -1788,7 +1788,7 @@ MCMF::getNewGA(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>
             {
                 int pos = (int) (rand() % newServe.size());
                 auto it = newServe.begin();
-                while (pos--) it++;
+                while (pos--) ++it;
                 newServe.erase(it);
             }
         } else if (flag >= a3 && flag < a4)
@@ -1925,7 +1925,7 @@ MCMF::getNewGA(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>
                 int pos = (int) (rand() % newServe.size());
 //                cout << "pos:" << pos << "--" << newServe.size() << endl;
                 auto it = newServe.begin();
-                while (pos--) it++;
+                while (pos--) ++it;
                 newServe.erase(it);
             }
 
