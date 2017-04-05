@@ -130,7 +130,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         {
             //执行定时器函数
             signal(SIGALRM, timer);
-            alarm(89); //定时80s
+            alarm(88); //定时80s
 //            T = 650;         //初始温度
 //            EPS = 1e-9;      //终止温度
 //            DELTA = 0.95;    //温度衰减率
