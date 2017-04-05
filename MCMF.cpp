@@ -411,9 +411,9 @@ MCMF::MCMF(const vector<ResumeInfo> &Consumers, const vector<vector<LinkInfo>> &
     {
 //大型数据
 //随机删除一个服务器,小型数据
-        a1 = 70;
+        a1 = 35;
 //随机添加一个服务器,小型数据
-        a2 = 100;
+        a2 = 35;
 //随机按比例删除服务器，中大型数据
         a3 = 100;
 //随机按比例增加服务器，中大型数据
@@ -482,7 +482,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
     auto sizeDirect = SeverDirect.size();
     auto newServe = oldServe;
     int t_provide = 0;//服务器可能的最大提供流量
-
+    if(consumer_nodes>300)a1=++a2;
     while (newServe.size() + sizeDirect > maxServerNum || t_provide < TotalNeed)
     {
         if (!isExit)return newServe;
@@ -513,7 +513,7 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                     newServe.insert(pair);
                 }
             }
-            if(consumer_nodes>100&&consumer_nodes<300)a1*=0.9997;
+            if(consumer_nodes>100&&consumer_nodes<300)a1*=0.9999;
             cout<<"      1"<<endl;
         } else if (flag >= a1 && flag < a2)
         {
