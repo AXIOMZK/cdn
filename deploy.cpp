@@ -106,7 +106,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         {
             //执行定时器函数
             signal(SIGALRM, timer);
-//            alarm(86); //定时80s
+            alarm(86); //定时80s
             T = 1000;     //初始温度
             EPS = 1e-9;     //终止温度
             DELTA = 0.98;     //温度衰减率
@@ -206,7 +206,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                         bestCost = newCost;
                         bestSever1 = newSever;
                         bestPath = mcmf.paths;
-                        cout << bestCost << endl;
+//                        cout << bestCost << endl;
                     }
 
                     P_L = 0;
@@ -220,7 +220,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                     {
                         curSeverNo = newSever;
                         curCost = newCost;
-                        cout << "BadCost=" << curCost << endl;
+//                        cout << "BadCost=" << curCost << endl;
                     }
                     P_L++;
 //                    cout << "              P_L=" << P_L << endl;
@@ -235,7 +235,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
             if (P_F > OLOOP || t < EPS)
                 break;
             t *= DELTA;
-            cout<<"========================="<<t<<endl;
+//            cout<<"========================="<<t<<endl;
         }
 
         PRINT("\n======================================\n最优解\n");
@@ -247,7 +247,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         PRINT("\n%s\n", mcmf.getBestPath().c_str());//输出标准格式最优路径
         //    cout << mcmf.getBestPath();
         PRINT("\n总成本:%d/%d\n", bestCost, maxCost);
-        printf("\n总成本:%d/%d\n", bestCost, maxCost);
+//        printf("\n总成本:%d/%d\n", bestCost, maxCost);
 
 
 
