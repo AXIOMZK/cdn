@@ -167,11 +167,10 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         int bestCost = mcmf.evaluateCost(curSeverNo);
         int maxCost = bestCost;
         int curCost = bestCost;//当前的费用
-        auto bestPath=mcmf.paths;//保存最优路径
+        auto bestPath = mcmf.paths;//保存最优路径
 
         while (isExit)       //外循环，主要更新参数t，模拟退火过程
         {
-//            cout<<"==========================P_F:"<<P_F<<endl;
             for (int i = 0; i < ILOOP; i++) //内循环，寻找在一定温度下的最优值
             {
                 if (!isExit)break;
@@ -182,12 +181,12 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                 {
                     curSeverNo = newSever;
                     curCost = newCost;
-//                    cout<<newCost<<endl;
                     if (newCost < bestCost)
                     {
-                        bestCost=newCost;
+                        bestCost = newCost;
                         bestSever1 = newSever;
-                        bestPath=mcmf.paths;
+                        bestPath = mcmf.paths;
+                        cout << bestCost << endl;
                     }
                     P_L = 0;
                     P_F = 0;
@@ -207,7 +206,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                 if (P_L > LIMIT)
                 {
                     P_F++;
-                    P_L=0;//TODO:是否要加？
+                    P_L = 0;//TODO:是否要加？
                     break;
                 }
             }
