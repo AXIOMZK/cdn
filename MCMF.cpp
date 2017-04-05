@@ -1219,7 +1219,7 @@ bool MCMF::isenough()
 
 void MCMF::setServerFit() {
     double widthcount=0;
-    double k=0;
+
     for (int i = 0; i < network_nodes; i++)
     {
         if (widthvalues[i] != 0) {
@@ -1231,7 +1231,7 @@ void MCMF::setServerFit() {
     {
         if (widthvalues[i] != 0) {
             serverfit[i]=widthvalues[i]/widthcount;
-            k+=serverfit[i];
+
         }
     }
 
