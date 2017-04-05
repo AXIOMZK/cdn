@@ -390,10 +390,29 @@ MCMF::MCMF(const vector<ResumeInfo> &Consumers, const vector<vector<LinkInfo>> &
     setSeverCostAndTotalNeed(SeverCost, TotalNeed);
 }
 
+set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>
+MCMF::getNewServe1(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &oldServe)
+{
+    auto newServe = oldServe;
+    if (newServe.size() > minSeverNum)
+    {
+        newServe.erase(newServe.begin());
+        //temp=newServe;
+    }
+    return newServe;
+}
+
+
+
+
+
 //得到新服务器编号(变异)
 set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>
-MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &oldServe)
+MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &oldServe, bool flag)
 {
+
+   // set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>
+   // temp;
     //非递归版本
     auto newServe = oldServe;
     auto old_size = consumer_nodes;
@@ -454,6 +473,39 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
         a7 = 93;
         //随机添加t1个服务器,再随机删除t2个服务器
         //a7~100
+
+        //随机删除一个服务器,小型数据
+        a1 = 20;
+        //随机添加一个服务器,小型数据
+        a2 = 40;
+        //随机按比例删除服务器，中大型数据
+        a3 = 65;
+        //随机按比例增加服务器，中大型数据
+        a4 = 85;
+        //优先删除所能提供带宽最小的服务器
+        a5 = 85;
+        //优先添加所能提供带宽最大的服务器
+        a6 = 85;
+        //完全产生新服务器
+        a7 = 95;
+        //随机添加t1个服务器,再随机删除t2个服务器
+        if (flag) {
+//随机删除一个服务器,小型数据
+            a1 = 30;
+            //随机添加一个服务器,小型数据
+            a2 = 60;
+            //随机按比例删除服务器，中大型数据
+            a3 = 60;
+            //随机按比例增加服务器，中大型数据
+            a4 = 60;
+            //优先删除所能提供带宽最小的服务器
+            a5 = 60;
+            //优先添加所能提供带宽最大的服务器
+            a6 = 90;
+            //完全产生新服务器
+            a7 = 93;
+            //随机添加t1个服务器,再随机删除t2个服务器
+        }
     } else
     {
         //小型数据
@@ -474,6 +526,8 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
         //随机添加t1个服务器,再随机删除t2个服务器
         //a7~100
     }
+
+
     while (newServe.size() > maxServerNum || t_provide < TotalNeed)
     {
         if (!isExit)return newServe;
@@ -490,7 +544,15 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                 auto it = newServe.begin();
                 while (pos--) it++;
                 newServe.erase(it);
+
+                //再删除一个
+                int pos1 = (int) (rand() % newServe.size());
+//                cout<<pos<<endl;
+                auto it1 = newServe.begin();
+                while (pos1--) it1++;
+                newServe.erase(it1);
             }
+           // cout<<"删除一个           111111111"<<endl;
 
         } else if (flag >= a1 && flag < a2)
         {
@@ -503,8 +565,14 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                 pair.ServerNo = pos;
                 pair.ServeAroundBandwidth = ServeAroundBandwidth[pos];
                 newServe.insert(pair);
-            }
 
+                int pos1 = (int) (rand() % network_nodes);
+                SeverNoAndAroundBandwidth pair1;
+                pair1.ServerNo = pos1;
+                pair1.ServeAroundBandwidth = ServeAroundBandwidth[pos1];
+                newServe.insert(pair1);
+            }
+          //  cout<<"添加一个    222"<<endl;
         } else if (flag >= a2 && flag < a3)
         {
             //随机按比例删除服务器，中大型数据
@@ -522,6 +590,9 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                 while (pos--) it++;
                 newServe.erase(it);
             }
+
+          //  cout<<"随机按比例删除服务器    3"<<endl;
+
         } else if (flag >= a3 && flag < a4)
         {
             //随机按比例增加服务器，中大型数据
@@ -546,11 +617,17 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                     newServe.insert(pair);
                 }
             }
+
+          //  cout<<"随机按比例添加服务器    44444"<<endl;
         } else if (flag >= a4 && flag < a5)
         {
             //优先删除所能提供带宽最小的服务器
             if (newServe.size() > minSeverNum)
+            {
                 newServe.erase(newServe.begin());
+                 //temp=newServe;
+            }
+            cout<<"优先删除所能提供带宽最小的服务器    99999999"<<endl;
         }
 /*        else if (flag == 4)
         {
@@ -569,12 +646,25 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
         else if (flag >= a5 && flag < a6)
         {
             //优先添加所能提供带宽最大的服务器
-            unsigned long temp_size = newServe.size();
+           /* unsigned long temp_size = newServe.size();
             auto it = AllNodeAroundBandwidth.rbegin();
             while (newServe.size() == temp_size)
             {
                 newServe.insert(*(it++));
-            }
+            }*/
+            //随机删除一个
+            int pos = (int) (rand() % network_nodes);
+            SeverNoAndAroundBandwidth pair;
+            pair.ServerNo = pos;
+            pair.ServeAroundBandwidth = ServeAroundBandwidth[pos];
+            newServe.insert(pair);
+            //随机增加一个
+            int pos1 = (int) (rand() % network_nodes);
+            SeverNoAndAroundBandwidth pair1;
+            pair1.ServerNo = pos1;
+            pair1.ServeAroundBandwidth = ServeAroundBandwidth[pos1];
+            newServe.insert(pair1);
+
 
         } else if (flag >= a6 && flag < a7)
         {
@@ -819,12 +909,18 @@ void MCMF::setSeverCostAndTotalNeed(int SeverCost, double TotalNeed)
 void MCMF::mainFunction()
 {//TODO:values初始化大小问题
     values.clear();
+    widthvalues.clear();
+    serverfit.clear();
     preVertex.clear();
     array.clear();
     vector<int>().swap(values);
+    vector<int>().swap(widthvalues);
+    vector<double>().swap(serverfit);
     vector<int>().swap(preVertex);
     vector<int>().swap(array);
     values.resize((unsigned long) maxpoint);
+    widthvalues.resize((unsigned long) maxpoint);
+    serverfit.resize((unsigned long) maxpoint);
     preVertex.resize((unsigned long) maxpoint);
     array.resize((unsigned long) maxpoint);
     int index = 0;
@@ -856,10 +952,15 @@ void MCMF::mainFunction()
         //判断流量是否满足，若满足跳出循环
         //数组排序寻找最小的带宽
         decreaseAndPrintf(trace);
+        //printvalues();
+        //
     }
     stop = false;//用完后复原
+    //获得服务器价值比例
+    setServerFit();
+
     //遍历结束后输出总费用
-//    printvalues();
+
     //TODO:setPath
 //    setBestPath(paths);//仅仅只能调用一次
 }
@@ -1013,6 +1114,19 @@ void MCMF::decreaseAndPrintf(vector<int> trace)
         //TODO:dir的大小问题
         //保存费用流方向,array存放的是逆向流
         int dir = array[1];
+        int widthdir=0;
+        for (int i = 0; i < array.size(); ++i) {
+            if(array[i]==maxpoint-2) {
+
+                widthdir = array[i-1];
+                break;
+            }
+
+        }
+
+
+        //保存服务器输出流量价值
+        //int serverdir=array[array.size()-2];
         //cout<<"dir:"<<dir<<endl;
         //if(stop==false){
 //        cout << "路径：";
@@ -1036,6 +1150,9 @@ void MCMF::decreaseAndPrintf(vector<int> trace)
 //        cout << "单条路径费用是：" << distance[maxpoint - 1] * minwidth << endl;
 
         values[dir] = values[dir] + distance[maxpoint - 1] * minwidth;
+        //cout<<"values[dir]__"<<values[dir]<<"dir__"<<dir<<endl;
+        widthvalues[widthdir] = widthvalues[widthdir] + distance[maxpoint - 1] * minwidth;
+       // cout<<"widthvalues[widthdir]__"<<widthvalues[widthdir]<<"widthdir__"<<widthdir<<endl;
 
         if (isenough())
         {
@@ -1049,14 +1166,36 @@ void MCMF::decreaseAndPrintf(vector<int> trace)
 
 //输出每个消费节点在流量满足的情况下，需要的路径费用
 void MCMF::printvalues()
-{
+{   //int count=0;
     //TODO：values有问题！！！！！！！！
     for (int i = 0; i < network_nodes; i++)
     {
-        if (values[i] != 0);
-        PRINT("消费节点:%d,累计路径费用是:%d\n", i, values[i]);
+        if (values[i] != 0)
+        {
+           // count+=values[i];
+           // cout << "values[i]___" << values[i] << "   i:" << i << endl;
+            PRINT("消费节点:%d,累计路径费用是:%d\n", i, values[i]);
+        }
 //            cout << "消费节点" << i << ":" << "累计路径费用是：" << values[i] << endl;
     }
+
+//    int widthcount=0;
+//    for (int i = 0; i < network_nodes; i++)
+//    {
+//        if (widthvalues[i] != 0)
+//        { widthcount+=widthvalues[i];
+//        cout << "widthvalues[i]___" << widthvalues[i] << "   i:" << i << endl;
+//        }
+//        PRINT("消费节点:%d,累计路径费用是:%d\n", i, values[i]);
+////            cout << "消费节点" << i << ":" << "累计路径费用是：" << values[i] << endl;
+//    }
+//    if(count==widthcount){
+//        cout<<"ggggggggggggggggggghgggg"<<endl;
+//    }
+//    else
+//    { cout<<"count______"<<count<<endl;
+//       cout<<"widthcount___________"<<widthcount<<endl;
+//    }
 }
 
 
@@ -1077,6 +1216,27 @@ bool MCMF::isenough()
     }
     return enough;
 }
+
+void MCMF::setServerFit() {
+    double widthcount=0;
+    double k=0;
+    for (int i = 0; i < network_nodes; i++)
+    {
+        if (widthvalues[i] != 0) {
+            widthcount += widthvalues[i];
+        }
+    }
+
+    for (int i = 0; i < network_nodes; i++)
+    {
+        if (widthvalues[i] != 0) {
+            serverfit[i]=widthvalues[i]/widthcount;
+            k+=serverfit[i];
+        }
+    }
+
+}
+
 
 void MCMF::setBestPath(vector<vector<int>>&tpaths)
 {

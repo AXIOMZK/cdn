@@ -10,13 +10,11 @@ using namespace std;
 
 //通过调用alarm来设置计时器，然后继续做别的事情。当计时器计时到0时，信号发送，处理函数被调用。
 
-void timer(int sig)
-{
+void timer(int sig) {
     isExit = 0;
 }
 
-void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
-{
+void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename) {
 //    //执行定时器函数
 //    signal(SIGALRM, timer);
 //    alarm(86); //定时80s
@@ -30,8 +28,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
     SeverCost = atoi(topo[2]);
 
     vector<vector<LinkInfo>> Nets(network_nodes, vector<LinkInfo>(network_nodes));
-    for (unsigned long i = 4; i < 4 + links; ++i)
-    {
+    for (unsigned long i = 4; i < 4 + links; ++i) {
         int start_node, end_node;
         int total_bandwidth, network_hire;
         read.str("");
@@ -45,8 +42,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 
     vector<ResumeInfo> Consumers(consumer_nodes);//vector序号为消费节点编号
     TotalNeed = 0;//消费节点总需求
-    for (unsigned long j = 5 + links; j < 5 + links + consumer_nodes; ++j)
-    {
+    for (unsigned long j = 5 + links; j < 5 + links + consumer_nodes; ++j) {
         int num, node_NO, need_bandwidth;
         read.str("");
         read << topo[j];
@@ -56,22 +52,19 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         TotalNeed += need_bandwidth;
     }
 
-    if (links > 4000)
-    {
+    if (links > 4000) {
         //TODO:直连方案(大数据直接输出直连)
         read.str("");
         stringstream &results = read;
         results << consumer_nodes << "\n";
-        for (unsigned long k = 0; k < consumer_nodes; ++k)
-        {
+        for (unsigned long k = 0; k < consumer_nodes; ++k) {
             results << "\n" << Consumers[k].node_NO << " " << k << " " << Consumers[k].need_bandwidth;
         }
         const string &strDirect = results.str();
 
         char *topo_file = (char *) strDirect.c_str();
         write_result(topo_file, filename);
-    } else
-    {
+    } else {
 
         //TODO:接入msmf类
         //初始化
@@ -106,8 +99,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 
         double p0;   //退火接受参数
 
-        if (links > 2000)
-        {
+        if (links > 2000) {
             //执行定时器函数
             signal(SIGALRM, timer);
             alarm(86); //定时80s
@@ -118,8 +110,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
             OLOOP = 20000;      //外循环次数
             ILOOP = 1000;      //内循环次数
             p0 = 1.0;
-        } else if (links > 1000)
-        {
+        } else if (links > 1000) {
             //执行定时器函数
             signal(SIGALRM, timer);
             alarm(88); //定时80s
@@ -130,8 +121,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
             OLOOP = 20000;      //外循环次数
             ILOOP = 1000;      //内循环次数
             p0 = 1.0;
-        } else
-        {
+        } else {
             //执行定时器函数
             signal(SIGALRM, timer);
             alarm(89); //定时80s
@@ -168,15 +158,32 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
         int bestCost = mcmf.evaluateCost(curSeverNo);
         int maxCost = bestCost;
         int curCost = bestCost;//当前的费用
-        auto bestPath=mcmf.paths;//保存最优路径
+        auto bestPath = mcmf.paths;//保存最优路径
 
+        bool flag=false;
         while (isExit)       //外循环，主要更新参数t，模拟退火过程
         {
 //            cout<<"==========================P_F:"<<P_F<<endl;
             for (int i = 0; i < ILOOP; i++) //内循环，寻找在一定温度下的最优值
             {
                 if (!isExit)break;
-                newSever = mcmf.getNewServe(curSeverNo);
+                //先删除带宽最小的
+
+                int newCost1=0;
+                while (1) {
+                    newSever = mcmf.getNewServe1(curSeverNo);
+                    newCost1 = mcmf.evaluateCost(newSever);
+                   // cout<<"newCost1____"<<newCost1<<endl;
+                    if (newCost1 >=bestCost)
+                        break;
+                    else
+                    {
+                        bestCost = newCost1;
+                    }
+                }
+
+
+                newSever = mcmf.getNewServe(curSeverNo,flag);
                 int newCost = mcmf.evaluateCost(newSever);
                 double dE = newCost - curCost;
                 if (dE < 0)   //如果找到更优值，直接更新
@@ -184,17 +191,22 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                     curSeverNo = newSever;
                     curCost = newCost;
 //                    cout<<newCost<<endl;
-                    if (newCost < bestCost)
-                    {
-                        bestCost=newCost;
+                    if (newCost < bestCost) {
+                        bestCost = newCost;
+                        //cout << "bestCost:_____" << bestCost << endl;
                         bestSever1 = newSever;
-                        bestPath=mcmf.paths;
+                        bestPath = mcmf.paths;
+                    }
+
+                    //改变getnew的系数
+                    if(bestCost<108000*0.9)
+                    { //cout<<"改变getnew的系数------"<<flag<<endl;
+                        flag=true;
                     }
 
                     P_L = 0;
                     P_F = 0;
-                } else
-                {
+                } else {
                     double rd = rand() / (RAND_MAX + 1.0);
                     if (exp(dE / t) > rd && exp(dE / t) < p0)
                         //如果找到比当前更差的解，以一定概率接受该解，并且这个概率会越来越小
@@ -206,8 +218,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                     P_L++;
 //                    cout<<"              P_L="<<P_L<<endl;
                 }
-                if (P_L > LIMIT)
-                {
+                if (P_L > LIMIT) {
                     P_F++;
 //                    P_L=0;//TODO:是否要加？
                     break;

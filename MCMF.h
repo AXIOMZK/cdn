@@ -75,7 +75,8 @@ private:
     vector<int> preVertex;/*各个节点的前一个节点*/
     vector<int> array;
     vector<int> values;
-
+    vector<int> widthvalues;
+    vector<double>serverfit;
 
     //消费节点连接的网络节点编号
     set<int> ConsumerNum;
@@ -97,8 +98,10 @@ public:
 
     //模拟退火产生新的服务器编号组合
     set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>
-    getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &oldServe);
+    getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &oldServe, bool flag);
 
+    set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big>
+    getNewServe1(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &oldServe);
 
     void setServeAroundBandwidth();
 
@@ -113,6 +116,7 @@ public:
     void decreaseAndPrintf(vector<int> trace);
 
     void printvalues();
+    void setServerFit();
 
     void setBestPath(vector<vector<int>>&tpaths);//输出标准答案格式
 
