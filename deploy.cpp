@@ -154,7 +154,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
 
 
         //TODO:遗传进化
-/*        auto curSeverNo = mcmf.getGASeverNo();
+/*        auto curSeverNo = mcmf.getSeverNo();
         int bestCost;
         mcmf.setPro_server(curSeverNo, 10);
         mcmf.init_popcurrent();
@@ -206,7 +206,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                         bestCost = newCost;
                         bestSever1 = newSever;
                         bestPath = mcmf.paths;
-                        cout << bestCost << endl;
+//                        cout << bestCost << endl;
                     }
 
                     P_L = 0;

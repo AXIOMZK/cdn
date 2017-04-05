@@ -514,6 +514,8 @@ MCMF::getNewServe(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_B
                 }
             }
             if(consumer_nodes>100&&consumer_nodes<300)a1*=0.9999;
+            if(consumer_nodes<100)a1*=0.9998;
+//            cout<<"         a1="<<a1<<endl;
 //            cout<<"      1"<<endl;
         } else if (flag >= a1 && flag < a2)
         {
@@ -1549,9 +1551,9 @@ void MCMF::setPro_server(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Sma
 
     curCost = newCost = bestCost = evaluateCost(curSever);
     auto newSever = curSever;
-    while (ct < x)
+    while (ct < 0)
     {
-        newSever = getNewGA(curSever);
+        newSever = getNewServe(curSever);
         newCost = evaluateCost(newSever);
         double dE = newCost - curCost;
         if (dE < 0)   //如果找到更优值，直接更新
@@ -1581,7 +1583,7 @@ void MCMF::setPro_server(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Sma
     ct = 0;
     curSever = SeverNo;
     curCost = bestCost;
-    while (ct < x )
+    while (ct < 45+x )
     {
         newSever = getNewGA(curSever);
         newCost = evaluateCost(newSever);
@@ -1593,8 +1595,9 @@ void MCMF::setPro_server(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Sma
             if (curCost < bestCost)
             {
                 bestCost = curCost;
+                cout<<bestCost<<endl;
                 ct++;
-                if (ct >= x / 2)
+                if (ct >= 45)
                 {
                     set<int> temp2 = SeverDirect;
                     for (auto i = curSever.begin(); i != curSever.end(); ++i)
