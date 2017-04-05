@@ -144,7 +144,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
             LIMIT = 40;      //概率选择上限
             OLOOP = 500;      //外循环次数
             ILOOP = 450;      //内循环次数
-            p0 = 0.904;
+            p0 = 0.99;
         }
 
         double t = T;
@@ -206,7 +206,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
                         bestCost = newCost;
                         bestSever1 = newSever;
                         bestPath = mcmf.paths;
-//                        cout << bestCost << endl;
+                        cout << bestCost << endl;
                     }
 
                     P_L = 0;
