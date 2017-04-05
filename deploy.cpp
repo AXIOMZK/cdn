@@ -144,7 +144,7 @@ void deploy_server(char *topo[MAX_EDGE_NUM], int line_num, char *filename)
             LIMIT = 40;      //概率选择上限
             OLOOP = 500;      //外循环次数
             ILOOP = 450;      //内循环次数
-            p0 = 0.99;
+            p0 = 0.83;
         }
 
         double t = T;
