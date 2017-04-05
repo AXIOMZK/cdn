@@ -2,7 +2,7 @@
 // Created by 张琨 on 2017/3/29.
 //
 
-//重构函数
+//重构函数／
 
 
 #include "MCMF.h"
