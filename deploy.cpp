@@ -2,7 +2,6 @@
 #include "deploy.h"
 #include "MCMF.h"
 
-
 using namespace std;
 
 //C++整数规划+模拟退火方案

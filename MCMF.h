@@ -108,7 +108,6 @@ private:
     vector<int> array;
     vector<int> values;
 
-
     //消费节点连接的网络节点编号
     set<int> ConsumerNum;
     //网络节点编号索引相连消费节点带宽
