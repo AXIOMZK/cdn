@@ -7,375 +7,6 @@
 #include "MCMF.h"
 
 
-void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &SeverNo)
-{
-    set<int> SeverNum;
-    //TODO:服务器转换，加上直连服务器
-    auto newServe = SeverNo;
-    //取并集合
-    for (auto it = SeverDirect.begin(); it != SeverDirect.end(); ++it)
-    {
-        SeverNoAndAroundBandwidth pair;
-        pair.ServerNo = *it;
-        pair.ServeAroundBandwidth = ServeAroundBandwidth[*it];
-        newServe.insert(pair);
-    }
-
-
-    PRINT("\n===================\n");
-    for (auto it = newServe.begin(); it != newServe.end(); ++it)
-    {
-        SeverNum.insert((*it).ServerNo);
-        PRINT("%d\n", (*it).ServerNo);
-//        cout << (*it).ServerNo << endl;
-    }
-
-    //TODO:反复调用是否要做处理
-    mapswidth.clear();
-    mapscost.clear();
-    vector<vector<int>>().swap(mapswidth);
-    vector<vector<int>>().swap(mapscost);
-
-    mapscost.resize(network_nodes + 2, vector<int>(network_nodes + 2));
-    mapswidth.resize(network_nodes + 2, vector<int>(network_nodes + 2));
-
-    //新版本(优化直连变换)
-    for (int i = 0; i < network_nodes + 2; ++i)
-    {
-        //如果i是服务器也是消费节点，不用计算路径费用
-        for (int j = 0; j < network_nodes + 2; ++j)
-        {
-            if (!isExit)return;
-            //自身cost=0
-            if (i == j)
-            {
-                mapscost[i][j] = INT_MAX;
-                mapswidth[i][j] = 0;
-            } else
-            {
-
-                //如果i是服务器点
-                if (SeverNum.count(i))
-                {
-
-
-                    //j也是服务器点
-                    if (SeverNum.count(j))
-                    {
-                        mapscost[i][j] = INT_MAX;
-                        mapswidth[i][j] = 0;
-                    }
-                        //j是主源点
-                    else if (j == network_nodes)
-                    {
-                        mapscost[i][j] = 0;
-                        mapswidth[i][j] = INT_MAX;
-
-                    }
-                        //j是主汇点
-                    else if (j == network_nodes + 1)
-                    {
-                        //判断i是否为消费点
-                        if (ConsumerNum.count(i))
-                        {
-                            //mapscost[i][j] = 0;
-                            //mapswidth[i][j] = NodesLinkConsumerNeed[i];
-                            //修改
-                            mapscost[i][j] = INT_MAX;
-                            mapswidth[i][j] = 0;
-
-                        }
-                            //i不是消费节点
-                        else
-                        {
-                            mapscost[i][j] = INT_MAX;
-                            mapswidth[i][j] = 0;
-                        }
-
-                    } else
-                    {
-                        mapscost[i][j] = Nets[i][j].network_hire;
-                        mapswidth[i][j] = Nets[i][j].total_bandwidth;
-                    }
-                }
-                    //i是消费节点
-                else if (ConsumerNum.count(i))
-                {
-                    //j是服务器点
-                    if (SeverNum.count(j))
-                    {
-                        //i是服务节点
-                        if (SeverNum.count(i))
-                        {
-                            mapscost[i][j] = INT_MAX;
-                            mapswidth[i][j] = 0;
-                        } else
-                        {
-                            mapscost[i][j] = Nets[i][j].network_hire;
-                            mapswidth[i][j] = Nets[i][j].total_bandwidth;
-                        }
-                    }
-                        //j是主汇点
-                    else if (j == network_nodes + 1)
-                    {   //修改
-                        //i也是服务器
-                        if (SeverNum.count(i))
-                        {
-                            mapscost[i][j] = INT_MAX;
-                            mapswidth[i][j] = 0;
-                        } else
-                        {
-                            mapscost[i][j] = 0;
-                            mapswidth[i][j] = NodesLinkConsumerNeed[i];
-                        }
-                    }
-                        //j是主源点
-                    else if (j == network_nodes)
-                    {
-                        //判断i是否为服务点
-                        if (SeverNum.count(i))
-                        {   //修改
-                            mapscost[i][j] = 0;
-                            mapswidth[i][j] = INT_MAX;
-                        }
-                            //i不是服务节点
-                        else
-                        {
-                            mapscost[i][j] = INT_MAX;
-                            mapswidth[i][j] = 0;
-                        }
-
-                    } else
-                    {
-                        mapscost[i][j] = Nets[i][j].network_hire;
-                        mapswidth[i][j] = Nets[i][j].total_bandwidth;
-                    }
-                }
-
-                    //i是主源点
-                else if (i == network_nodes)
-                {
-                    //j是服务点
-                    if (SeverNum.count(j))
-                    {
-                        mapscost[i][j] = 0;
-                        mapswidth[i][j] = INT_MAX;
-
-                    } else
-                    {
-                        mapscost[i][j] = INT_MAX;
-                        mapswidth[i][j] = 0;
-                    }
-                }
-
-                    //i是主汇点
-                else if (i == network_nodes + 1)
-                {
-                    //j是消费点
-                    if (ConsumerNum.count(j))
-                    {
-                        //修改
-                        //j是服务器点
-                        if (SeverNum.count(j))
-                        {
-                            mapscost[i][j] = INT_MAX;
-                            mapswidth[i][j] = 0;
-                        } else
-                        {
-                            mapscost[i][j] = 0;
-                            mapswidth[i][j] = NodesLinkConsumerNeed[j];
-                        }
-                    } else
-                    {
-                        mapscost[i][j] = INT_MAX;
-                        mapswidth[i][j] = 0;
-                    }
-                }
-                    //普通节点
-                else
-                {
-                    //j是主源点或主汇点
-                    if (j == network_nodes || j == network_nodes + 1)
-                    {
-                        mapscost[i][j] = INT_MAX;
-                        mapswidth[i][j] = 0;
-                    } else
-                    {
-                        mapscost[i][j] = Nets[i][j].network_hire;
-                        mapswidth[i][j] = Nets[i][j].total_bandwidth;
-                    }
-                }
-            }
-        }
-    }
-
-    //老版本
-    /*for (int i = 0; i < network_nodes + 2; i++)
-    {
-        for (int j = 0; j < network_nodes + 2; j++)
-        {
-            //自身cost=0
-            if (i == j)
-            {
-                mapscost[i][j] = INT_MAX;
-                mapswidth[i][j] = 0;
-            } else
-            {
-                //如果i是服务器点
-                if (SeverNum.count(i))
-                {
-                    //j也是服务器点
-
-                    if (SeverNum.count(j))
-                    {
-                        mapscost[i][j] = INT_MAX;
-                        mapswidth[i][j] = 0;
-                    }
-                        //j是主源点
-                    else if (j == network_nodes)
-                    {
-                        mapscost[i][j] = 0;
-                        mapswidth[i][j] = INT_MAX;
-                    }
-                        //j是主汇点
-                    else if (j == network_nodes + 1)
-                    {
-                        //判断i是否为消费点
-                        if (ConsumerNum.count(i))
-                        {
-                            mapscost[i][j] = 0;
-                            mapswidth[i][j] = NodesLinkConsumerNeed[i];
-                        }
-                            //i不是消费节点
-                        else
-                        {
-                            mapscost[i][j] = INT_MAX;
-                            mapswidth[i][j] = 0;
-                        }
-
-                    } else
-                    {
-                        mapscost[i][j] = Nets[i][j].network_hire;
-                        mapswidth[i][j] = Nets[i][j].total_bandwidth;
-                    }
-                }
-                    //i是消费节点
-                else if (ConsumerNum.count(i))
-                {
-                    //j是服务器点
-                    if (SeverNum.count(j))
-                    {
-                        //i是服务节点
-                        if (SeverNum.count(i))
-                        {
-                            mapscost[i][j] = INT_MAX;
-                            mapswidth[i][j] = 0;
-                        } else
-                        {
-                            mapscost[i][j] = Nets[i][j].network_hire;
-                            mapswidth[i][j] = Nets[i][j].total_bandwidth;
-                        }
-                    }
-                        //j是主汇点
-                    else if (j == network_nodes + 1)
-                    {
-                        mapscost[i][j] = 0;
-                        mapswidth[i][j] = NodesLinkConsumerNeed[i];
-                    }
-                        //j是主源点
-                    else if (j == network_nodes)
-                    {
-                        //判断i是否为服务点
-                        if (SeverNum.count(i))
-                        {
-                            mapscost[i][j] = 0;
-                            mapswidth[i][j] = INT_MAX;
-                        }
-                            //i不是服务节点
-                        else
-                        {
-                            mapscost[i][j] = INT_MAX;
-                            mapswidth[i][j] = 0;
-                        }
-
-                    } else
-                    {
-                        mapscost[i][j] = Nets[i][j].network_hire;
-                        mapswidth[i][j] = Nets[i][j].total_bandwidth;
-                    }
-                }
-
-                    //i是主源点
-                else if (i == network_nodes)
-                {
-                    //j是服务点
-                    if (SeverNum.count(j))
-                    {
-                        mapscost[i][j] = 0;
-                        mapswidth[i][j] = INT_MAX;
-                    } else
-                    {
-                        mapscost[i][j] = INT_MAX;
-                        mapswidth[i][j] = 0;
-                    }
-                }
-
-                    //i是主汇点
-                else if (i == network_nodes + 1)
-                {
-                    //j是消费点
-                    if (ConsumerNum.count(j))
-                    {
-                        mapscost[i][j] = 0;
-                        mapswidth[i][j] = NodesLinkConsumerNeed[j];
-                    } else
-                    {
-                        mapscost[i][j] = INT_MAX;
-                        mapswidth[i][j] = 0;
-                    }
-                }
-                    //普通节点
-                else
-                {
-                    //j是主源点或主汇点
-                    if (j == network_nodes || j == network_nodes + 1)
-                    {
-                        mapscost[i][j] = INT_MAX;
-                        mapswidth[i][j] = 0;
-                    } else
-                    {
-                        mapscost[i][j] = Nets[i][j].network_hire;
-                        mapswidth[i][j] = Nets[i][j].total_bandwidth;
-                    }
-                }
-            }
-        }
-    }*/
-    setTotalServerCost(newServe);
-    //TODO：清空paths
-    paths.clear();
-    vector<vector<int>>().swap(paths);
-
-/*    for (int l = 0; l < network_nodes + 2; ++l)
-    {
-        for (int i = 0; i < network_nodes + 2; ++i)
-        {
-            cout << mapswidth[l][i] << " ";
-        }
-        cout << endl;
-    }
-    cout <<"---------"<< mapswidth[7][38] << " " << mapscost[7][38] << endl;
-    cout <<"---------"<< Nets[7][38].total_bandwidth << " " << Nets[7][38].network_hire << endl;
-    cout << mapswidth[4][11] << " " << mapscost[4][11] << endl;
-    cout << mapswidth[43][44] << " " << mapscost[43][44] << endl;
-    cout << mapswidth[7][5] << " " << mapscost[7][5] << endl;
-    cout << mapswidth[13][14] << " " << mapscost[13][14] << endl;
-    cout << mapswidth[50][13] << " " << mapscost[50][13] << endl;
-    cout << mapswidth[51][38] << " " << mapscost[51][38] << endl;*/
-
-}
-
-
 void MCMF::setConsumersAndNets(const vector<ResumeInfo> &Consumers, const vector<vector<LinkInfo>> &Nets)
 {
 //    this->Consumers = Consumers;
@@ -1242,6 +873,374 @@ void MCMF::setSeverDirect()
 }
 
 
+void MCMF::setServers(const set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> &SeverNo)
+{
+    set<int> SeverNum;
+    //TODO:服务器转换，加上直连服务器
+    auto newServe = SeverNo;
+    //取并集合
+    for (auto it = SeverDirect.begin(); it != SeverDirect.end(); ++it)
+    {
+        SeverNoAndAroundBandwidth pair;
+        pair.ServerNo = *it;
+        pair.ServeAroundBandwidth = ServeAroundBandwidth[*it];
+        newServe.insert(pair);
+    }
+
+
+    PRINT("\n===================\n");
+    for (auto it = newServe.begin(); it != newServe.end(); ++it)
+    {
+        SeverNum.insert((*it).ServerNo);
+        PRINT("%d\n", (*it).ServerNo);
+//        cout << (*it).ServerNo << endl;
+    }
+
+    //TODO:反复调用是否要做处理
+    mapswidth.clear();
+    mapscost.clear();
+    vector<vector<int>>().swap(mapswidth);
+    vector<vector<int>>().swap(mapscost);
+
+    mapscost.resize(network_nodes + 2, vector<int>(network_nodes + 2));
+    mapswidth.resize(network_nodes + 2, vector<int>(network_nodes + 2));
+
+    //新版本(优化直连变换)
+    for (int i = 0; i < network_nodes + 2; ++i)
+    {
+        //如果i是服务器也是消费节点，不用计算路径费用
+        for (int j = 0; j < network_nodes + 2; ++j)
+        {
+            if (!isExit)return;
+            //自身cost=0
+            if (i == j)
+            {
+                mapscost[i][j] = INT_MAX;
+                mapswidth[i][j] = 0;
+            } else
+            {
+
+                //如果i是服务器点
+                if (SeverNum.count(i))
+                {
+
+
+                    //j也是服务器点
+                    if (SeverNum.count(j))
+                    {
+                        mapscost[i][j] = INT_MAX;
+                        mapswidth[i][j] = 0;
+                    }
+                        //j是主源点
+                    else if (j == network_nodes)
+                    {
+                        mapscost[i][j] = 0;
+                        mapswidth[i][j] = INT_MAX;
+
+                    }
+                        //j是主汇点
+                    else if (j == network_nodes + 1)
+                    {
+                        //判断i是否为消费点
+                        if (ConsumerNum.count(i))
+                        {
+                            //mapscost[i][j] = 0;
+                            //mapswidth[i][j] = NodesLinkConsumerNeed[i];
+                            //修改
+                            mapscost[i][j] = INT_MAX;
+                            mapswidth[i][j] = 0;
+
+                        }
+                            //i不是消费节点
+                        else
+                        {
+                            mapscost[i][j] = INT_MAX;
+                            mapswidth[i][j] = 0;
+                        }
+
+                    } else
+                    {
+                        mapscost[i][j] = Nets[i][j].network_hire;
+                        mapswidth[i][j] = Nets[i][j].total_bandwidth;
+                    }
+                }
+                    //i是消费节点
+                else if (ConsumerNum.count(i))
+                {
+                    //j是服务器点
+                    if (SeverNum.count(j))
+                    {
+                        //i是服务节点
+                        if (SeverNum.count(i))
+                        {
+                            mapscost[i][j] = INT_MAX;
+                            mapswidth[i][j] = 0;
+                        } else
+                        {
+                            mapscost[i][j] = Nets[i][j].network_hire;
+                            mapswidth[i][j] = Nets[i][j].total_bandwidth;
+                        }
+                    }
+                        //j是主汇点
+                    else if (j == network_nodes + 1)
+                    {   //修改
+                        //i也是服务器
+                        if (SeverNum.count(i))
+                        {
+                            mapscost[i][j] = INT_MAX;
+                            mapswidth[i][j] = 0;
+                        } else
+                        {
+                            mapscost[i][j] = 0;
+                            mapswidth[i][j] = NodesLinkConsumerNeed[i];
+                        }
+                    }
+                        //j是主源点
+                    else if (j == network_nodes)
+                    {
+                        //判断i是否为服务点
+                        if (SeverNum.count(i))
+                        {   //修改
+                            mapscost[i][j] = 0;
+                            mapswidth[i][j] = INT_MAX;
+                        }
+                            //i不是服务节点
+                        else
+                        {
+                            mapscost[i][j] = INT_MAX;
+                            mapswidth[i][j] = 0;
+                        }
+
+                    } else
+                    {
+                        mapscost[i][j] = Nets[i][j].network_hire;
+                        mapswidth[i][j] = Nets[i][j].total_bandwidth;
+                    }
+                }
+
+                    //i是主源点
+                else if (i == network_nodes)
+                {
+                    //j是服务点
+                    if (SeverNum.count(j))
+                    {
+                        mapscost[i][j] = 0;
+                        mapswidth[i][j] = INT_MAX;
+
+                    } else
+                    {
+                        mapscost[i][j] = INT_MAX;
+                        mapswidth[i][j] = 0;
+                    }
+                }
+
+                    //i是主汇点
+                else if (i == network_nodes + 1)
+                {
+                    //j是消费点
+                    if (ConsumerNum.count(j))
+                    {
+                        //修改
+                        //j是服务器点
+                        if (SeverNum.count(j))
+                        {
+                            mapscost[i][j] = INT_MAX;
+                            mapswidth[i][j] = 0;
+                        } else
+                        {
+                            mapscost[i][j] = 0;
+                            mapswidth[i][j] = NodesLinkConsumerNeed[j];
+                        }
+                    } else
+                    {
+                        mapscost[i][j] = INT_MAX;
+                        mapswidth[i][j] = 0;
+                    }
+                }
+                    //普通节点
+                else
+                {
+                    //j是主源点或主汇点
+                    if (j == network_nodes || j == network_nodes + 1)
+                    {
+                        mapscost[i][j] = INT_MAX;
+                        mapswidth[i][j] = 0;
+                    } else
+                    {
+                        mapscost[i][j] = Nets[i][j].network_hire;
+                        mapswidth[i][j] = Nets[i][j].total_bandwidth;
+                    }
+                }
+            }
+        }
+    }
+
+    //老版本
+    /*for (int i = 0; i < network_nodes + 2; i++)
+    {
+        for (int j = 0; j < network_nodes + 2; j++)
+        {
+            //自身cost=0
+            if (i == j)
+            {
+                mapscost[i][j] = INT_MAX;
+                mapswidth[i][j] = 0;
+            } else
+            {
+                //如果i是服务器点
+                if (SeverNum.count(i))
+                {
+                    //j也是服务器点
+
+                    if (SeverNum.count(j))
+                    {
+                        mapscost[i][j] = INT_MAX;
+                        mapswidth[i][j] = 0;
+                    }
+                        //j是主源点
+                    else if (j == network_nodes)
+                    {
+                        mapscost[i][j] = 0;
+                        mapswidth[i][j] = INT_MAX;
+                    }
+                        //j是主汇点
+                    else if (j == network_nodes + 1)
+                    {
+                        //判断i是否为消费点
+                        if (ConsumerNum.count(i))
+                        {
+                            mapscost[i][j] = 0;
+                            mapswidth[i][j] = NodesLinkConsumerNeed[i];
+                        }
+                            //i不是消费节点
+                        else
+                        {
+                            mapscost[i][j] = INT_MAX;
+                            mapswidth[i][j] = 0;
+                        }
+
+                    } else
+                    {
+                        mapscost[i][j] = Nets[i][j].network_hire;
+                        mapswidth[i][j] = Nets[i][j].total_bandwidth;
+                    }
+                }
+                    //i是消费节点
+                else if (ConsumerNum.count(i))
+                {
+                    //j是服务器点
+                    if (SeverNum.count(j))
+                    {
+                        //i是服务节点
+                        if (SeverNum.count(i))
+                        {
+                            mapscost[i][j] = INT_MAX;
+                            mapswidth[i][j] = 0;
+                        } else
+                        {
+                            mapscost[i][j] = Nets[i][j].network_hire;
+                            mapswidth[i][j] = Nets[i][j].total_bandwidth;
+                        }
+                    }
+                        //j是主汇点
+                    else if (j == network_nodes + 1)
+                    {
+                        mapscost[i][j] = 0;
+                        mapswidth[i][j] = NodesLinkConsumerNeed[i];
+                    }
+                        //j是主源点
+                    else if (j == network_nodes)
+                    {
+                        //判断i是否为服务点
+                        if (SeverNum.count(i))
+                        {
+                            mapscost[i][j] = 0;
+                            mapswidth[i][j] = INT_MAX;
+                        }
+                            //i不是服务节点
+                        else
+                        {
+                            mapscost[i][j] = INT_MAX;
+                            mapswidth[i][j] = 0;
+                        }
+
+                    } else
+                    {
+                        mapscost[i][j] = Nets[i][j].network_hire;
+                        mapswidth[i][j] = Nets[i][j].total_bandwidth;
+                    }
+                }
+
+                    //i是主源点
+                else if (i == network_nodes)
+                {
+                    //j是服务点
+                    if (SeverNum.count(j))
+                    {
+                        mapscost[i][j] = 0;
+                        mapswidth[i][j] = INT_MAX;
+                    } else
+                    {
+                        mapscost[i][j] = INT_MAX;
+                        mapswidth[i][j] = 0;
+                    }
+                }
+
+                    //i是主汇点
+                else if (i == network_nodes + 1)
+                {
+                    //j是消费点
+                    if (ConsumerNum.count(j))
+                    {
+                        mapscost[i][j] = 0;
+                        mapswidth[i][j] = NodesLinkConsumerNeed[j];
+                    } else
+                    {
+                        mapscost[i][j] = INT_MAX;
+                        mapswidth[i][j] = 0;
+                    }
+                }
+                    //普通节点
+                else
+                {
+                    //j是主源点或主汇点
+                    if (j == network_nodes || j == network_nodes + 1)
+                    {
+                        mapscost[i][j] = INT_MAX;
+                        mapswidth[i][j] = 0;
+                    } else
+                    {
+                        mapscost[i][j] = Nets[i][j].network_hire;
+                        mapswidth[i][j] = Nets[i][j].total_bandwidth;
+                    }
+                }
+            }
+        }
+    }*/
+    setTotalServerCost(newServe);
+    //TODO：清空paths
+    paths.clear();
+    vector<vector<int>>().swap(paths);
+
+/*    for (int l = 0; l < network_nodes + 2; ++l)
+    {
+        for (int i = 0; i < network_nodes + 2; ++i)
+        {
+            cout << mapswidth[l][i] << " ";
+        }
+        cout << endl;
+    }
+    cout <<"---------"<< mapswidth[7][38] << " " << mapscost[7][38] << endl;
+    cout <<"---------"<< Nets[7][38].total_bandwidth << " " << Nets[7][38].network_hire << endl;
+    cout << mapswidth[4][11] << " " << mapscost[4][11] << endl;
+    cout << mapswidth[43][44] << " " << mapscost[43][44] << endl;
+    cout << mapswidth[7][5] << " " << mapscost[7][5] << endl;
+    cout << mapswidth[13][14] << " " << mapscost[13][14] << endl;
+    cout << mapswidth[50][13] << " " << mapscost[50][13] << endl;
+    cout << mapswidth[51][38] << " " << mapscost[51][38] << endl;*/
+
+}
+
 
 
 //TODO:遗传相关
@@ -2005,3 +2004,4 @@ set<SeverNoAndAroundBandwidth, Bandwidth_From_Small_To_Big> MCMF::getGASeverNo()
     return SeverNo;
 
 }
+
