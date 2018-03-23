@@ -201,7 +201,7 @@ if (consumer_nodes > 300)
 1、整体指引：
   1)使用一键式脚本编译、链接并打包压缩，如果编译失败请自行解决编译问题；
   2)如果编译成功会在bin/目录下生成可执行二进制文件"cdn"；
-  3)使用如下格式调用并调试程序"./cdn /xxx/topo.txt  /xxx/result.txt"，其中topo.txt是输入文件(用例文件)，result.txt是输出文件;
+  3)使用如下格式调用并调试程序"./cdn /xxx/topo.txt  /xxx/result.txt"，其中topo.txt是输入文件(用例文件)位置，result.txt是输出文件位置;
 
 
 2、cdn目录结构：
@@ -222,6 +222,7 @@ if (consumer_nodes > 300)
     │     ├── deploy.cpp             算法主要运行框架的源文件
     │     └── deploy.h               算法主要运行框架的头文件
     ├── build.sh                     编译、链接、打包批处理脚本
+    ├── case_example/                测试用例
     └── readme.md                    你正在看的文件
 
 3、build.sh脚本说明：
@@ -240,9 +241,9 @@ if (consumer_nodes > 300)
 
 5、运行读取问题文件位置
    1)读取问题文件位置:     cdn/cdn/cdn.cpp
-   char *topo_file = (char *) "/Users/kingzhang.cn/Desktop/case_example/1/0/case8.txt";
+   示范: char *topo_file = (char *) "XXX/case_example/1/0/case8.txt";
    2)解决方案输出文件位置:  cdn/cdn/cdn.cpp
-   char *result_file = (char *) "/Users/kingzhang.cn/Desktop/Mac_Result.txt";
+   示范: char *result_file = (char *) "XXX/YYY.txt";
 
 
 ```
