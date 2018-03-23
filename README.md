@@ -194,3 +194,55 @@ if (consumer_nodes > 300)
 ## 退火后的优化解进行遗传进化，快速出解
 
 ![GA](./docs/GA.png)
+
+
+## 运行文档
+```
+1、整体指引：
+  1)使用一键式脚本编译、链接并打包压缩，如果编译失败请自行解决编译问题；
+  2)如果编译成功会在bin/目录下生成可执行二进制文件"cdn"；
+  3)使用如下格式调用并调试程序"./cdn /xxx/topo.txt  /xxx/result.txt"，其中topo.txt是输入文件(用例文件)，result.txt是输出文件;
+
+
+2、cdn目录结构：
+    cdn/
+    ├── bin/                         可执行二进制文件目录，shell脚本在编译前删除此目录并重新创建此目录，故没有此目录不会影响脚本运行
+    ├── build/                       构建目录，shell脚本在编译前删除此目录并重新创建此目录，故没有此目录不会影响脚本运行
+    ├── cdn/                         代码目录
+    │     ├── lib/                   lib头文件目录
+    │     │     ├── lib_io.h         读写文件的头文件
+    │     │     └── lib_time.h       打印时间的头文件
+    │     ├── CMakeLists.txt         cmake
+    │     ├── cdn.cpp                main函数源文件
+    │     ├── io.cpp                 提供读写文件等功能的源文件
+    │     ├── MCMF.cpp               算法主要功能详细实现类的源文件
+    │     ├── MCMF.h                 算法主要功能详细实现类的头文件
+    │     ├── global.cpp             全局中断信号源文件
+    │     ├── global.h               全局中断信号头文件
+    │     ├── deploy.cpp             算法主要运行框架的源文件
+    │     └── deploy.h               算法主要运行框架的头文件
+    ├── build.sh                     编译、链接、打包批处理脚本
+    └── readme.md                    你正在看的文件
+
+3、build.sh脚本说明：
+  执行此脚本可以一键编译、链接、打包。如果编译和链接正确，会在bin/下生成cdn二进制文件，可以本地自测验证。同时会在当前目录下生成cdn.tar.gz，可直接提交。
+  注意：
+    1)shell脚本会删除bin/和build/目录，以及这两个目录下的所有文件和目录。请不要在此保存你的任何文档；
+    2)如果想使用shell脚本一键功能，请保持SDK-gcc/目录下所有内容的完整，请不要修改任何目录名和文件名，并保持各目录和文件的位置关系不变。
+
+4、手工操作说明：(非必须。如果选择使用shell脚本构建，可忽略本节内容)
+  1)在根cdn/目录下创建build_private/目录，并在build_private/下编写makefile文件；
+  2)进入build_private/，执行make完成编译和链接；
+
+  注意：
+  1)不要在build/下保存你的makefile文件，一旦调用batch.sh将会删除你的makefile文件；
+  2)生成压缩包时，应确保将代码源文件置于压缩包的最外层，即打开压缩包无需进入任何目录即可看全部源文件，否则可能编译失败。
+
+5、运行读取问题文件位置
+   1)读取问题文件位置:     cdn/cdn/cdn.cpp
+   char *topo_file = (char *) "/Users/kingzhang.cn/Desktop/case_example/1/0/case8.txt";
+   2)解决方案输出文件位置:  cdn/cdn/cdn.cpp
+   char *result_file = (char *) "/Users/kingzhang.cn/Desktop/Mac_Result.txt";
+
+
+```
